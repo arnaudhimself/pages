@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Principal | Commanders Act</title>
+    
+    <!-- Bootstrap CSS (pour la mise en page et les styles de base) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0A2385; /* Header Blue */
+            --active-pink: #E91E63; /* Active Link Pink */
+            --bg-light: #F4F6F8;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            font-size: 0.9rem;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        .navbar-custom {
+            background-color: var(--primary-blue);
+            height: 60px;
+            flex-shrink: 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-hexagon {
+            color: var(--active-pink);
+            font-size: 1.5rem;
+        }
+
+        /* --- Main Content --- */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .link-card {
+            max-width: 400px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+
+        .link-item {
+            display: block;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .link-item:hover {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            transform: translateY(-2px);
+            color: var(--active-pink);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="navbar navbar-custom px-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cube logo-hexagon"></i>
+                COMMANDERS ACT
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="content-area">
+        <div class="link-card bg-white">
+            <h4 class="mb-4 text-center fw-bold text-muted">Menu de l'Application</h4>
+
+            <!-- Lien 1: Profile -->
+            <a href="profile.html" class="link-item">
+                <i class="fas fa-user-circle me-2"></i> Profile Utilisateur
+            </a>
+
+            <!-- Lien 2: Test -->
+            <a href="test.html" class="link-item">
+                <i class="fas fa-flask me-2"></i> Page de Test
+            </a>
+            
+            <p class="text-center mt-4 small text-muted">
+                Ceci est la page d'accueil d'exemple.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
