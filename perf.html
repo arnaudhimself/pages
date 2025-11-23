@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commanders Act Dashboard - Vue Reproduction</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Roboto/Inter mimic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-blue: #2c4eff; /* Vibrant blue similar to "Créer un projet" */
+            --bg-light: #f8f9fa;
+            --text-muted: #6c757d;
+            --border-color: #e9ecef;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            color: #212529;
+            overflow-x: hidden;
+        }
+
+        /* --- Layout --- */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar Styling --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background-color: #fcfcfc;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            background-color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation Items */
+        .nav-item-custom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .nav-item-custom i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-item-custom:hover {
+            background-color: #eef2ff;
+            color: var(--primary-blue);
+        }
+
+        .nav-item-custom.active {
+            color: var(--primary-blue);
+            position: relative;
+        }
+        
+        /* The blue accent line for active item */
+        .nav-item-custom.active::before {
+            content: '';
+            position: absolute;
+            left: -16px; /* Adjust based on padding */
+            top: 50%;
+            transform: translateY(-50%);
+            height: 20px;
+            width: 3px;
+            background-color: var(--primary-blue);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar-logo {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .logo-hexagon {
+            color: #d63384; /* Pinkish red */
+            margin-right: 8px;
+            font-size: 1.5rem;
+        }
+
+        .btn-create {
+            background-color: #1a3cff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            width: 100%;
+            padding: 0.6rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px rgba(44, 78, 255, 0.2);
+        }
+        .btn-create:hover { background-color: #0026e6; color: white; }
+
+        .sidebar-divider {
+            margin: 1rem 0;
+            border-top: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            color: #adb5bd;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+            padding-left: 0.5rem;
+        }
+
+        .sub-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            color: #495057;
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+        .sub-nav-item:hover { background-color: #f1f3f5; }
+        .sub-nav-item i { width: 20px; color: #adb5bd; margin-right: 8px; }
+
+        /* --- Top Bar --- */
+        .top-bar {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .search-container {
+            position: relative;
+            width: 500px;
+        }
+        .search-input {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            background-color: #fff;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        /* --- Hero Banner --- */
+        .hero-banner {
+            margin: 0 2rem;
+            border-radius: 12px;
+            /* Recreating the complex gradient from the image */
+            background: rgb(2,0,36);
+            background: linear-gradient(90deg, rgba(0,25,255,1) 0%, rgba(9,9,121,1) 35%, rgba(200,0,255,1) 100%);
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+
+        .hero-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        /* --- Quick Actions Icons --- */
+        .quick-actions-row {
+            padding: 2rem 2rem 1rem 2rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .action-item:hover { transform: translateY(-3px); }
+
+        .action-icon-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        .action-label {
+            font-size: 0.75rem;
+            color: #495057;
+            text-align: center;
+            max-width: 80px;
+            line-height: 1.2;
+        }
+
+        /* Specific Colors */
+        .bg-teal { background-color: #0dcaf0; }
+        .bg-green { background-color: #20c997; }
+        .bg-orange { background-color: #fd7e14; }
+        .bg-red { background-color: #dc3545; }
+        .bg-pink { background-color: #d63384; }
+        .bg-indigo { background-color: #6610f2; }
+        .bg-blue { background-color: #0d6efd; }
+        .bg-gray { background-color: #e9ecef; color: #6c757d; }
+        .bg-purple { background-color: #6f42c1; }
+        .bg-dark-blue { background-color: #1e3a8a; }
+
+        /* --- Action Pills --- */
+        .pills-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .custom-pill {
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .pill-insights { background-color: #e0f2fe; color: #0369a1; }
+        .pill-integration { background-color: #f3e8ff; color: #7e22ce; }
+        .pill-data { background-color: #fce7f3; color: #be185d; }
+        .pill-reco { background-color: #dcfce7; color: #15803d; }
+
+        .custom-pill:hover { filter: brightness(0.95); }
+
+        /* --- Projects & Cards --- */
+        .projects-section {
+            padding: 0 2rem 3rem 2rem;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .project-card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+            background: #fff;
+            height: 100%;
+            border: 1px solid #f0f0f0;
+        }
+        .project-card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .card-img-wrapper {
+            height: 140px;
+            background-color: #f8f9fa;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .card-body { padding: 1rem; }
+        .project-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .project-category { font-size: 0.8rem; color: #6c757d; }
+
+        .new-feature-alert {
+            background-color: #fff;
+            border: 1px solid #ffeeba;
+            border-left: 4px solid #fd7e14; /* Orange accent */
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .close-alert { position: absolute; top: 5px; right: 8px; cursor: pointer; color: #adb5bd; }
+
+        /* --- VISUALS CSS (Mocks) --- */
+        .mock-base {
+            width: 85%;
+            height: 70%;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Modal Style (Exit Intent) */
+        .mock-modal-overlay {
+            background-color: rgba(0,0,0,0.1);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mock-modal-box {
+            background: white;
+            width: 60%;
+            height: 60%;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .mock-btn { width: 50%; height: 6px; border-radius: 2px; }
+
+        /* Chart Style (Insights) */
+        .mock-chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            padding: 10px 10px 5px 10px;
+        }
+        .mock-bar {
+            width: 15%;
+            background-color: #e9ecef;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* Grid Style (Product Reco) */
+        .mock-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding: 8px;
+            height: 100%;
+        }
+        .mock-grid-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 2px;
+        }
+        .mock-grid-img { height: 60%; background: #e9ecef; width: 100%; }
+
+        /* Layout Style (Home Personalisation) */
+        .mock-layout {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .mock-header { height: 10px; width: 100%; background: #e9ecef; margin-bottom: 2px; }
+        .mock-hero { height: 30px; width: 100%; background: #e2e6ea; border: 1px dashed; border-color: currentColor; opacity: 0.7; display:flex; align-items:center; justify-content:center;}
+        
+        /* --- Styles Spécifiques Page Modèles --- */
+        .templates-header {
+            background-color: #f8f9fa;
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+        .filter-container {
+            display: flex;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        .filter-pill {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #495057;
+            background: white;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .filter-pill:hover { background-color: #e9ecef; }
+        .filter-pill.active {
+            background-color: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        .template-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="wrapper">
+        <!-- SIDEBAR COMPONENT -->
+        <sidebar-component 
+            :active-tab="activeTab" 
+            @change-tab="setActiveTab">
+        </sidebar-component>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-content">
+            <!-- TOP BAR COMPONENT -->
+            <top-bar></top-bar>
+
+            <!-- ===================== CONTENU ACCUEIL ===================== -->
+            <div v-if="activeTab === 'accueil'">
+                
+                <!-- Hero Banner -->
+                <div class="hero-banner mb-4">
+                    <div class="hero-title">Qu’allez-vous optimiser aujourd’hui ?</div>
+                </div>
+
+                <!-- Quick Actions Icons -->
+                <div class="quick-actions-row">
+                    <quick-action v-for="(action, index) in quickActions" :key="index" :data="action"></quick-action>
+                    <!-- "Plus" button logic simulated -->
+                    <div class="action-item">
+                        <div class="action-icon-circle bg-gray"><i class="fas fa-ellipsis-h"></i></div>
+                        <span class="action-label">Plus</span>
+                    </div>
+                </div>
+
+                <!-- Action Pills -->
+                <div class="pills-row">
+                    <div class="custom-pill pill-insights">
+                        <i class="fas fa-rainbow"></i> Insights
+                    </div>
+                    <div class="custom-pill pill-integration">
+                        <i class="fas fa-plus"></i> Ajouter une intégration
+                    </div>
+                    <div class="custom-pill pill-data">
+                        <i class="fas fa-wand-magic-sparkles"></i> Enrichir sa donnée
+                    </div>
+                    <div class="custom-pill pill-reco">
+                        <i class="fas fa-star"></i> Recommandations
+                    </div>
+                </div>
+
+                <!-- Recent Projects -->
+                <div class="projects-section">
+                    <div class="section-header">
+                        <h4 class="mb-0 fw-bold">Projets récents</h4>
+                        <button class="btn btn-outline-light text-dark border"><i class="fas fa-list"></i></button>
+                    </div>
+
+                    <div class="row g-4">
+                        <project-card 
+                            v-for="(project, index) in recentProjects" 
+                            :key="index" 
+                            :project="project">
+                        </project-card>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ===================== CONTENU MODELES ===================== -->
+            <div v-else-if="activeTab === 'modeles'">
+                
+                <!-- Header Modèles -->
+                <div class="templates-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="fw-bold mb-2">Bibliothèque de Modèles</h2>
+                            <p class="text-muted mb-0">Démarrez plus rapidement vos projets en utilisant nos configurations pré-établies par cas d'usage.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-primary"><i class="fas fa-file-import me-2"></i>Importer un modèle</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic Filters based on new categories -->
+                    <div class="filter-container mt-4">
+                        <div class="filter-pill" :class="{ active: activeTemplateFilter === 'all' }" @click="activeTemplateFilter = 'all'">Tout voir</div>
+                        <div v-for="cat in categories" :key="cat" 
+                             class="filter-pill" 
+                             :class="{ active: activeTemplateFilter === cat }" 
+                             @click="activeTemplateFilter = cat">
+                            {{ cat }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid Modèles -->
+                <div class="projects-section">
+                    <!-- CHANGED: col-sm-6 col-md-4 col-lg-3 for smaller cards (4 per row) -->
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-4 col-xl-3" v-for="(tpl, index) in filteredTemplates" :key="index">
+                            <div class="project-card h-100 p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="template-icon-wrapper" :class="tpl.bgClass">
+                                        <i :class="tpl.icon"></i>
+                                    </div>
+                                    <span class="badge bg-light text-dark border text-truncate" style="max-width: 100px; font-size: 0.7rem;">{{ tpl.category }}</span>
+                                </div>
+                                <h5 class="fw-bold mb-2" style="font-size: 1rem;">{{ tpl.title }}</h5>
+                                <p class="text-muted small mb-4 flex-grow-1" style="font-size: 0.8rem;">{{ tpl.description }}</p>
+                                <button class="btn btn-outline-primary btn-sm w-100">Utiliser ce modèle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Placeholder for other tabs -->
+            <div v-else class="p-5 text-center text-muted">
+                <i class="fas fa-tools fa-3x mb-3 text-secondary opacity-50"></i>
+                <h3>Contenu de l'onglet : {{ activeTabName }}</h3>
+                <p>Cette section est en cours de développement.</p>
+                <button class="btn btn-primary mt-3" @click="activeTab = 'accueil'">Retour à l'accueil</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Vue 3 JS -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+    const { createApp, ref, computed } = Vue;
+
+    // --- Component: Quick Action Icon ---
+    const QuickAction = {
+        props: ['data'],
+        template: `
+            <div class="action-item">
+                <div class="action-icon-circle" :class="data.bgClass">
+                    <i :class="data.icon"></i>
+                </div>
+                <span class="action-label">{{ data.label }}</span>
+            </div>
+        `
+    };
+
+    // --- Component: Project Card ---
+    const ProjectCard = {
+        props: ['project'],
+        template: `
+            <div class="col-md-6 col-lg-3">
+                <div class="project-card h-100">
+                    <div class="card-img-wrapper">
+                        
+                        <!-- Visual: Popin (Exit Intent) - IMPROVED -->
+                        <div v-if="project.visualType === 'popin'" class="mock-base mock-modal-overlay">
+                            <div class="mock-modal-box d-flex flex-row overflow-hidden p-0" style="width: 75%; height: 65%;">
+                                <!-- Left side: Image -->
+                                <div style="width: 40%; background: #ffe3ec; display: flex; align-items: flex-end; justify-content: center;">
+                                     <i class="fas fa-user-circle" style="font-size: 2.5rem; color: #d63384; opacity: 0.8; margin-bottom: -5px;"></i>
+                                </div>
+                                <!-- Right side: Text & Confetti -->
+                                <div style="width: 60%; padding: 6px; display: flex; flex-direction: column; justify-content: center; position: relative;">
+                                    <!-- Confetti effects -->
+                                    <div style="position: absolute; top: 5px; right: 5px; color: #ffc107; font-size: 0.5rem;"><i class="fas fa-star"></i></div>
+                                    <div style="position: absolute; bottom: 5px; right: 10px; color: #0dcaf0; font-size: 0.4rem;"><i class="fas fa-circle"></i></div>
+                                    <div style="position: absolute; top: 10px; left: 5px; color: #20c997; font-size: 0.3rem;"><i class="fas fa-caret-up"></i></div>
+                                    
+                                    <div class="mock-line mb-1" style="width: 80%; background: #d63384; height: 4px;"></div>
+                                    <div class="mock-line mb-2" style="width: 60%; height: 3px;"></div>
+                                    <div class="mock-btn" style="background: #d63384; width: 90%; height: 8px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual: Chart (Insights) -->
+                        <div v-else-if="project.visualType === 'chart'" class="mock-base">
+                            <div class="mock-chart-container">
+                                <div class="mock-bar" style="height: 40%"></div>
+                                <div class="mock-bar" style="height: 70%; background-color: #0dcaf0"></div>
+                                <div class="mock-bar" style="height: 50%"></div>
+                                <div class="mock-bar" style="height: 90%"></div>
+                            </div>
+                        </div>
+
+                         <!-- Visual: Grid (Products) -->
+                        <div v-else-if="project.visualType === 'grid'" class="mock-base">
+                            <div class="mock-grid-container">
+                                <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
+                                <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
+                                <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
+                                <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Visual: Home Layout (Default) -->
+                        <div v-else class="mock-base mock-layout">
+                            <div class="mock-header"></div>
+                            <div class="d-flex gap-1" style="flex-grow: 1">
+                                <div style="width: 25%; background: #f8f9fa; height: 100%"></div>
+                                <div style="width: 75%; display: flex; flex-direction: column; gap: 4px;">
+                                    <div class="mock-hero" :style="{ color: project.color }">
+                                        <i class="fas fa-bullseye" style="font-size: 0.8rem"></i>
+                                    </div>
+                                    <div class="mock-line"></div>
+                                    <div class="mock-line short"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="project-title">{{ project.title }}</div>
+                        <div class="project-category">{{ project.category }}</div>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // --- Component: Sidebar ---
+    const SidebarComponent = {
+        props: ['activeTab'],
+        emits: ['change-tab'],
+        template: `
+            <nav id="sidebar">
+                <!-- Logo spans full width -->
+                <div class="sidebar-logo">
+                    <i class="fas fa-hexagon-nodes logo-hexagon"></i>
+                    COMMANDERS ACT
+                </div>
+
+                <!-- Main Grid Layout -->
+                <div class="row mx-0 mt-1 h-100">
+                    
+                    <!-- LEFT COLUMN: Icons Navigation -->
+                    <div class="col-3 px-0 d-flex flex-column align-items-center border-end pe-2">
+                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'accueil' }" @click.prevent="$emit('change-tab', 'accueil')">
+                            <i class="fas fa-home"></i>
+                            Accueil
+                        </a>
+                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'projets' }" @click.prevent="$emit('change-tab', 'projets')">
+                            <i class="far fa-folder"></i>
+                            Projets
+                        </a>
+                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'modeles' }" @click.prevent="$emit('change-tab', 'modeles')">
+                            <i class="fas fa-columns"></i>
+                            Modèles
+                        </a>
+                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'integrations' }" @click.prevent="$emit('change-tab', 'integrations')">
+                            <i class="fas fa-plug"></i>
+                            Intégratio...
+                        </a>
+                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'apps' }" @click.prevent="$emit('change-tab', 'apps')">
+                            <i class="fas fa-th-large"></i>
+                            Apps
+                        </a>
+                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'copilot' }" @click.prevent="$emit('change-tab', 'copilot')">
+                            <i class="fas fa-robot"></i>
+                            Copilot
+                        </a>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Actions, Alerts, Favorites, Recent -->
+                    <div class="col-9 ps-3 d-flex flex-column">
+                        
+                        <!-- NEW PLACEMENT: Create Button inside the right column -->
+                        <button class="btn btn-create">
+                            <i class="fas fa-plus me-2"></i> Créer un projet
+                        </button>
+                        
+                        <!-- Alerts / News -->
+                        <div class="new-feature-alert">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-bolt text-warning me-2"></i> 
+                                <strong>Découvrez les nouveautés</strong>
+                            </div>
+                            <div class="close-alert">&times;</div>
+                            <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.75rem; color: #555;">
+                                <li class="mb-1">1. Modèles et applis</li>
+                                <li>2. Guide du First Party</li>
+                            </ul>
+                        </div>
+
+                        <!-- Favorites -->
+                        <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                            <span class="section-title mb-0">Vos favoris</span>
+                            <i class="fas fa-plus text-muted" style="font-size: 0.7rem; cursor: pointer"></i>
+                        </div>
+                        
+                        <a href="#" class="sub-nav-item">
+                            <i class="fas fa-folder"></i> Segments actifs
+                        </a>
+                        <a href="#" class="sub-nav-item">
+                            <i class="fas fa-adjust"></i> Suivi Campagne Noël
+                        </a>
+                        <a href="#" class="sub-nav-item">
+                            <i class="fas fa-folder"></i> Tests
+                        </a>
+
+                        <div class="sidebar-divider"></div>
+                        
+                        <!-- Recent Projects Sidebar -->
+                        <span class="section-title">Projets récents</span>
+                        <a href="#" class="sub-nav-item">
+                            <i class="fas fa-file-alt text-info"></i> Guide du travail...
+                        </a>
+                         <a href="#" class="sub-nav-item">
+                            <i class="fas fa-file-image text-success"></i> Modèles et applis
+                        </a>
+                         <a href="#" class="sub-nav-item">
+                            <i class="fas fa-file-code text-danger"></i> Pink & Blue Futuri...
+                        </a>
+                         <a href="#" class="sub-nav-item">
+                            <i class="fas fa-file-alt text-info"></i> Guide du travail...
+                        </a>
+
+                        <!-- Trash (pushed to bottom of this column) -->
+                        <div class="mt-auto pb-3">
+                            <a href="#" class="sub-nav-item text-muted">
+                                <i class="far fa-trash-alt"></i> Corbeille
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        `
+    };
+
+    // --- Component: Top Bar ---
+    const TopBar = {
+        template: `
+            <div class="top-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Demander quelque chose à votre Copilot">
+                </div>
+                <div class="user-profile">
+                    <i class="fas fa-cog text-muted" style="cursor: pointer;"></i>
+                    <i class="far fa-bell text-muted" style="cursor: pointer;"></i>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar me-2">A</div>
+                        <div style="line-height: 1.2;">
+                            <div style="font-size: 0.75rem; font-weight: bold;">Personnel</div>
+                            <div style="font-size: 0.7rem; color: #6c757d;">Arnaud</div>
+                        </div>
+                        <i class="fas fa-chevron-down ms-2 text-muted" style="font-size: 0.7rem;"></i>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // --- Main App ---
+    createApp({
+        components: {
+            'sidebar-component': SidebarComponent,
+            'top-bar': TopBar,
+            'quick-action': QuickAction,
+            'project-card': ProjectCard
+        },
+        setup() {
+            const activeTab = ref('accueil');
+            const activeTemplateFilter = ref('all');
+
+            const activeTabName = computed(() => {
+                return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1);
+            });
+
+            const setActiveTab = (tab) => {
+                activeTab.value = tab;
+            };
+
+            const quickActions = ref([
+                { label: 'Conversions', icon: 'fas fa-file-invoice-dollar', bgClass: 'bg-teal' },
+                { label: 'Campagnes', icon: 'fas fa-bullhorn', bgClass: 'bg-green' },
+                { label: 'Budget media', icon: 'fas fa-chart-pie', bgClass: 'bg-orange' },
+                { label: 'Satisfaction cl...', icon: 'fas fa-heart', bgClass: 'bg-red' },
+                { label: 'Consent compliance', icon: 'fas fa-cookie-bite', bgClass: 'bg-pink' },
+                { label: 'Merchandising', icon: 'fas fa-store', bgClass: 'bg-indigo' },
+                { label: 'Web Personalis...', icon: 'fas fa-desktop', bgClass: 'bg-blue' },
+                { label: 'Made-to-meas...', icon: 'fas fa-shopping-bag', bgClass: 'bg-gray' },
+                { label: 'Collector', icon: 'fas fa-cloud-upload-alt', bgClass: 'bg-gray' },
+            ]);
+
+            const recentProjects = ref([
+                { title: 'Home personalisation', category: 'Website Personalisation', color: '#20c997', visualType: 'layout' },
+                { title: 'Exit coupon', category: 'Exit Intent Popin', color: '#d63384', visualType: 'popin' },
+                { title: 'CA Campaign optimisation', category: 'Insights', color: '#0dcaf0', visualType: 'chart' },
+                { title: 'Product personalisation', category: 'Product recommendation', color: '#0d6efd', visualType: 'grid' }
+            ]);
+
+            // --- Updated Template Categories & Data ---
+            const categories = ref([
+                'Acquisition & Conversion',
+                'Personnalisation Contenu',
+                'Analytics & Mesure',
+                'Budget & Performance',
+                'Consentement',
+                'Data Quality',
+                'Activation CRM',
+                'UX / UI',
+                'Performance & Fiabilité'
+            ]);
+
+            const allTemplates = ref([
+                // 1. Acquisition & Conversion
+                { 
+                    title: 'Landing Page Personalization', 
+                    category: 'Acquisition & Conversion', 
+                    description: 'Adaptez le contenu post-clic pour maximiser la conversion.', 
+                    icon: 'fas fa-bullseye', 
+                    bgClass: 'bg-blue' 
+                },
+                { 
+                    title: 'Smart Exit Intent', 
+                    category: 'Acquisition & Conversion', 
+                    description: 'Déclenchement optimisé de popin lors de la sortie de site.', 
+                    icon: 'fas fa-door-open', 
+                    bgClass: 'bg-pink' 
+                },
+                // Additional Acquisition
+                {
+                    title: 'Lead Gen Form',
+                    category: 'Acquisition & Conversion',
+                    description: 'Formulaire multi-étapes pour qualifier les prospects entrants.',
+                    icon: 'fas fa-filter',
+                    bgClass: 'bg-teal'
+                },
+                // 2. Personnalisation de Contenu
+                { 
+                    title: 'Bannière Dynamique', 
+                    category: 'Personnalisation Contenu', 
+                    description: 'Affichage personnalisé selon la campagne marketing source.', 
+                    icon: 'fas fa-image', 
+                    bgClass: 'bg-indigo' 
+                },
+                { 
+                    title: 'Contenu Recommandé', 
+                    category: 'Personnalisation Contenu', 
+                    description: 'Bloc de recommandation basé sur l\'historique de navigation.', 
+                    icon: 'fas fa-robot', 
+                    bgClass: 'bg-purple' 
+                },
+                 { 
+                    title: 'Message Nouveau vs Récurrent', 
+                    category: 'Personnalisation Contenu', 
+                    description: 'Adaptez le ton et l\'offre selon le statut du visiteur.', 
+                    icon: 'fas fa-user-tag', 
+                    bgClass: 'bg-orange' 
+                },
+                // 3. Analytics & Mesure
+                { 
+                    title: 'GA4 Server-Side', 
+                    category: 'Analytics & Mesure', 
+                    description: 'Tracking server-side robuste et prêt à l\'emploi pour GA4.', 
+                    icon: 'fab fa-google', 
+                    bgClass: 'bg-orange' 
+                },
+                 { 
+                    title: 'Quality Dashboard', 
+                    category: 'Analytics & Mesure', 
+                    description: 'Vérifiez la perte d’événements et la qualité de la collecte.', 
+                    icon: 'fas fa-chart-bar', 
+                    bgClass: 'bg-teal' 
+                },
+                {
+                    title: 'Piano Analytics SS',
+                    category: 'Analytics & Mesure',
+                    description: 'Implémentation server-side pour Piano Analytics.',
+                    icon: 'fas fa-music',
+                    bgClass: 'bg-blue'
+                },
+                // 4. Budget & Performance
+                { 
+                    title: 'Budget Reallocation (DDA)', 
+                    category: 'Budget & Performance', 
+                    description: 'Réallocation automatique via attribution data-driven.', 
+                    icon: 'fas fa-coins', 
+                    bgClass: 'bg-green' 
+                },
+                 { 
+                    title: 'Low Performance Alert', 
+                    category: 'Budget & Performance', 
+                    description: 'Alerte email automatique si le CPA dépasse le seuil défini.', 
+                    icon: 'fas fa-bell', 
+                    bgClass: 'bg-red' 
+                },
+                // 5. Consentement
+                { 
+                    title: 'Realtime Cookie Scanner', 
+                    category: 'Consentement', 
+                    description: 'Audit cookies et alertes de conformité en temps réel.', 
+                    icon: 'fas fa-cookie-bite', 
+                    bgClass: 'bg-red' 
+                },
+                { 
+                    title: 'Consent Renewal', 
+                    category: 'Consentement', 
+                    description: 'Scénario de renouvellement du consentement après 6 mois.', 
+                    icon: 'fas fa-sync-alt', 
+                    bgClass: 'bg-gray' 
+                },
+                // 6. Data Quality
+                { 
+                    title: 'Data Cleansing', 
+                    category: 'Data Quality', 
+                    description: 'Nettoyage et correction automatique des champs incohérents.', 
+                    icon: 'fas fa-broom', 
+                    bgClass: 'bg-gray' 
+                },
+                 { 
+                    title: 'Dédoublonnage Contacts', 
+                    category: 'Data Quality', 
+                    description: 'Fusion des profils basés sur email et téléphone.', 
+                    icon: 'fas fa-users', 
+                    bgClass: 'bg-blue' 
+                },
+                // 7. Activation CRM
+                { 
+                    title: 'Cart Abandonment Trigger', 
+                    category: 'Activation CRM', 
+                    description: 'Relance multicanale suite à un abandon de panier.', 
+                    icon: 'fas fa-shopping-cart', 
+                    bgClass: 'bg-blue' 
+                },
+                { 
+                    title: 'Product View Follow-up', 
+                    category: 'Activation CRM', 
+                    description: 'Email de relance sur produit consulté sans achat.', 
+                    icon: 'fas fa-eye', 
+                    bgClass: 'bg-purple' 
+                },
+                 { 
+                    title: 'Audience Sync Google', 
+                    category: 'Activation CRM', 
+                    description: 'Synchronisation automatique des segments vers Google Ads.', 
+                    icon: 'fab fa-google', 
+                    bgClass: 'bg-green' 
+                },
+                // 8. UX / UI
+                { 
+                    title: 'New Customer Incentive', 
+                    category: 'UX / UI', 
+                    description: 'Popin de bienvenue avec offre spéciale pour nouveaux clients.', 
+                    icon: 'fas fa-gift', 
+                    bgClass: 'bg-pink' 
+                },
+                 { 
+                    title: 'Cross-sell Exit', 
+                    category: 'UX / UI', 
+                    description: 'Proposition de produits complémentaires en fin de session.', 
+                    icon: 'fas fa-exchange-alt', 
+                    bgClass: 'bg-indigo' 
+                },
+                // 9. Performance
+                { 
+                    title: 'Low-Latency Server-Side', 
+                    category: 'Performance & Fiabilité', 
+                    description: 'Setup optimisé pour minimiser la perte d’événements.', 
+                    icon: 'fas fa-tachometer-alt', 
+                    bgClass: 'bg-dark-blue' 
+                }
+            ]);
+
+            const filteredTemplates = computed(() => {
+                if (activeTemplateFilter.value === 'all') {
+                    return allTemplates.value;
+                }
+                return allTemplates.value.filter(t => t.category === activeTemplateFilter.value);
+            });
+
+            return {
+                activeTab,
+                activeTabName,
+                setActiveTab,
+                quickActions,
+                recentProjects,
+                activeTemplateFilter,
+                categories,
+                filteredTemplates
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
