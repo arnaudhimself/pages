@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commanders Act - Profile View</title>
+    <title>Commanders Act - Profile View (Composants Vue)</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,14 +13,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Définition des variables de couleur */
         :root {
             --primary-blue: #0A2385; /* Header Blue */
             --active-pink: #E91E63; /* Active Link Pink */
             --sidebar-text: #6c757d;
-            --purple-badge: #E1BEE7;
-            --purple-text: #7B1FA2;
-            --timeline-line: #e9ecef;
             --bg-light: #F4F6F8;
+            --cyan-kpi: #00BCD4;
         }
 
         body {
@@ -29,11 +28,12 @@
             font-size: 0.9rem;
         }
 
-        /* --- Header --- */
+        /* --- Global Styles & Layout --- */
         .navbar-custom {
             background-color: var(--primary-blue);
             height: 60px;
             z-index: 1000;
+            flex-shrink: 0;
         }
         .navbar-brand {
             color: white !important;
@@ -44,103 +44,25 @@
             gap: 10px;
         }
         .logo-hexagon {
-            color: #E91E63; /* Pinkish logo part */
+            color: var(--active-pink);
             font-size: 1.5rem;
         }
 
-        /* --- Layout --- */
         .main-wrapper {
             display: flex;
             min-height: calc(100vh - 60px);
         }
-
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 260px;
-            background: white;
-            flex-shrink: 0;
-            padding-top: 20px;
-            border-right: 1px solid #eee;
-        }
-        
-        .sidebar-category {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #adb5bd;
-            font-weight: 600;
-            padding: 10px 25px 5px;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link {
-            color: var(--sidebar-text);
-            padding: 10px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-blue);
-            background-color: #f8f9fa;
-        }
-
-        .nav-link.active {
-            color: var(--active-pink);
-            border-left-color: var(--active-pink);
-            background-color: transparent; /* Assuming no bg on active based on image, just text color */
-        }
-        
-        .nav-link i.icon-left {
-            width: 20px;
-            margin-right: 10px;
-        }
-        
-        .nav-link .arrow {
-            font-size: 0.7rem;
-        }
-
-        /* --- Main Content --- */
         .content-area {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
         }
-
         .page-title {
             font-size: 1.2rem;
             color: #343a40;
             margin-bottom: 20px;
             font-weight: 600;
         }
-
-        /* --- Tabs --- */
-        .custom-tabs {
-            border-bottom: 1px solid #dee2e6;
-            margin-bottom: 20px;
-        }
-        .custom-tabs .nav-link {
-            border: none;
-            border-bottom: 2px solid transparent;
-            color: #6c757d;
-            padding: 10px 15px;
-            margin-bottom: -1px;
-            font-weight: 500;
-        }
-        .custom-tabs .nav-link.active {
-            color: var(--active-pink);
-            border-bottom: 2px solid var(--active-pink);
-            background: none;
-        }
-        .custom-tabs .nav-link:hover {
-            border-color: transparent;
-            color: var(--active-pink);
-        }
-
-        /* --- Cards --- */
         .card {
             border: none;
             border-radius: 8px;
@@ -151,7 +73,50 @@
             padding: 25px;
         }
 
-        /* User Profile Specifics */
+        /* --- Sidebar Styles --- */
+        .sidebar {
+            width: 260px;
+            background: white;
+            flex-shrink: 0;
+            padding-top: 20px;
+            border-right: 1px solid #eee;
+        }
+        .sidebar-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #adb5bd;
+            font-weight: 600;
+            padding: 10px 25px 5px;
+            letter-spacing: 0.5px;
+        }
+        .nav-link {
+            color: var(--sidebar-text);
+            padding: 10px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-link:hover {
+            color: var(--primary-blue);
+            background-color: #f8f9fa;
+        }
+        .nav-link.active {
+            color: var(--active-pink);
+            border-left-color: var(--active-pink);
+            background-color: transparent;
+        }
+        .nav-link i.icon-left {
+            width: 20px;
+            margin-right: 10px;
+        }
+        .nav-link .arrow {
+            font-size: 0.7rem;
+        }
+
+        /* --- Profile Card Styles --- */
         .user-avatar {
             width: 80px;
             height: 80px;
@@ -173,7 +138,7 @@
         .kpi-value {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #00BCD4; /* Cyan color from image */
+            color: var(--cyan-kpi);
         }
         .kpi-label {
             font-size: 0.85rem;
@@ -187,27 +152,53 @@
             border-top: 1px solid #eee;
             padding-top: 15px;
         }
-        
-        /* Modif pour le Read More en fade-in */
         .read-more {
-            color: #00BCD4;
+            color: var(--cyan-kpi);
             text-decoration: none;
             font-weight: 500;
             cursor: pointer;
-            opacity: 0; /* Caché par défaut */
+            opacity: 0;
             transition: opacity 0.8s ease-in;
-            pointer-events: none; /* Non cliquable quand caché */
+            pointer-events: none;
         }
         .read-more.visible {
             opacity: 1;
             pointer-events: auto;
         }
 
-        /* Chart */
+        /* --- Tabs --- */
+        .custom-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .custom-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6c757d;
+            padding: 10px 15px;
+            margin-bottom: -1px;
+            font-weight: 500;
+        }
+        .custom-tabs .nav-link.active {
+            color: var(--active-pink);
+            border-bottom: 2px solid var(--active-pink);
+            background: none;
+        }
+
+        /* --- Chart and Events Card Styles --- */
+        .period-badge {
+            background-color: #CFD8DC;
+            color: #455A64;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            float: right;
+        }
         .chart-legend ul {
             list-style: none;
             padding: 0;
             display: flex;
+            flex-wrap: wrap; /* Assure la responsivité */
             justify-content: center;
             gap: 15px;
             margin-top: 15px;
@@ -221,8 +212,6 @@
             border-radius: 50%;
             margin-right: 5px;
         }
-
-        /* Timeline */
         .timeline {
             position: relative;
             padding-left: 20px;
@@ -266,18 +255,17 @@
             width: calc(100% - 70px);
         }
         .event-type {
-            color: #00BCD4;
+            color: var(--cyan-kpi);
             font-style: italic;
             font-weight: 500;
-            margin-right: 15px; /* Espace corrigé */
+            margin-right: 15px;
         }
         .event-detail {
             font-weight: 600;
             color: #333;
         }
-
         .btn-view-more {
-            background-color: #00BCD4;
+            background-color: var(--cyan-kpi);
             color: white;
             border: none;
             padding: 8px 20px;
@@ -290,124 +278,70 @@
             color: white;
         }
 
-        .period-badge {
-            background-color: #CFD8DC;
-            color: #455A64;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            float: right;
-        }
-
-        /* Custom Scrollbar for nicer look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ccc; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #bbb; 
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #bbb; }
     </style>
 </head>
 <body>
 
+<!-- Le point de montage de l'application Vue -->
 <div id="app">
-    <!-- Header -->
-    <nav class="navbar navbar-custom px-3">
-        <div class="d-flex align-items-center">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-cube logo-hexagon"></i>
-                COMMANDERS ACT
-            </a>
-            <button class="btn text-white ms-3" type="button">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        <!-- Right side user menu/icons could go here -->
-    </nav>
+    <app></app>
+</div>
 
-    <div class="main-wrapper">
-        <!-- Sidebar -->
-        <div class="sidebar d-none d-md-block">
-            
-            <div class="sidebar-category">Integrations</div>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-plug icon-left"></i> Sources</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-magic icon-left"></i> Enrichments</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-paper-plane icon-left"></i> Destinations</span>
-                <i class="fas fa-chevron-up arrow"></i>
-            </a>
-            <div class="ps-4"> <!-- Submenu simulation -->
-                <a href="#" class="nav-link py-1 text-muted small">Overview</a>
-                <a href="#" class="nav-link py-1 text-muted small">Deduplication</a>
-                <a href="#" class="nav-link py-1 text-muted small">Live Events Inspector</a>
+<!-- Vue.js 3 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Chart.js v4.4.0 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Chart.js Plugin Datalabels -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<script>
+    // Importation des fonctions de la Composition API pour plus de clarté
+    const { createApp, ref, onMounted, watch } = Vue;
+
+    // =======================================================================
+    // --- Composant 1: Sidebar (Barre latérale de navigation) ---
+    // (Simule un fichier 'Sidebar.vue')
+    // =======================================================================
+    const Sidebar = {
+        template: `
+            <div class="sidebar d-none d-md-block">
+                <div class="sidebar-category">Integrations</div>
+                <a href="#" class="nav-link"><span><i class="fas fa-plug icon-left"></i> Sources</span><i class="fas fa-chevron-down arrow"></i></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-magic icon-left"></i> Enrichments</span><i class="fas fa-chevron-down arrow"></i></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-paper-plane icon-left"></i> Destinations</span><i class="fas fa-chevron-up arrow"></i></a>
+                <div class="ps-4">
+                    <a href="#" class="nav-link py-1 text-muted small">Overview</a>
+                    <a href="#" class="nav-link py-1 text-muted small">Deduplication</a>
+                    <a href="#" class="nav-link py-1 text-muted small">Live Events Inspector</a>
+                </div>
+                <a href="#" class="nav-link mt-2"><span><i class="fas fa-heartbeat icon-left"></i> Health</span><i class="fas fa-chevron-down arrow"></i></a>
+                <div class="sidebar-category mt-3">Customers</div>
+                <a href="#" class="nav-link active"><span><i class="fas fa-user-plus icon-left"></i> Profiles</span><i class="fas fa-chevron-down arrow" style="color: var(--active-pink);"></i></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-fingerprint icon-left"></i> Segments</span></a>
+                <div class="sidebar-category mt-3">Explore</div>
+                <a href="#" class="nav-link"><span><i class="fas fa-chart-bar icon-left"></i> Campaign analysis</span></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-address-card icon-left"></i> Customer analysis</span></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-shield-alt icon-left"></i> Consents analysis</span></a>
+                <div class="sidebar-category mt-3">Configure</div>
+                <a href="#" class="nav-link"><span><i class="fas fa-database icon-left"></i> Data management</span><i class="fas fa-chevron-down arrow"></i></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-lock icon-left"></i> Data Governance</span><i class="fas fa-chevron-down arrow"></i></a>
+                <a href="#" class="nav-link"><span><i class="fas fa-tools icon-left"></i> Administration</span><i class="fas fa-chevron-down arrow"></i></a>
             </div>
+        `
+    };
 
-            <a href="#" class="nav-link mt-2">
-                <span><i class="fas fa-heartbeat icon-left"></i> Health</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-
-            <div class="sidebar-category mt-3">Customers</div>
-            <a href="#" class="nav-link active">
-                <span><i class="fas fa-user-plus icon-left"></i> Profiles</span>
-                <i class="fas fa-chevron-down arrow" style="color: var(--active-pink);"></i>
-            </a>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-fingerprint icon-left"></i> Segments</span>
-            </a>
-
-            <div class="sidebar-category mt-3">Explore</div>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-chart-bar icon-left"></i> Campaign analysis</span>
-            </a>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-address-card icon-left"></i> Customer analysis</span>
-            </a>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-shield-alt icon-left"></i> Consents analysis</span>
-            </a>
-
-             <div class="sidebar-category mt-3">Configure</div>
-            <a href="#" class="nav-link">
-                <span><i class="fas fa-database icon-left"></i> Data management</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-             <a href="#" class="nav-link">
-                <span><i class="fas fa-lock icon-left"></i> Data Governance</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-             <a href="#" class="nav-link">
-                <span><i class="fas fa-tools icon-left"></i> Administration</span>
-                <i class="fas fa-chevron-down arrow"></i>
-            </a>
-        </div>
-
-        <!-- Content Area -->
-        <div class="content-area">
-            
-            <h2 class="page-title text-muted">Profile / User Profile - {{ user.id.toString().slice(-4) }}</h2>
-
-            <!-- Tabs -->
-            <ul class="nav custom-tabs">
-                <li class="nav-item" v-for="tab in tabs" :key="tab">
-                    <a class="nav-link" :class="{ active: tab === 'Overview' }" href="#">{{ tab }}</a>
-                </li>
-            </ul>
-
-            <!-- Profile Card -->
+    // =======================================================================
+    // --- Composant 2: ProfileCard (Carte de l'utilisateur) ---
+    // (Simule un fichier 'ProfileCard.vue')
+    // =======================================================================
+    const ProfileCard = {
+        props: ['user', 'isTypingDone', 'tabs'],
+        template: `
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -424,7 +358,7 @@
                         <div class="col-md-5 border-start border-end ps-4">
                             <div class="mb-1"><strong class="text-muted">Email:</strong> {{ user.email }}</div>
                             <div class="mb-1"><strong class="text-muted">User ID:</strong> {{ user.id }}</div>
-                            <div><strong class="text-muted">Phone:</strong> {{ user.phone }}</div>
+                            <div><strong class="text-muted">Phone:</b> {{ user.phone }}</div>
                         </div>
 
                         <!-- KPI -->
@@ -438,161 +372,45 @@
                     <div class="summary-text">
                         <strong>Summary:</strong><br>
                         <span v-html="user.summary"></span>
-                        <!-- Ajout de la classe dynamique pour le fade-in -->
+                        <!-- Le lien 'Read More' est masqué/affiché par la prop isTypingDone -->
                         <a href="#" class="read-more ms-1" :class="{ 'visible': isTypingDone }">Read More</a>
                     </div>
                 </div>
             </div>
+        `
+    };
 
-            <!-- Bottom Row Cards -->
-            <div class="row">
-                <!-- Donut Chart -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h6 class="fw-bold">Top visited categories (last 30 days)</h6>
-                                <span class="period-badge">30d</span>
-                            </div>
-                            
-                            <div class="position-relative w-100" style="height: 300px;">
-                                <canvas id="categoriesChart"></canvas>
-                            </div>
+    // =======================================================================
+    // --- Composant 3: DataCard (Carte générique Chart/Events) ---
+    // (Simule un fichier 'DataCard.vue' qui contient la logique de Chart.js)
+    // =======================================================================
+    const DataCard = {
+        props: ['title', 'period', 'type', 'data', 'labels', 'colors', 'events'],
+        setup(props) {
+            const chartInstance = ref(null);
+            const el = ref(null); 
 
-                            <!-- Custom Legend -->
-                             <div class="chart-legend text-center mt-3">
-                                <ul>
-                                    <li v-for="(val, index) in chartData" :key="index">
-                                        <span class="legend-dot" :style="{ backgroundColor: chartColors[index] }"></span>
-                                        {{ chartLabels[index] }}
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            // Fonction de rendu du graphique Chart.js
+            const renderChart = () => {
+                if (props.type !== 'chart') return;
 
-                <!-- Recent Events -->
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h6 class="fw-bold mb-4">Recent Events</h6>
-                            
-                            <div class="timeline">
-                                <div class="timeline-item" v-for="(event, index) in events" :key="index">
-                                    <div class="timeline-icon">
-                                        <i class="far fa-arrow-alt-circle-right text-muted"></i>
-                                    </div>
-                                    <div class="timeline-date">
-                                        <div class="fw-bold text-dark">{{ event.day }}</div>
-                                        <div class="small">{{ event.month }}</div>
-                                    </div>
-                                    <div class="timeline-content">
-                                        <span class="event-type">{{ event.type }}</span> 
-                                        <span class="event-detail">"{{ event.detail }}"</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-center mt-3">
-                                <button class="btn btn-view-more">View More &rarr;</button>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- Vue.js 3 -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Chart.js v4.4.0 -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Chart.js Plugin Datalabels -->
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
-
-<script>
-    const { createApp } = Vue;
-
-    createApp({
-        data() {
-            return {
-                tabs: ['Overview', 'Attributes', 'Audiences', 'Events', 'Identities', 'Opportunities'],
-                isTypingDone: false, // État pour gérer l'affichage du Read More
-                user: {
-                    name: 'Marie Dupont',
-                    email: 'marie94@orange.fr',
-                    id: 684158589,
-                    phone: '-',
-                    aov: 143,
-                    photo: 'https://i.pravatar.cc/150?u=marie',
-                    summary: '',
-                    fullSummary: `Marie Dupont a effectué <b>3 visites durant le mois</b> et a reçu une campagne par email. Sa dernière visite s'est effectuée depuis un <b>clic sur l'email</b>, Marie a visitée 3 fiches produits, a effectué une recherche sur <b>"Chaussure rouge"</b> et a consulté 2 autres fiches produits. Elle a ajouté le produit <b>"Nike air Sport'in"</b> a son panier mais n'a pas effectué d'achat.<br>Sa précédente visite était un accès direct, Marie a parcouru 5 fiches produits de 2 catégories différentes (<b>Robe</b> et <b>Chaussure</b>) et a consulté la page "<b>Condition de retour des articles</b>".`
-                },
-                events: [
-                    { day: '22', month: 'Nov', type: 'add_to_cart', detail: 'Nike air Sport\'in' },
-                    { day: '22', month: 'Nov', type: 'page_view', detail: 'Chaussures running' },
-                    { day: '22', month: 'Nov', type: 'page_view', detail: 'Chaussures tendances' },
-                    { day: '12', month: 'Nov', type: 'search', detail: 'Chaussure rouge' },
-                ],
-                chartLabels: ['Pants', 'Shoes', 'Accessories', 'Dresses', 'Other'],
-                chartData: [25.6, 32.0, 23.8, 9.9, 8.7],
-                chartColors: ['#2196F3', '#6200EA', '#E91E63', '#F44336', '#FFC107'],
-                chartInstance: null
-            }
-        },
-        mounted() {
-            this.$nextTick(() => {
-                Chart.register(ChartDataLabels);
-                this.renderChart();
-                this.typewriterEffect();
-            });
-        },
-        methods: {
-            async typewriterEffect() {
-                this.isTypingDone = false; // Reset si réutilisé
-                const parts = this.user.fullSummary.split(/(<[^>]+>)/g);
-                
-                for (const part of parts) {
-                    if (part.startsWith('<')) {
-                        this.user.summary += part;
-                    } else {
-                        const words = part.split(' ');
-                        for (let i = 0; i < words.length; i++) {
-                            const word = words[i];
-                            if (word.length > 0) {
-                                this.user.summary += word;
-                                await new Promise(r => setTimeout(r, 40));
-                            }
-                            if (i < words.length - 1) {
-                                this.user.summary += ' ';
-                            }
-                        }
-                    }
-                }
-                // Fin de l'écriture : on affiche le bouton Read More
-                this.isTypingDone = true;
-            },
-            renderChart() {
-                const canvas = document.getElementById('categoriesChart');
+                // Utiliser la référence dynamique fournie par le template (el.value)
+                const canvas = el.value;
                 if (!canvas) return;
 
                 const ctx = canvas.getContext('2d');
                 
-                if (this.chartInstance) {
-                    this.chartInstance.destroy();
+                if (chartInstance.value) {
+                    chartInstance.value.destroy();
                 }
 
-                this.chartInstance = new Chart(ctx, {
+                chartInstance.value = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: this.chartLabels,
+                        labels: props.labels,
                         datasets: [{
-                            data: this.chartData,
-                            backgroundColor: this.chartColors,
+                            data: props.data,
+                            backgroundColor: props.colors,
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -602,34 +420,230 @@
                         maintainAspectRatio: false,
                         cutout: '75%',
                         plugins: {
-                            legend: {
-                                display: false 
-                            },
-                            tooltip: {
-                                enabled: true
-                            },
+                            legend: { display: false },
+                            tooltip: { enabled: true },
                             datalabels: {
                                 color: '#fff',
-                                font: {
-                                    weight: 'bold',
-                                    size: 10
-                                },
+                                font: { weight: 'bold', size: 10 },
                                 formatter: (value, ctx) => {
-                                    let sum = 0;
-                                    let dataArr = ctx.chart.data.datasets[0].data;
-                                    dataArr.map(data => {
-                                        sum += data;
-                                    });
-                                    let percentage = (value * 100 / sum).toFixed(1) + "%";
-                                    return percentage;
+                                    let sum = props.data.reduce((a, b) => a + b, 0);
+                                    return (value * 100 / sum).toFixed(1) + "%";
                                 }
                             }
                         }
                     }
                 });
+            };
+
+            // Utilisation de 'watch' pour s'assurer que 'el' est bien monté et initialisé
+            watch(el, (newValue) => {
+                if (newValue && props.type === 'chart') {
+                    // La référence est maintenant un élément DOM valide
+                    renderChart();
+                }
+            }, { once: true }); // Option 'once: true' pour ne s'exécuter qu'au premier montage
+
+            // Exposer la référence pour qu'elle puisse être utilisée dans le template
+            return { el, renderChart }; 
+        },
+        template: `
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h6 class="fw-bold">{{ title }}</h6>
+                        <span v-if="period" class="period-badge">{{ period }}</span>
+                    </div>
+
+                    <template v-if="type === 'chart'">
+                        <div class="position-relative w-100" style="height: 300px;">
+                            <!-- Utilisation de la référence dynamique pour le canvas -->
+                            <canvas :ref="(canvas) => { el = canvas; }"></canvas>
+                        </div>
+                        <div class="chart-legend text-center mt-3">
+                            <ul>
+                                <li v-for="(val, index) in labels" :key="index">
+                                    <span class="legend-dot" :style="{ backgroundColor: colors[index] }"></span>
+                                    {{ val }}
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template v-else-if="type === 'events'">
+                        <div class="timeline">
+                            <div class="timeline-item" v-for="(event, index) in events" :key="index">
+                                <div class="timeline-icon">
+                                    <i class="far fa-arrow-alt-circle-right text-muted"></i>
+                                </div>
+                                <div class="timeline-date">
+                                    <div class="fw-bold text-dark">{{ event.day }}</div>
+                                    <div class="small">{{ event.month }}</div>
+                                </div>
+                                <div class="timeline-content">
+                                    <span class="event-type">{{ event.type }}</span> 
+                                    <span class="event-detail">"{{ event.detail }}"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <button class="btn btn-view-more">View More &rarr;</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        `
+    };
+
+    // =======================================================================
+    // --- Composant Principal: App ---
+    // (Simule le point d'entrée 'App.vue')
+    // =======================================================================
+    const App = {
+        components: {
+            Sidebar,
+            ProfileCard,
+            DataCard
+        },
+        setup() {
+            // Enregistrement global du plugin ChartDataLabels (équivalent à un import/register dans main.js)
+            if (typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
             }
-        }
-    }).mount('#app');
+
+            // Définition de l'état (State Management)
+            const tabs = ['Overview', 'Attributes', 'Audiences', 'Events', 'Identities', 'Opportunities'];
+            const isTypingDone = ref(false);
+            const user = ref({
+                name: 'Marie Dupont',
+                email: 'marie94@orange.fr',
+                id: 684158589,
+                phone: '-',
+                aov: 143,
+                photo: 'https://i.pravatar.cc/150?u=marie',
+                summary: '',
+                fullSummary: `Marie Dupont a effectué <b>3 visites durant le mois</b> et a reçu une campagne par email. Sa dernière visite s'est effectuée depuis un <b>clic sur l'email</b>, Marie a visitée 3 fiches produits, a effectué une recherche sur <b>"Chaussure rouge"</b> et a consulté 2 autres fiches produits. Elle a ajouté le produit <b>"Nike air Sport'in"</b> a son panier mais n'a pas effectué d'achat.<br>Sa précédente visite était un accès direct, Marie a parcouru 5 fiches produits de 2 catégories différentes (<b>Robe</b> et <b>Chaussure</b>) et a consulté la page "<b>Condition de retour des articles</b>".`
+            });
+            const events = [
+                { day: '22', month: 'Nov', type: 'add_to_cart', detail: 'Nike air Sport\'in' },
+                { day: '22', month: 'Nov', type: 'page_view', detail: 'Chaussures running' },
+                { day: '22', month: 'Nov', type: 'page_view', detail: 'Chaussures tendances' },
+                { day: '12', month: 'Nov', type: 'search', detail: 'Chaussure rouge' },
+            ];
+            const chartLabels = ['Pants', 'Shoes', 'Accessories', 'Dresses', 'Other'];
+            const chartData = [25.6, 32.0, 23.8, 9.9, 8.7];
+            const chartColors = ['#2196F3', '#6200EA', '#E91E63', '#F44336', '#FFC107'];
+
+
+            // Méthode (Méthode)
+            const typewriterEffect = async () => {
+                isTypingDone.value = false;
+                const parts = user.value.fullSummary.split(/(<[^>]+>)/g);
+                
+                for (const part of parts) {
+                    if (part.startsWith('<')) {
+                        user.value.summary += part;
+                    } else {
+                        const words = part.split(' ');
+                        for (let i = 0; i < words.length; i++) {
+                            const word = words[i];
+                            if (word.length > 0) {
+                                user.value.summary += word;
+                                await new Promise(r => setTimeout(r, 40));
+                            }
+                            if (i < words.length - 1) {
+                                user.value.summary += ' ';
+                            }
+                        }
+                    }
+                }
+                isTypingDone.value = true;
+            };
+
+            onMounted(() => {
+                // Cycle de vie (Hook)
+                typewriterEffect();
+            });
+
+            // Exposition des données et méthodes (Return from setup)
+            return {
+                tabs,
+                user,
+                events,
+                chartLabels,
+                chartData,
+                chartColors,
+                isTypingDone
+            };
+        },
+        template: `
+            <div>
+                <!-- Header -->
+                <nav class="navbar navbar-custom px-3">
+                    <div class="d-flex align-items-center">
+                        <a class="navbar-brand" href="#">
+                            <i class="fas fa-cube logo-hexagon"></i>
+                            COMMANDERS ACT
+                        </a>
+                        <button class="btn text-white ms-3" type="button">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </nav>
+
+                <div class="main-wrapper">
+                    <!-- Composant: Sidebar -->
+                    <Sidebar />
+
+                    <!-- Contenu principal -->
+                    <div class="content-area">
+                        
+                        <h2 class="page-title text-muted">Profile / User Profile - {{ user.id.toString().slice(-4) }}</h2>
+
+                        <!-- Onglets -->
+                        <ul class="nav custom-tabs">
+                            <li class="nav-item" v-for="tab in tabs" :key="tab">
+                                <a class="nav-link" :class="{ active: tab === 'Overview' }" href="#">{{ tab }}</a>
+                            </li>
+                        </ul>
+
+                        <!-- Composant: ProfileCard (Passe les données via props) -->
+                        <ProfileCard 
+                            :user="user" 
+                            :isTypingDone="isTypingDone"
+                            :tabs="tabs" 
+                        />
+
+                        <!-- Composants: DataCard pour le graphique et les événements -->
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <DataCard
+                                    title="Top visited categories (last 30 days)"
+                                    period="30d"
+                                    type="chart"
+                                    :data="chartData"
+                                    :labels="chartLabels"
+                                    :colors="chartColors"
+                                />
+                            </div>
+
+                            <div class="col-lg-6">
+                                <DataCard
+                                    title="Recent Events"
+                                    type="events"
+                                    :events="events"
+                                />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // Montage de l'application
+    createApp(App).mount('#app');
 </script>
 
 </body>
