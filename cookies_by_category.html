@@ -5,28 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookies by Category Dashboard</title>
     
-    <!-- Google Fonts - Roboto -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Roboto --><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons --><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #f0f4f8;
+            --bg-color: #F8F9FA; /* Fond très clair */
             --text-color: #334155;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            /* MISE À JOUR OMBRAGE : Plus subtil, comme une ombre portée */
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03); 
             
-            /* Couleurs mises à jour selon la palette demandée */
-            --color-essential: #00D2C8; /* Teal (Choisi dans la liste) */
-            --color-essential-dark: #00a59d;
-            --color-analytics: #FFAE01; /* Jaune Orangé */
-            --color-marketing: #FB7156; /* Saumon/Rouge (Choisi dans la liste) */
-            --color-others: #6B1FFF;    /* Violet (Choisi dans la liste) */
-            --color-success: #74D9E8;
-            --color-danger: #F46A6A;
+            /* Couleurs des catégories */
+            --color-essential: #002CBD; 
+            --color-essential-dark: #00229a; 
+            --color-analytics: #FFAE01; 
+            --color-marketing: #F31DAC; 
+            --color-others: #3198FD;    
+            
+            --color-success: #22c55e;
+            --color-danger: #ef4444;
+
+            /* Couleurs pour l'histogramme */
+            --color-bar-before: #EB536C; /* Rouge modéré */
+            --color-bar-after: #74D9E8;
+
+            /* COULEUR D'ACCENTUATION */
+            --color-accent: #f40754; 
         }
 
         body {
@@ -49,14 +55,16 @@
             border-radius: 0;
         }
         .nav-link.active {
-            color: var(--color-essential-dark);
-            border-bottom: 2px solid var(--color-essential-dark);
+            /* Mise à jour de la couleur du lien actif */
+            color: var(--color-accent);
+            border-bottom: 2px solid var(--color-accent);
         }
 
         /* KPI Cards */
         .kpi-card {
             background: white;
-            border-radius: 12px;
+            /* MISE À JOUR ARRONDI */
+            border-radius: 8px; 
             border: none;
             box-shadow: var(--card-shadow);
             transition: transform 0.2s, box-shadow 0.2s;
@@ -78,7 +86,8 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background-color: #3b82f6;
+            /* Mise à jour de la couleur de surlignage */
+            background-color: var(--color-accent);
         }
 
         .dot {
@@ -99,7 +108,8 @@
         /* Charts & Containers */
         .dashboard-card {
             background: white;
-            border-radius: 12px;
+            /* MISE À JOUR ARRONDI */
+            border-radius: 8px; 
             border: none;
             box-shadow: var(--card-shadow);
             height: 100%;
@@ -119,8 +129,34 @@
             color: #475569;
         }
         .table-row-active {
-            background-color: #eff6ff !important; /* Bleu très clair */
-            border-left: 4px solid #3b82f6;
+            /* Mise à jour de la couleur du fond du surlignage (couleur plus claire) */
+            background-color: #fde8ed !important; 
+            /* Mise à jour de la couleur de la bordure */
+            border-left: 4px solid var(--color-accent);
+        }
+
+        /* Styles pour les lignes de détails (cookies) */
+        .detail-row {
+            background-color: #f8fafc;
+        }
+        .cookie-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35em 0.65em;
+        }
+        .bg-before {
+            background-color: var(--color-bar-before);
+            color: white;
+        }
+        .bg-after {
+            background-color: var(--color-bar-after);
+            color: #334155;
+        }
+        .chevron-icon {
+            transition: transform 0.2s ease;
+        }
+        .chevron-rotated {
+            transform: rotate(180deg);
         }
 
         /* Top Controls */
@@ -139,8 +175,7 @@
 <body>
 
 <div id="app">
-    <!-- Navigation Principale (Simulée pour le contexte) -->
-    <div class="main-nav d-flex mb-4">
+    <!-- Navigation Principale (Simulée pour le contexte) --><div class="main-nav d-flex mb-4">
         <a href="#" class="nav-link active">Dashboard</a>
         <a href="#" class="nav-link">Configuration</a>
         <a href="#" class="nav-link">Scanner</a>
@@ -148,70 +183,45 @@
 
     <div class="container-fluid px-4 pb-5">
         
-        <!-- Header Section -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Header Section --><div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 fw-bold text-dark m-0">Cookies by Category</h2>
             
             <div class="control-bar">
                 <span class="text-secondary small fw-bold">Last 7 days</span>
                 
-                <!-- Domain Dropdown -->
-                <div class="bg-white p-1 rounded border">
+                <!-- Domain Dropdown --><div class="bg-white p-1 rounded border">
                     <select class="form-select form-select-sm border-0 fw-bold" v-model="selectedDomain">
                         <option>Domain</option>
                         <option>example.com</option>
                         <option>shop.example.com</option>
                     </select>
                 </div>
-
-                <!-- Pre-consent Toggle -->
-                <div class="d-flex align-items-center bg-white px-3 py-1 rounded border">
-                    <label class="form-check-label small me-2 fw-bold" for="preConsentSwitch">Pre-consent</label>
-                    <div class="form-check form-switch m-0">
-                        <input class="form-check-input" type="checkbox" role="switch" id="preConsentSwitch" v-model="preConsentMode">
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- Top KPI Cards Row -->
-        <div class="row g-4 mb-4">
+        <!-- Top KPI Cards Row --><div class="row g-4 mb-4">
             <div class="col-md-3" v-for="(cat, index) in categories" :key="cat.name">
-                <div 
-                    class="kpi-card p-3 text-center" 
-                    :class="{ 'active': selectedCategory === cat.name }"
-                    @click="selectCategory(cat.name)"
-                >
-                    <div class="text-secondary mb-2 fw-bold">
-                        {{ cat.name }} <span class="dot ms-1" :style="{ backgroundColor: cat.color }"></span>
-                    </div>
-                    <div class="d-flex justify-content-center align-items-end gap-2">
-                        <h2 class="display-5 fw-bold m-0">{{ cat.count }}</h2>
-                        <div class="mb-2 d-flex flex-column align-items-center" 
-                             :class="cat.trend > 0 ? 'text-success-custom' : 'text-danger-custom'">
-                            <i :class="cat.trend > 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                            <span class="trend-badge">{{ Math.abs(cat.trend) }}%</span>
-                        </div>
-                    </div>
-                </div>
+                <kpi-card
+                    :category="cat"
+                    :is-active="selectedCategory === cat.name"
+                    @select="selectCategory(cat.name)"
+                ></kpi-card>
             </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="row g-4 mb-4">
-            <!-- Donut Chart -->
-            <div class="col-md-5">
+        <!-- Charts Row --><div class="row g-4 mb-4">
+            <!-- Donut Chart --><div class="col-md-5">
                 <div class="dashboard-card d-flex flex-column align-items-center justify-content-center">
                     <h5 class="fw-bold mb-4 w-100 text-center">Category share</h5>
                     <div style="height: 250px; width: 250px; position: relative;">
-                        <canvas id="donutChart"></canvas>
-                        <!-- Center Text Overlay -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                            <!-- Vide au centre comme sur l'image -->
-                        </div>
+                        <!-- Utilisation du nouveau composant pour le Donut Chart --><chart-wrapper
+                            chart-id="donutChart"
+                            type="doughnut"
+                            :chart-data="donutChartData"
+                            :chart-options="donutChartOptions"
+                        ></chart-wrapper>
                     </div>
-                    <!-- Custom Legend -->
-                    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                    <!-- Custom Legend --><div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
                         <div v-for="cat in categories" :key="cat.name" class="d-flex align-items-center small">
                             <span class="dot" :style="{ backgroundColor: cat.color }"></span>
                             <span class="fw-bold text-secondary">{{ cat.name }}</span>
@@ -220,244 +230,382 @@
                 </div>
             </div>
 
-            <!-- Bar Chart -->
-            <div class="col-md-7">
+            <!-- Bar Chart --><div class="col-md-7">
                 <div class="dashboard-card">
                     <h5 class="fw-bold mb-4 text-center">Before consent vs After consent by category</h5>
                     <div style="height: 300px;">
-                        <canvas id="barChart"></canvas>
+                        <!-- Utilisation du nouveau composant pour le Bar Chart --><chart-wrapper
+                            chart-id="barChart"
+                            type="bar"
+                            :chart-data="barChartData"
+                            :chart-options="barChartOptions"
+                        ></chart-wrapper>
                     </div>
                     <div class="d-flex justify-content-center gap-4 mt-2 small">
-                        <div class="d-flex align-items-center"><span class="dot" style="background-color: #F46A6A;"></span> Before</div>
-                        <div class="d-flex align-items-center"><span class="dot" style="background-color: #74D9E8;"></span> After</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-before)' }"></span> Before</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-after)' }"></span> After</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detail Table -->
-        <div class="dashboard-card p-0 overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-hover custom-table m-0">
-                    <thead class="bg-white">
-                        <tr>
-                            <th class="ps-4"></th> <!-- Index column -->
-                            <th>Category</th>
-                            <th class="text-center">Cookies count</th>
-                            <th>Pre-consent detected</th>
-                            <th class="text-center">Pages impacted</th>
-                            <th class="text-center">Vendors</th>
-                            <th>Visible in Notice (Yes/No)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(cat, index) in categories" :key="cat.name" 
-                            :class="{ 'table-row-active': selectedCategory === cat.name }"
-                            @click="selectCategory(cat.name)"
-                            style="cursor: pointer;">
-                            <td class="ps-4 text-secondary">{{ index + 1 }}</td>
-                            <td class="fw-bold">{{ cat.name }}</td>
-                            <td class="text-center">{{ cat.count }}</td>
-                            <td>
-                                <span v-if="cat.preConsentDetected === 'Yes'" class="fw-bold">Yes</span>
-                                <span v-else-if="cat.preConsentDetected === 'No'">No</span>
-                                <span v-else>{{ cat.preConsentDetected }}</span>
-                            </td>
-                            <td class="text-center">{{ cat.pagesImpacted }}</td>
-                            <td class="text-center">{{ cat.vendors }}</td>
-                            <td>
-                                <span v-if="cat.visibleInNotice" class="fw-bold">Yes</span>
-                                <span v-else>No</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- Detail Table --><data-table
+            :categories="categories"
+            :selected-category="selectedCategory"
+            @select-category="selectCategory"
+        ></data-table>
 
     </div>
 </div>
 
-<!-- Scripts -->
-<!-- Vue 3 -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Scripts --><!-- Vue 3 --><script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Chart.js --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const { createApp, ref, onMounted, watch } = Vue;
+    const { createApp, ref, onMounted, watch, computed, nextTick } = Vue;
 
-    createApp({
+    // Définir la police pour Chart.js globalement
+    Chart.defaults.font.family = 'Roboto, sans-serif';
+
+    // --- 1. KPI Card Component ---
+    const KpiCard = {
+        props: ['category', 'isActive'],
+        template: `
+            <div 
+                class="kpi-card p-3 text-center" 
+                :class="{ 'active': isActive }"
+                @click="$emit('select')"
+            >
+                <div class="text-secondary mb-2 fw-bold">
+                    {{ category.name }} <span class="dot ms-1" :style="{ backgroundColor: category.color }"></span>
+                </div>
+                <div class="d-flex justify-content-center align-items-end gap-2">
+                    <h2 class="display-5 fw-bold m-0">{{ category.count }}</h2>
+                    <div class="mb-2 d-flex flex-column align-items-center" 
+                            :class="category.trend > 0 ? 'text-success-custom' : 'text-danger-custom'">
+                        <i :class="category.trend > 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                        <span class="trend-badge">{{ Math.abs(category.trend) }}%</span>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // --- 2. Data Table Component (Updated for Expansion and Column Removal) ---
+    const DataTable = {
+        props: ['categories', 'selectedCategory'],
+        emits: ['selectCategory'],
+        setup(props) {
+            const expandedCategories = ref([]);
+
+            const toggleExpand = (categoryName) => {
+                const index = expandedCategories.value.indexOf(categoryName);
+                if (index === -1) {
+                    expandedCategories.value.push(categoryName);
+                } else {
+                    expandedCategories.value.splice(index, 1);
+                }
+            };
+
+            const isExpanded = (categoryName) => {
+                return expandedCategories.value.includes(categoryName);
+            };
+
+            return { expandedCategories, toggleExpand, isExpanded };
+        },
+        template: `
+            <div class="dashboard-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover custom-table m-0">
+                        <thead class="bg-white">
+                            <tr>
+                                <th class="ps-4" style="width: 50px;"></th> <!-- Chevron column -->
+                                <th class="text-secondary" style="width: 50px;">#</th> <!-- Index column -->
+                                <th>Category</th>
+                                <th class="text-center">Cookies count</th>
+                                <th>Pre-consent detected</th>
+                                <!-- Colonnes supprimées: Pages impacted, Visible in Notice -->
+                                <th class="text-center">Vendors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(cat, index) in categories" :key="cat.name">
+                                <!-- Main Row -->
+                                <tr 
+                                    :class="{ 'table-row-active': selectedCategory === cat.name }"
+                                    @click="toggleExpand(cat.name); $emit('selectCategory', cat.name)"
+                                    style="cursor: pointer;">
+                                    
+                                    <td class="ps-4 text-secondary">
+                                        <i class="fas fa-chevron-down chevron-icon" :class="{ 'chevron-rotated': isExpanded(cat.name) }"></i>
+                                    </td>
+                                    <td class="text-secondary">{{ index + 1 }}</td>
+                                    <td class="fw-bold">{{ cat.name }}</td>
+                                    <td class="text-center">{{ cat.count }}</td>
+                                    <td>
+                                        <!-- Affichage de la valeur cohérente (Yes/No) -->
+                                        <span class="fw-bold">{{ cat.preConsentDetected }}</span>
+                                    </td>
+                                    <td class="text-center">{{ cat.vendors }}</td>
+                                </tr>
+                                
+                                <!-- Detail Row (Cookies List) -->
+                                <tr v-if="isExpanded(cat.name)" class="detail-row">
+                                    <td colspan="7" class="p-0"> <!-- Colspan ajusté à 7 (total des colonnes) -->
+                                        <div class="p-4">
+                                            <h6 class="fw-bold mb-3 text-secondary small text-uppercase">Cookies Detected in {{ cat.name }}</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-borderless mb-0">
+                                                    <thead class="text-secondary small">
+                                                        <tr>
+                                                            <th>Cookie Name</th>
+                                                            <th>Domain</th>
+                                                            <th>Duration</th>
+                                                            <th>Detection Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="cookie in cat.cookiesList" :key="cookie.name">
+                                                            <td class="fw-medium text-dark">{{ cookie.name }}</td>
+                                                            <td class="text-muted small">{{ cookie.domain }}</td>
+                                                            <td class="text-muted small">{{ cookie.duration }}</td>
+                                                            <td>
+                                                                <span class="badge rounded-pill cookie-badge" 
+                                                                    :class="cookie.type === 'Before' ? 'bg-before' : 'bg-after'">
+                                                                    {{ cookie.type }} Consent
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr v-if="!cat.cookiesList || cat.cookiesList.length === 0">
+                                                            <td colspan="4" class="text-muted fst-italic">No specific cookies data available.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `
+    };
+
+    // --- 3. Chart Wrapper Component ---
+    const ChartWrapper = {
+        props: ['chartId', 'type', 'chartData', 'chartOptions'],
+        setup(props) {
+            let chartInstance = null;
+            
+            const renderChart = () => {
+                const ctx = document.getElementById(props.chartId).getContext('2d');
+                if (chartInstance) {
+                    chartInstance.data = props.chartData;
+                    chartInstance.options = props.chartOptions;
+                    chartInstance.update();
+                } else {
+                    chartInstance = new Chart(ctx, {
+                        type: props.type,
+                        data: props.chartData,
+                        options: props.chartOptions,
+                    });
+                }
+            };
+            
+            watch(() => props.chartData, () => {
+                nextTick(renderChart); 
+            }, { deep: true });
+
+            onMounted(() => {
+                renderChart();
+            });
+
+            return {};
+        },
+        template: `<canvas :id="chartId"></canvas>`
+    };
+
+
+    const App = {
         setup() {
             // --- State ---
-            const selectedCategory = ref('Essential'); // Default active
+            const selectedCategory = ref('Essential'); 
             const selectedDomain = ref('Domain');
-            const preConsentMode = ref(true); // Toggle state
 
-            // Data Model updated with new colors
+            // Data Model with Mock Cookies List
             const categories = ref([
                 { 
                     name: 'Essential', 
-                    count: 124, 
+                    count: 7, 
                     trend: 12, 
-                    color: '#00D2C8', // Teal from list
-                    preConsentDetected: 'No',
+                    color: '#002CBD', 
+                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
                     pagesImpacted: 5,
                     vendors: 5,
                     visibleInNotice: true,
-                    chartDataBefore: 450,
-                    chartDataAfter: 180
+                    chartDataBefore: 7, /* Tous en BEFORE */
+                    chartDataAfter: 0, /* Aucun en AFTER */
+                    cookiesList: [
+                        { name: 'PHPSESSID', domain: '.example.com', duration: 'Session', type: 'Before' },
+                        { name: 'cc_cookie', domain: '.example.com', duration: '6 months', type: 'Before' },
+                        { name: 'AWSALB', domain: 'aws.amazon.com', duration: '7 days', type: 'Before' },
+                        { name: 'XSRF-TOKEN', domain: '.example.com', duration: 'Session', type: 'Before' },
+                        { name: 'auth_token', domain: '.shop.example.com', duration: '1 day', type: 'Before' }
+                    ]
                 },
                 { 
                     name: 'Analytics', 
-                    count: 85, 
+                    count: 18, 
                     trend: -5, 
-                    color: '#FFAE01', // Yellow Orange
-                    preConsentDetected: 'Page_view',
+                    color: '#FFAE01', 
+                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
                     pagesImpacted: 50,
                     vendors: 4,
                     visibleInNotice: false,
-                    chartDataBefore: 80,
-                    chartDataAfter: 70
+                    chartDataBefore: 3,  
+                    chartDataAfter: 15,
+                    cookiesList: [
+                        { name: '_ga', domain: '.example.com', duration: '2 years', type: 'Before' },
+                        { name: '_gid', domain: '.example.com', duration: '24 hours', type: 'Before' },
+                        { name: '_gat', domain: '.example.com', duration: '1 minute', type: 'Before' },
+                        { name: 'ai_user', domain: '.microsoft.com', duration: '1 year', type: 'After' },
+                        { name: '_hjid', domain: '.hotjar.com', duration: '1 year', type: 'After' }
+                    ]
                 },
                 { 
                     name: 'Marketing', 
-                    count: 62, 
+                    count: 40, 
                     trend: -18, 
-                    color: '#FB7156', // Salmon/Red from list
-                    preConsentDetected: 'Yes',
+                    color: '#F31DAC', 
+                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
                     pagesImpacted: 8,
                     vendors: 8,
+                    chartDataBefore: 5,  
+                    chartDataAfter: 35,
                     visibleInNotice: false,
-                    chartDataBefore: 400,
-                    chartDataAfter: 250
+                    cookiesList: [
+                        { name: 'fbp', domain: '.facebook.com', duration: '3 months', type: 'Before' },
+                        { name: 'fr', domain: '.facebook.com', duration: '3 months', type: 'Before' },
+                        { name: 'ads_prefs', domain: '.google.com', duration: '1 year', type: 'Before' },
+                        { name: 'IDE', domain: '.doubleclick.net', duration: '1 year', type: 'Before' },
+                        { name: 'MUID', domain: '.bing.com', duration: '1 year', type: 'Before' },
+                        { name: 'test_cookie', domain: '.doubleclick.net', duration: '15 mins', type: 'After' }
+                    ]
                 },
                 { 
                     name: 'Others', 
-                    count: 38, 
+                    count: 13, 
                     trend: -3, 
-                    color: '#6B1FFF', // Purple from list
-                    preConsentDetected: 'No',
+                    color: '#3198FD', 
+                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes (était 'No') */
                     pagesImpacted: 3,
                     vendors: 2,
+                    chartDataBefore: 2,  
+                    chartDataAfter: 11,
                     visibleInNotice: true,
-                    chartDataBefore: 90,
-                    chartDataAfter: 60
+                    cookiesList: [
+                        { name: 'player_id', domain: '.vimeo.com', duration: '1 year', type: 'Before' },
+                        { name: 'vuid', domain: '.vimeo.com', duration: '2 years', type: 'Before' },
+                        { name: 'lang', domain: '.cdn.net', duration: 'Session', type: 'After' },
+                        { name: 'custom_pref', domain: '.example.com', duration: '30 days', type: 'After' }
+                    ]
                 }
             ]);
 
-            let donutChartInstance = null;
-            let barChartInstance = null;
+            // --- Computed Data ---
+            const donutChartData = computed(() => ({
+                labels: categories.value.map(c => c.name),
+                datasets: [{
+                    data: categories.value.map(c => c.count), 
+                    backgroundColor: categories.value.map(c => c.color), 
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            }));
+
+            const donutChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '55%',
+                plugins: {
+                    legend: { display: false }, 
+                    tooltip: { enabled: true }
+                }
+            };
+
+            const barChartData = computed(() => ({
+                labels: categories.value.map(c => c.name),
+                datasets: [
+                    {
+                        label: 'Before',
+                        data: categories.value.map(c => c.chartDataBefore),
+                        backgroundColor: '#EB536C', 
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'After',
+                        data: categories.value.map(c => c.chartDataAfter),
+                        backgroundColor: '#74D9E8', 
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            }));
+
+            const barChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stacked: false, 
+                        max: 40, 
+                        grid: {
+                            color: '#f1f5f9',
+                            borderDash: [5, 5]
+                        },
+                        border: { display: false }
+                    },
+                    x: {
+                        stacked: false,
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false } 
+                }
+            };
+
 
             // --- Methods ---
             const selectCategory = (name) => {
                 selectedCategory.value = name;
             };
 
-            const initCharts = () => {
-                const ctxDonut = document.getElementById('donutChart').getContext('2d');
-                const ctxBar = document.getElementById('barChart').getContext('2d');
-                
-                // Définir la police pour Chart.js
-                Chart.defaults.font.family = 'Roboto, sans-serif';
-
-
-                // Donut Chart
-                donutChartInstance = new Chart(ctxDonut, {
-                    type: 'doughnut',
-                    data: {
-                        labels: categories.value.map(c => c.name),
-                        datasets: [{
-                            data: [40, 24, 25, 11], 
-                            backgroundColor: categories.value.map(c => c.color), // Dynamic colors
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '55%',
-                        plugins: {
-                            legend: { display: false }, // Using custom legend
-                            tooltip: { enabled: true }
-                        }
-                    }
-                });
-
-                // Bar Chart
-                barChartInstance = new Chart(ctxBar, {
-                    type: 'bar',
-                    data: {
-                        labels: categories.value.map(c => c.name),
-                        datasets: [
-                            {
-                                label: 'Before',
-                                data: categories.value.map(c => c.chartDataBefore),
-                                backgroundColor: '#F46A6A', 
-                                borderRadius: 4,
-                                barPercentage: 0.6,
-                                categoryPercentage: 0.8
-                            },
-                            {
-                                label: 'After',
-                                data: categories.value.map(c => c.chartDataAfter),
-                                backgroundColor: '#74D9E8', 
-                                borderRadius: 4,
-                                barPercentage: 0.6,
-                                categoryPercentage: 0.8
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 500, 
-                                grid: {
-                                    color: '#f1f5f9',
-                                    borderDash: [5, 5]
-                                },
-                                border: { display: false }
-                            },
-                            x: {
-                                grid: { display: false },
-                                border: { display: false }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false } // Using custom legend
-                        }
-                    }
-                });
-            };
-
-            // Watch for changes if we wanted dynamic updates (mocked here)
-            watch(preConsentMode, (newVal) => {
-                console.log("Toggle changed:", newVal);
-                // Simulate data update
-                if(newVal) {
-                    categories.value[0].count = 124;
-                } else {
-                    categories.value[0].count = 0; // Example
-                }
-            });
-
-            onMounted(() => {
-                initCharts();
-            });
-
             return {
                 selectedCategory,
                 selectedDomain,
-                preConsentMode,
                 categories,
-                selectCategory
+                selectCategory,
+                donutChartData,
+                donutChartOptions,
+                barChartData,
+                barChartOptions
             };
         }
-    }).mount('#app');
+    };
+
+    const app = createApp(App);
+    app.component('KpiCard', KpiCard);
+    app.component('DataTable', DataTable);
+    app.component('ChartWrapper', ChartWrapper); 
+    app.mount('#app');
 </script>
 
 </body>
