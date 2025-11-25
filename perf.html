@@ -14,17 +14,30 @@
 
     <style>
         :root {
-            --sidebar-width: 260px;
-            --primary-blue: #2c4eff; /* Vibrant blue similar to "Créer un projet" */
-            --bg-light: #f8f9fa;
-            --text-muted: #6c757d;
-            --border-color: #e9ecef;
+            --sidebar-width: 360px;
+            --sidebar-collapsed-width: 90px;
+            --primary-blue: #2c4eff;
+            
+            /* UPDATED GRADIENT from user input */
+            --sidebar-bg-start: #efe7f8; 
+            --sidebar-bg-end: #fdfdfd38; /* Transparent white effect */
+            
+            --content-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-std: 4px;
+            --radius-lg: 20px; 
+            --transition-speed: 0.3s;
+            
+            /* UPDATED HOVER/ACTIVE COLOR from user input */
+            --hover-blue-bg: #ffffff7a; 
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #fff;
-            color: #212529;
+            background-color: #f8f9fa;
+            color: var(--text-dark);
             overflow-x: hidden;
         }
 
@@ -35,247 +48,325 @@
             min-height: 100vh;
         }
 
-        /* --- Sidebar Styling --- */
+        /* --- Sidebar Global Styling --- */
         #sidebar {
             width: var(--sidebar-width);
             min-width: var(--sidebar-width);
-            background-color: #fcfcfc;
-            border-right: 1px solid var(--border-color);
+            /* Linear Gradient: Purple (Top) to Blue/White (Bottom) */
+            background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
+            border-right: none; 
             display: flex;
             flex-direction: column;
-            padding: 1rem;
             position: fixed;
             height: 100vh;
-            overflow-y: auto;
             z-index: 1000;
+            transition: width var(--transition-speed) ease;
         }
 
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+            min-width: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Styling */
+        .sidebar-header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 0 0 1rem;
+        }
+
+        .btn-toggle-sidebar {
+            border: none;
+            background: transparent;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-std);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-toggle-sidebar:hover {
+            background-color: rgba(44, 78, 255, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        
+        .logo-hexagon {
+            color: #d63384; 
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        #sidebar.collapsed .logo-wrapper { display: none; }
+        #sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        #sidebar.collapsed .btn-toggle-sidebar { margin-right: 0; }
+
+        /* --- Sidebar Content --- */
+        .sidebar-content-wrapper {
+            display: flex;
+            height: calc(100% - 80px);
+            overflow: hidden;
+        }
+
+        .sidebar-left-col {
+            width: 90px;
+            min-width: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: none; 
+            padding-top: 10px;
+            background-color: transparent;
+            z-index: 2;
+            justify-content: space-between;
+        }
+        
+        .sidebar-nav-top, .sidebar-nav-bottom {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar-nav-bottom { padding-bottom: 20px; }
+
+        .sidebar-right-col {
+            flex-grow: 1;
+            padding: 1rem 1.5rem;
+            overflow-y: auto;
+            min-width: 270px;
+            background-color: transparent;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        #sidebar.collapsed .sidebar-right-col {
+            display: none;
+            opacity: 0;
+        }
+
+        /* --- MAIN CONTENT (Card Effect) --- */
         .main-content {
             flex-grow: 1;
             margin-left: var(--sidebar-width);
-            background-color: #ffffff;
+            background-color: var(--content-bg);
             min-height: 100vh;
-        }
-
-        /* Sidebar Navigation Items */
-        .nav-item-custom {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 0;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
-            font-size: 0.75rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .nav-item-custom i {
-            font-size: 1.2rem;
-            margin-bottom: 4px;
-        }
-
-        .nav-item-custom:hover {
-            background-color: #eef2ff;
-            color: var(--primary-blue);
-        }
-
-        .nav-item-custom.active {
-            color: var(--primary-blue);
+            transition: margin-left var(--transition-speed) ease;
+            width: 100%;
+            overflow-x: hidden;
+            border-top-left-radius: 30px;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.03);
             position: relative;
         }
         
-        /* The blue accent line for active item */
-        .nav-item-custom.active::before {
+        body::before {
             content: '';
-            position: absolute;
-            left: -16px; /* Adjust based on padding */
-            top: 50%;
-            transform: translateY(-50%);
-            height: 20px;
-            width: 3px;
-            background-color: var(--primary-blue);
-            border-radius: 0 4px 4px 0;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Matching body background to the bottom of sidebar gradient for seamless feel */
+            background-color: var(--sidebar-bg-end); 
+            background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
+            z-index: -1;
         }
 
-        .sidebar-logo {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-left: 0.5rem;
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
         }
 
-        .logo-hexagon {
-            color: #d63384; /* Pinkish red */
-            margin-right: 8px;
-            font-size: 1.5rem;
+        /* --- Responsive --- */
+        @media (max-width: 992px) {
+            :root { --sidebar-width: 90px; }
+            #sidebar { width: 90px; min-width: 90px; }
+            .sidebar-right-col, .logo-wrapper { display: none !important; }
+            .sidebar-header { justify-content: center; padding: 0; }
+            .btn-toggle-sidebar { margin-right: 0; }
+            .main-content { margin-left: 90px; border-top-left-radius: 20px; }
         }
 
-        .btn-create {
-            background-color: #1a3cff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-weight: 600;
-            width: 100%;
-            padding: 0.6rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 6px rgba(44, 78, 255, 0.2);
-        }
-        .btn-create:hover { background-color: #0026e6; color: white; }
-
-        .sidebar-divider {
-            margin: 1rem 0;
-            border-top: 1px solid #eee;
+        @media (max-width: 576px) {
+            .main-content { padding-right: 0; border-top-left-radius: 0; } 
+            .projects-section { padding: 0 1rem 3rem 1rem; } 
         }
 
-        .section-title {
-            font-size: 0.75rem;
-            color: #adb5bd;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.8rem;
-            padding-left: 0.5rem;
-        }
-
-        .sub-nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem;
-            color: #495057;
+        /* --- Nav Items --- */
+        .nav-item-custom {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 12px 0; width: 85%; 
+            color: var(--text-muted); 
             text-decoration: none;
-            font-size: 0.85rem;
-            border-radius: 6px;
+            border-radius: var(--radius-std);
+            transition: all 0.2s ease;
+            font-size: 0.75rem; font-weight: 500;
+            margin-bottom: 0.5rem; text-align: center;
         }
-        .sub-nav-item:hover { background-color: #f1f3f5; }
-        .sub-nav-item i { width: 20px; color: #adb5bd; margin-right: 8px; }
+        
+        .nav-item-custom i { 
+            font-size: 1.4rem; margin-bottom: 6px; 
+            color: var(--text-muted); 
+            transition: all 0.2s;
+        }
+        
+        /* HOVER STATE uses transparent white */
+        .nav-item-custom:hover { 
+            background-color: var(--hover-blue-bg); 
+            color: var(--primary-blue); 
+        }
+        .nav-item-custom:hover i { color: var(--primary-blue); transform: translateY(-2px); }
+
+        /* ACTIVE STATE uses transparent white */
+        .nav-item-custom.active { 
+            background-color: var(--hover-blue-bg);
+            color: var(--primary-blue); 
+            font-weight: 700;
+            box-shadow: none; 
+        }
+        .nav-item-custom.active i { color: var(--primary-blue); opacity: 1; }
+        .nav-item-custom.active::before { display: none; }
+
+        /* Buttons */
+        .btn-create {
+            background: linear-gradient(135deg, #2c4eff 0%, #1a3cff 100%);
+            color: white; border: none; 
+            border-radius: var(--radius-std);
+            font-weight: 600; width: 100%; padding: 0.8rem; margin-bottom: 1.5rem;
+            font-size: 0.9rem; box-shadow: 0 4px 10px rgba(44, 78, 255, 0.2); white-space: nowrap;
+            transition: transform 0.2s;
+        }
+        .btn-create:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(44, 78, 255, 0.3); color: white; }
+
+        .sidebar-divider { margin: 1.5rem 0; border-top: 1px solid rgba(0,0,0,0.08); }
+        .section-title { font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; padding-left: 0.5rem; }
+        
+        .sub-nav-item {
+            display: flex; align-items: center; padding: 0.7rem 0.8rem; 
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem; 
+            border-radius: var(--radius-std);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            transition: all 0.2s;
+        }
+        .sub-nav-item i { width: 24px; margin-right: 10px; text-align: center; color: var(--primary-blue); opacity: 0.8; }
+        
+        .sub-nav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .sub-nav-item.active { background-color: #ffffff; color: var(--primary-blue); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* --- Accordion Menu --- */
+        .main-nav-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.7rem 0.8rem;
+            color: var(--text-dark);
+            text-decoration: none; font-size: 0.9rem; font-weight: 600;
+            border-radius: var(--radius-std);
+            margin-bottom: 0.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .main-nav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .main-nav-item:hover .main-nav-item-content i,
+        .main-nav-item:hover .fa-chevron-down,
+        .main-nav-item:hover .fa-chevron-up { color: var(--primary-blue) !important; }
+        .main-nav-item.open { background-color: #ffffff; color: var(--primary-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .main-nav-item.open .main-nav-item-content i,
+        .main-nav-item.open .fa-chevron-down,
+        .main-nav-item.open .fa-chevron-up { color: var(--primary-blue) !important; }
+
+        .main-nav-item-content { display: flex; align-items: center; }
+        .main-nav-item-content i { width: 20px; font-size: 0.9rem; margin-right: 10px; text-align: center; color: #94a3b8; transition: color 0.2s; }
+        .main-nav-item .fa-chevron-down, .main-nav-item .fa-chevron-up { font-size: 0.7rem; color: #94a3b8; transition: transform 0.2s, color 0.2s; }
+        .main-nav-item.open .fa-chevron-down { transform: rotate(180deg); }
+
+        .submenu-links { padding: 0 0 0.5rem 1rem; list-style: none; margin: 0; opacity: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease; }
+        .submenu-links.open { opacity: 1; max-height: 500px; }
+        .submenu-links a { display: block; padding: 0.4rem 0; color: #475569; font-size: 0.85rem; text-decoration: none; position: relative; }
+        .submenu-links a:hover { color: var(--primary-blue); }
+        .submenu-links a::before { content: ''; position: absolute; left: -15px; top: 50%; width: 6px; height: 1px; background: #cbd5e1; }
+
+        .fav-item { display: flex; align-items: center; padding: 0.6rem 0.8rem; color: #64748b; text-decoration: none; font-size: 0.85rem; border-radius: var(--radius-std); margin-bottom: 2px; transition: all 0.2s; }
+        .fav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .fav-icon { width: 20px; margin-right: 8px; text-align: center; color: #cbd5e1; transition: color 0.2s; }
+        .fav-item:hover .fav-icon { color: var(--primary-blue); }
 
         /* --- Top Bar --- */
         .top-bar {
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            position: sticky;
-            top: 0;
-            z-index: 900;
+            padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;
+            background: transparent; position: sticky; top: 0; z-index: 900;
         }
-
-        .search-container {
-            position: relative;
-            width: 500px;
+        .search-container { position: relative; width: 500px; max-width: 100%; }
+        .search-input { 
+            width: 100%; 
+            border-radius: var(--radius-std);
+            border: 1px solid #e2e8f0; 
+            padding: 0.7rem 1rem 0.7rem 2.8rem; 
+            background-color: #f8f9fa; 
+            box-shadow: none;
+            transition: all 0.2s;
         }
-        .search-input {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            padding: 0.6rem 1rem 0.6rem 2.5rem;
-            background-color: #fff;
-        }
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #adb5bd;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #6c757d;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-        }
+        .search-input:focus { background-color: #fff; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(44,78,255,0.1); outline: none; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: #64748b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
 
         /* --- Hero Banner --- */
         .hero-banner {
-            margin: 0 2rem;
-            border-radius: 12px;
-            /* Recreating the complex gradient from the image */
-            background: rgb(2,0,36);
-            background: linear-gradient(90deg, rgba(0,25,255,1) 0%, rgba(9,9,121,1) 35%, rgba(200,0,255,1) 100%);
+            margin: 0 2rem; 
+            border-radius: var(--radius-lg); /* 20px */
             height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(90deg, #0019ff 0%, #5335ff 50%, #b900ff 100%);
+            display: flex; align-items: center; justify-content: center; color: white; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(44, 78, 255, 0.2);
         }
-        
         .hero-banner::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%;
+            content: ''; position: absolute; top: -50%; right: -10%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;
         }
+        .hero-title { font-size: 1.8rem; font-weight: 700; z-index: 2; text-align: center; padding: 0 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        .hero-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            z-index: 2;
-        }
-
-        /* --- Quick Actions Icons --- */
-        .quick-actions-row {
-            padding: 2rem 2rem 1rem 2rem;
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .action-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        /* --- Quick Actions --- */
+        .quick-actions-row { padding: 2rem 2rem 1rem 2rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+        .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; width: auto; }
         .action-item:hover { transform: translateY(-3px); }
-
-        .action-icon-circle {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+        .action-icon-circle { 
+            width: 45px; height: 45px; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            color: white; margin-bottom: 8px; font-size: 1.1rem; 
+            flex-shrink: 0; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .action-label {
-            font-size: 0.75rem;
-            color: #495057;
-            text-align: center;
-            max-width: 80px;
-            line-height: 1.2;
-        }
+        .action-label { font-size: 0.75rem; color: var(--text-dark); text-align: center; max-width: 80px; line-height: 1.2; font-weight: 500; }
 
-        /* Specific Colors */
+        .pills-row { display: flex; justify-content: center; gap: 1rem; padding-bottom: 2rem; flex-wrap: wrap; }
+        .custom-pill { 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 20px;
+            font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; margin-bottom: 0.5rem; background-color: #f8f9fa; border: 1px solid #e2e8f0; 
+        }
+        .custom-pill:hover { filter: brightness(0.95); border-color: #cbd5e1; }
+        .pill-insights { background-color: #e0f2fe; color: #0369a1; }
+        .pill-integration { background-color: #f3e8ff; color: #7e22ce; }
+        .pill-data { background-color: #fce7f3; color: #be185d; }
+        .pill-reco { background-color: #dcfce7; color: #15803d; }
+
+        /* --- Content Areas --- */
         .bg-teal { background-color: #0dcaf0; }
         .bg-green { background-color: #20c997; }
         .bg-orange { background-color: #fd7e14; }
@@ -287,203 +378,90 @@
         .bg-purple { background-color: #6f42c1; }
         .bg-dark-blue { background-color: #1e3a8a; }
 
-        /* --- Action Pills --- */
-        .pills-row {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding-bottom: 2rem;
-        }
+        .projects-section { padding: 0 2rem 3rem 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         
-        .custom-pill {
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.2s;
+        .project-card { 
+            border: 1px solid #e2e8f0; 
+            border-radius: var(--radius-std);
+            overflow: hidden; 
+            transition: box-shadow 0.3s, transform 0.2s; 
+            background: #fff; height: 100%; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
+        .project-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.08); transform: translateY(-3px); border-color: #cbd5e1; }
+        .card-img-wrapper { height: 150px; background-color: #f1f5f9; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-body { padding: 1.2rem; }
+        .project-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-dark); }
+        .project-category { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* --- Mocks --- */
+        .mock-base { width: 85%; height: 70%; background: white; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        .mock-modal-overlay { background-color: rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .mock-modal-box { background: white; width: 60%; height: 60%; border-radius: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+        .mock-btn { width: 50%; height: 6px; border-radius: 2px; }
+        .mock-chart-container { display: flex; align-items: flex-end; justify-content: space-around; height: 100%; padding: 10px 10px 5px 10px; }
+        .mock-bar { width: 15%; background-color: #e2e8f0; border-radius: 2px 2px 0 0; }
+        .mock-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; height: 100%; }
+        .mock-grid-item { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 2px; display: flex; flex-direction: column; gap: 2px; padding: 2px; }
+        .mock-grid-img { height: 60%; background: #e2e8f0; width: 100%; border-radius: 1px; }
+        .mock-layout { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .mock-header { height: 10px; width: 100%; background: #e2e8f0; margin-bottom: 2px; border-radius: 2px; }
+        .mock-hero { height: 30px; width: 100%; background: #e2e8f0; border: 1px dashed; border-color: currentColor; opacity: 0.7; display:flex; align-items:center; justify-content:center; border-radius: 2px;}
+        .awin-logo { font-weight: 800; color: #e36a29; letter-spacing: -1px; font-size: 1.2rem; }
+
+        /* --- Page Specifics --- */
+        .projects-page-header { background: transparent; padding: 2rem 2rem 1rem 2rem; margin-bottom: 1rem; text-align: center; }
+        .projects-search-bar { max-width: 600px; margin: 1.5rem auto 0 auto; position: relative; }
+        .projects-search-input { 
+            width: 100%; 
+            padding: 1rem 1rem 1rem 3rem; 
+            border-radius: var(--radius-std);
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .projects-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem; }
         
-        .pill-insights { background-color: #e0f2fe; color: #0369a1; }
-        .pill-integration { background-color: #f3e8ff; color: #7e22ce; }
-        .pill-data { background-color: #fce7f3; color: #be185d; }
-        .pill-reco { background-color: #dcfce7; color: #15803d; }
+        .filter-row { display: flex; gap: 0.8rem; padding: 0 2rem 1.5rem 2rem; flex-wrap: wrap; }
+        .filter-btn { padding: 0.5rem 1.2rem; border-radius: var(--radius-std); border: 1px solid #e2e8f0; background: white; color: #495057; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-weight: 500; }
+        .filter-btn:hover { background-color: #f8f9fa; border-color: #ced4da; color: var(--primary-blue); }
 
-        .custom-pill:hover { filter: brightness(0.95); }
+        .recent-scroll-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 0.5rem 2rem 2rem 2rem; scrollbar-width: thin; }
+        .recent-project-item { min-width: 220px; width: 220px; }
+        .recent-img-box { height: 130px; background-color: #fff; border-radius: var(--radius-std); margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; overflow: hidden; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s; }
+        .recent-project-item:hover .recent-img-box { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .recent-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .recent-meta { font-size: 0.75rem; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
 
-        /* --- Projects & Cards --- */
-        .projects-section {
-            padding: 0 2rem 3rem 2rem;
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .project-card {
-            border: none;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: box-shadow 0.3s;
-            background: #fff;
-            height: 100%;
-            border: 1px solid #f0f0f0;
-        }
-        .project-card:hover {
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-        .card-img-wrapper {
-            height: 140px;
-            background-color: #f8f9fa;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .card-body { padding: 1rem; }
-        .project-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
-        .project-category { font-size: 0.8rem; color: #6c757d; }
+        .folder-card { background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius-std); padding: 1.2rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .folder-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+        .folder-icon { font-size: 1.8rem; color: #cbd5e1; }
+        .folder-card:hover .folder-icon { color: #fbbf24; }
+        .folder-name { font-weight: 500; color: #334155; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .folder-count { font-size: 0.75rem; color: #94a3b8; margin-left: auto; white-space: nowrap; }
 
+        /* Templates Header */
+        .templates-header { background-color: transparent; padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid #f1f3f5; margin-bottom: 2rem; }
+        .filter-container { display: flex; gap: 0.5rem; padding-bottom: 0.5rem; overflow-x: auto; scrollbar-width: thin; }
+        .filter-pill { padding: 0.5rem 1.2rem; border-radius: var(--radius-std); font-size: 0.9rem; color: var(--text-dark); background: #fff; border: 1px solid #e9ecef; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .filter-pill:hover { background-color: #e9ecef; border-color: #ced4da; }
+        .filter-pill.active { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); box-shadow: 0 4px 10px rgba(44, 78, 255, 0.3); }
+        .template-icon-wrapper { width: 40px; height: 40px; border-radius: var(--radius-std); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-bottom: 1rem; }
+
+        /* --- NEW FEATURE ALERT (RESTORED CLEAN STYLE) --- */
         .new-feature-alert {
             background-color: #fff;
-            border: 1px solid #ffeeba;
-            border-left: 4px solid #fd7e14; /* Orange accent */
-            padding: 10px;
-            border-radius: 4px;
+            /* Removed full border, kept left accent */
+            border: none; 
+            border-left: 4px solid #fd7e14; 
+            padding: 12px;
+            border-radius: 4px; /* Slight radius on right side effective */
             font-size: 0.8rem;
             margin-bottom: 1.5rem;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow instead of border */
         }
-        .close-alert { position: absolute; top: 5px; right: 8px; cursor: pointer; color: #adb5bd; }
-
-        /* --- VISUALS CSS (Mocks) --- */
-        .mock-base {
-            width: 85%;
-            height: 70%;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        /* Modal Style (Exit Intent) */
-        .mock-modal-overlay {
-            background-color: rgba(0,0,0,0.1);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mock-modal-box {
-            background: white;
-            width: 60%;
-            height: 60%;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-        .mock-btn { width: 50%; height: 6px; border-radius: 2px; }
-
-        /* Chart Style (Insights) */
-        .mock-chart-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 100%;
-            padding: 10px 10px 5px 10px;
-        }
-        .mock-bar {
-            width: 15%;
-            background-color: #e9ecef;
-            border-radius: 2px 2px 0 0;
-        }
-
-        /* Grid Style (Product Reco) */
-        .mock-grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            padding: 8px;
-            height: 100%;
-        }
-        .mock-grid-item {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 2px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding: 2px;
-        }
-        .mock-grid-img { height: 60%; background: #e9ecef; width: 100%; }
-
-        /* Layout Style (Home Personalisation) */
-        .mock-layout {
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .mock-header { height: 10px; width: 100%; background: #e9ecef; margin-bottom: 2px; }
-        .mock-hero { height: 30px; width: 100%; background: #e2e6ea; border: 1px dashed; border-color: currentColor; opacity: 0.7; display:flex; align-items:center; justify-content:center;}
-        
-        /* --- Styles Spécifiques Page Modèles --- */
-        .templates-header {
-            background-color: #f8f9fa;
-            padding: 2rem 2rem 1rem 2rem;
-            border-bottom: 1px solid #e9ecef;
-            margin-bottom: 2rem;
-        }
-        .filter-container {
-            display: flex;
-            gap: 0.5rem;
-            padding-bottom: 0.5rem;
-            overflow-x: auto;
-            scrollbar-width: thin;
-        }
-        .filter-pill {
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #495057;
-            background: white;
-            border: 1px solid #dee2e6;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .filter-pill:hover { background-color: #e9ecef; }
-        .filter-pill.active {
-            background-color: #2c3e50;
-            color: white;
-            border-color: #2c3e50;
-        }
-        .template-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
+        .close-alert { position: absolute; top: 8px; right: 8px; cursor: pointer; color: #adb5bd; font-size: 1rem; }
 
     </style>
 </head>
@@ -494,17 +472,24 @@
         <!-- SIDEBAR COMPONENT -->
         <sidebar-component 
             :active-tab="activeTab" 
-            @change-tab="setActiveTab">
+            :is-collapsed="sidebarCollapsed"
+            @change-tab="setActiveTab"
+            @toggle-sidebar="toggleSidebar"
+            :integration-menu-state="integrationMenuState"
+            @toggle-integration-menu="toggleIntegrationMenu"
+            :analyses-menu-state="analysesMenuState"
+            @toggle-analyses-menu="toggleAnalysesMenu"
+        >
         </sidebar-component>
 
         <!-- MAIN CONTENT AREA -->
-        <div class="main-content">
-            <!-- TOP BAR COMPONENT -->
+        <div class="main-content" :class="{ 'expanded': sidebarCollapsed }">
+            
+            <!-- GLOBAL TOP BAR (Search & Profile) -->
             <top-bar></top-bar>
 
-            <!-- ===================== CONTENU ACCUEIL ===================== -->
+            <!-- ===================== VUE ACCUEIL ===================== -->
             <div v-if="activeTab === 'accueil'">
-                
                 <!-- Hero Banner -->
                 <div class="hero-banner mb-4">
                     <div class="hero-title">Qu’allez-vous optimiser aujourd’hui ?</div>
@@ -513,7 +498,6 @@
                 <!-- Quick Actions Icons -->
                 <div class="quick-actions-row">
                     <quick-action v-for="(action, index) in quickActions" :key="index" :data="action"></quick-action>
-                    <!-- "Plus" button logic simulated -->
                     <div class="action-item">
                         <div class="action-icon-circle bg-gray"><i class="fas fa-ellipsis-h"></i></div>
                         <span class="action-label">Plus</span>
@@ -522,18 +506,10 @@
 
                 <!-- Action Pills -->
                 <div class="pills-row">
-                    <div class="custom-pill pill-insights">
-                        <i class="fas fa-rainbow"></i> Insights
-                    </div>
-                    <div class="custom-pill pill-integration">
-                        <i class="fas fa-plus"></i> Ajouter une intégration
-                    </div>
-                    <div class="custom-pill pill-data">
-                        <i class="fas fa-wand-magic-sparkles"></i> Enrichir sa donnée
-                    </div>
-                    <div class="custom-pill pill-reco">
-                        <i class="fas fa-star"></i> Recommandations
-                    </div>
+                    <div class="custom-pill pill-insights"><i class="fas fa-rainbow"></i> Insights</div>
+                    <div class="custom-pill pill-integration"><i class="fas fa-plus"></i> Ajouter une intégration</div>
+                    <div class="custom-pill pill-data"><i class="fas fa-wand-magic-sparkles"></i> Enrichir sa donnée</div>
+                    <div class="custom-pill pill-reco"><i class="fas fa-star"></i> Recommandations</div>
                 </div>
 
                 <!-- Recent Projects -->
@@ -542,22 +518,122 @@
                         <h4 class="mb-0 fw-bold">Projets récents</h4>
                         <button class="btn btn-outline-light text-dark border"><i class="fas fa-list"></i></button>
                     </div>
-
                     <div class="row g-4">
                         <project-card 
-                            v-for="(project, index) in recentProjects" 
+                            v-for="(project, index) in recentProjectsAccueil" 
                             :key="index" 
                             :project="project">
+                        </project-card>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== VUE PROJETS (NEW) ===================== -->
+            <div v-else-if="activeTab === 'projets'">
+                
+                <!-- Projet Header -->
+                <div class="projects-page-header">
+                    <h2 class="fw-bold mb-3">Tous les projets</h2>
+                    <div class="projects-search-bar">
+                        <i class="fas fa-search projects-search-icon"></i>
+                        <input type="text" class="projects-search-input" placeholder="Rechercher dans tout le contenu">
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-row">
+                    <button class="filter-btn">Type <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity:0.5;"></i></button>
+                    <button class="filter-btn">Catégorie <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity:0.5;"></i></button>
+                    <button class="filter-btn">Propriétaire <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity:0.5;"></i></button>
+                    <button class="filter-btn">Date de modification <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity:0.5;"></i></button>
+                </div>
+
+                <!-- Section RECENTS (Horizontal Scroll) -->
+                <div class="px-4 mb-2">
+                    <h5 class="fw-bold mb-3 text-dark">Récents</h5>
+                </div>
+                <div class="recent-scroll-container">
+                    <div class="recent-project-item" v-for="(item, i) in projectsPageRecents" :key="i">
+                        <div class="recent-img-box">
+                            <!-- Custom Visuals based on type -->
+                            <div v-if="item.type === 'awin'" class="d-flex flex-column align-items-center">
+                                <div class="awin-logo">AWIN</div>
+                            </div>
+                            <div v-else-if="item.type === 'fb'" class="text-primary" style="font-size: 2.5rem;">
+                                <i class="fab fa-facebook"></i>
+                            </div>
+                             <div v-else-if="item.type === 'amazon'" style="font-size: 2.5rem; color: #ff9900;">
+                                <i class="fab fa-amazon"></i>
+                            </div>
+                             <div v-else-if="item.type === 'web'" class="mock-layout" style="width: 80%; height: 70%; border: 1px solid #eee;">
+                                <div class="mock-header"></div>
+                                <div class="mock-hero" style="height: 40px;"></div>
+                            </div>
+                            <div v-else-if="item.type === 'doc'" class="text-muted" style="font-size: 2rem;">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <!-- Visual: Popin generic -->
+                            <div v-else-if="item.visualType === 'popin'" class="mock-base mock-modal-overlay" style="zoom: 0.6">
+                                <div class="mock-modal-box d-flex flex-row overflow-hidden p-0" style="width: 75%; height: 65%;">
+                                    <div style="width: 40%; background: #ffe3ec;"></div>
+                                    <div style="width: 60%; background: white;"></div>
+                                </div>
+                            </div>
+                            <div v-else class="text-muted" style="font-size: 2rem;">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+
+                            <!-- Edit Badge -->
+                            <div style="position: absolute; top: 8px; right: 8px; background:white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                <i class="fas fa-star text-warning" style="font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                        <div class="recent-title">{{ item.name }}</div>
+                        <div class="recent-meta">
+                            <i class="far fa-clock"></i> {{ item.date }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section DOSSIERS -->
+                <div class="px-4 mb-3 mt-4">
+                    <div class="d-flex align-items-center mb-3">
+                         <i class="fas fa-chevron-down me-2 text-muted" style="font-size: 0.8rem;"></i>
+                         <h5 class="fw-bold mb-0 text-dark">Dossiers</h5>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3" v-for="(folder, i) in projectFolders" :key="i">
+                            <div class="folder-card">
+                                <i class="fas fa-folder folder-icon"></i>
+                                <div style="overflow:hidden; flex:1;">
+                                    <div class="folder-name">{{ folder.name }}</div>
+                                </div>
+                                <div class="folder-count">{{ folder.count }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Section PROJETS GRID -->
+                <div class="px-4 mb-5 mt-4">
+                     <div class="d-flex align-items-center mb-3">
+                         <i class="fas fa-chevron-down me-2 text-muted" style="font-size: 0.8rem;"></i>
+                         <h5 class="fw-bold mb-0 text-dark">Projets</h5>
+                    </div>
+                    <div class="row g-4">
+                        <project-card 
+                            v-for="(design, index) in projectDesigns" 
+                            :key="index" 
+                            :project="design">
                         </project-card>
                     </div>
                 </div>
 
             </div>
 
-            <!-- ===================== CONTENU MODELES ===================== -->
+            <!-- ===================== VUE MODELES (Existant) ===================== -->
             <div v-else-if="activeTab === 'modeles'">
-                
-                <!-- Header Modèles -->
+                 <!-- Header Modèles -->
                 <div class="templates-header">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -568,29 +644,17 @@
                             <button class="btn btn-primary"><i class="fas fa-file-import me-2"></i>Importer un modèle</button>
                         </div>
                     </div>
-                    
-                    <!-- Dynamic Filters based on new categories -->
                     <div class="filter-container mt-4">
                         <div class="filter-pill" :class="{ active: activeTemplateFilter === 'all' }" @click="activeTemplateFilter = 'all'">Tout voir</div>
-                        <div v-for="cat in categories" :key="cat" 
-                             class="filter-pill" 
-                             :class="{ active: activeTemplateFilter === cat }" 
-                             @click="activeTemplateFilter = cat">
-                            {{ cat }}
-                        </div>
+                        <div v-for="cat in categories" :key="cat" class="filter-pill" :class="{ active: activeTemplateFilter === cat }" @click="activeTemplateFilter = cat">{{ cat }}</div>
                     </div>
                 </div>
-
-                <!-- Grid Modèles -->
                 <div class="projects-section">
-                    <!-- CHANGED: col-sm-6 col-md-4 col-lg-3 for smaller cards (4 per row) -->
                     <div class="row g-3">
                         <div class="col-sm-6 col-md-4 col-xl-3" v-for="(tpl, index) in filteredTemplates" :key="index">
                             <div class="project-card h-100 p-4 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="template-icon-wrapper" :class="tpl.bgClass">
-                                        <i :class="tpl.icon"></i>
-                                    </div>
+                                    <div class="template-icon-wrapper" :class="tpl.bgClass"><i :class="tpl.icon"></i></div>
                                     <span class="badge bg-light text-dark border text-truncate" style="max-width: 100px; font-size: 0.7rem;">{{ tpl.category }}</span>
                                 </div>
                                 <h5 class="fw-bold mb-2" style="font-size: 1rem;">{{ tpl.title }}</h5>
@@ -600,10 +664,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Placeholder for other tabs -->
+            <!-- Placeholder -->
             <div v-else class="p-5 text-center text-muted">
                 <i class="fas fa-tools fa-3x mb-3 text-secondary opacity-50"></i>
                 <h3>Contenu de l'onglet : {{ activeTabName }}</h3>
@@ -621,49 +684,57 @@
 <script>
     const { createApp, ref, computed } = Vue;
 
-    // --- Component: Quick Action Icon ---
+    // --- Components ---
     const QuickAction = {
         props: ['data'],
         template: `
             <div class="action-item">
-                <div class="action-icon-circle" :class="data.bgClass">
-                    <i :class="data.icon"></i>
-                </div>
+                <div class="action-icon-circle" :class="data.bgClass"><i :class="data.icon"></i></div>
                 <span class="action-label">{{ data.label }}</span>
             </div>
         `
     };
 
-    // --- Component: Project Card ---
     const ProjectCard = {
         props: ['project'],
         template: `
-            <div class="col-md-6 col-lg-3">
+            <!-- UPDATED GRID CLASSES for responsiveness: col-12 on mobile, col-md-6 tablet, col-lg-4 desktop, col-xl-3 big screens -->
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="project-card h-100">
                     <div class="card-img-wrapper">
                         
-                        <!-- Visual: Popin (Exit Intent) - IMPROVED -->
-                        <div v-if="project.visualType === 'popin'" class="mock-base mock-modal-overlay">
+                        <!-- Specific Logos (Facebook, Amazon, Awin, Web) -->
+                        <div v-if="project.type === 'awin'" class="d-flex flex-column align-items-center">
+                            <div class="awin-logo">AWIN</div>
+                        </div>
+                        <div v-else-if="project.type === 'fb'" class="text-primary" style="font-size: 2.5rem;">
+                            <i class="fab fa-facebook"></i>
+                        </div>
+                        <div v-else-if="project.type === 'amazon'" style="font-size: 2.5rem; color: #ff9900;">
+                            <i class="fab fa-amazon"></i>
+                        </div>
+                        <div v-else-if="project.type === 'web' || project.visualType === 'layout'" class="mock-layout" style="width: 80%; height: 70%; border: 1px solid #eee;">
+                            <div class="mock-header"></div>
+                            <div class="mock-hero" style="height: 40px;"></div>
+                        </div>
+                        <div v-else-if="project.type === 'doc'" class="text-muted" style="font-size: 2.5rem;">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+
+                        <!-- Generic Visual Types (Fallback) -->
+                        <div v-else-if="project.visualType === 'popin'" class="mock-base mock-modal-overlay">
                             <div class="mock-modal-box d-flex flex-row overflow-hidden p-0" style="width: 75%; height: 65%;">
-                                <!-- Left side: Image -->
                                 <div style="width: 40%; background: #ffe3ec; display: flex; align-items: flex-end; justify-content: center;">
                                      <i class="fas fa-user-circle" style="font-size: 2.5rem; color: #d63384; opacity: 0.8; margin-bottom: -5px;"></i>
                                 </div>
-                                <!-- Right side: Text & Confetti -->
                                 <div style="width: 60%; padding: 6px; display: flex; flex-direction: column; justify-content: center; position: relative;">
-                                    <!-- Confetti effects -->
                                     <div style="position: absolute; top: 5px; right: 5px; color: #ffc107; font-size: 0.5rem;"><i class="fas fa-star"></i></div>
-                                    <div style="position: absolute; bottom: 5px; right: 10px; color: #0dcaf0; font-size: 0.4rem;"><i class="fas fa-circle"></i></div>
-                                    <div style="position: absolute; top: 10px; left: 5px; color: #20c997; font-size: 0.3rem;"><i class="fas fa-caret-up"></i></div>
-                                    
                                     <div class="mock-line mb-1" style="width: 80%; background: #d63384; height: 4px;"></div>
                                     <div class="mock-line mb-2" style="width: 60%; height: 3px;"></div>
                                     <div class="mock-btn" style="background: #d63384; width: 90%; height: 8px;"></div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Visual: Chart (Insights) -->
                         <div v-else-if="project.visualType === 'chart'" class="mock-base">
                             <div class="mock-chart-container">
                                 <div class="mock-bar" style="height: 40%"></div>
@@ -672,9 +743,7 @@
                                 <div class="mock-bar" style="height: 90%"></div>
                             </div>
                         </div>
-
-                         <!-- Visual: Grid (Products) -->
-                        <div v-else-if="project.visualType === 'grid'" class="mock-base">
+                         <div v-else-if="project.visualType === 'grid'" class="mock-base">
                             <div class="mock-grid-container">
                                 <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
                                 <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
@@ -682,8 +751,7 @@
                                 <div class="mock-grid-item"><div class="mock-grid-img"></div><div class="mock-line short" style="width:80%"></div></div>
                             </div>
                         </div>
-
-                        <!-- Visual: Home Layout (Default) -->
+                        <!-- Default Layout -->
                         <div v-else class="mock-base mock-layout">
                             <div class="mock-header"></div>
                             <div class="d-flex gap-1" style="flex-grow: 1">
@@ -697,119 +765,239 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     <div class="card-body">
-                        <div class="project-title">{{ project.title }}</div>
-                        <div class="project-category">{{ project.category }}</div>
+                        <div class="project-title">{{ project.title || project.name }}</div>
+                        <div class="project-category">{{ project.category || 'Projet' }}</div>
                     </div>
                 </div>
             </div>
         `
     };
 
-    // --- Component: Sidebar ---
     const SidebarComponent = {
-        props: ['activeTab'],
-        emits: ['change-tab'],
-        template: `
-            <nav id="sidebar">
-                <!-- Logo spans full width -->
-                <div class="sidebar-logo">
-                    <i class="fas fa-hexagon-nodes logo-hexagon"></i>
-                    COMMANDERS ACT
-                </div>
+        props: ['activeTab', 'isCollapsed', 'integrationMenuState', 'analysesMenuState'],
+        emits: ['change-tab', 'toggle-sidebar', 'toggle-integration-menu', 'toggle-analyses-menu'],
+        setup(props, { emit }) {
+            const integrationMenus = [
+                { id: 'sources', title: 'Sources', icon: 'fas fa-database', iconColor: '#d63384', submenus: [
+                      { title: 'Overview', url: '#' },
+                      { title: 'Sources catalog', url: '#' },
+                      { title: 'Web Containers', url: '#' },
+                      { title: 'Privacy Banners', url: '#' },
+                      { title: 'Live Events Inspector', url: '#' },
+                  ]
+                },
+                { id: 'enrichments', title: 'Enrichments', icon: 'fas fa-wand-magic-sparkles', iconColor: '#d63384', submenus: [
+                      { title: 'Event Enrichment', url: '#' },
+                      { title: 'User Enrichment', url: '#' },
+                  ]
+                },
+                { id: 'destinations', title: 'Destinations', icon: 'fas fa-paper-plane', iconColor: '#d63384', submenus: [
+                      { title: 'Overview', url: '#' },
+                      { title: 'Destination Catalog', url: '#' },
+                      { title: 'Campaign Exports', url: '#' },
+                  ]
+                },
+                { id: 'health', title: 'Health', icon: 'fas fa-heart-pulse', iconColor: '#dc3545', submenus: [
+                      { title: 'Sources Data Quality', url: '#' },
+                      { title: 'Realtime Cookie Scanner', url: '#' },
+                      { title: 'Destinations Monitoring', url: '#' },
+                      { title: 'Website Monitoring', url: '#' },
+                      { title: 'Alerts', url: '#' , isLocked: true },
+                  ]
+                }
+            ];
+            
+            // New structure for Analyses
+            const analysesMenus = [
+                 { id: 'campaigns', title: 'Campaigns', icon: 'fas fa-bullhorn', submenus: [
+                     { title: 'Media Performance', url: '#' },
+                     { title: 'Journey and Influence', url: '#' },
+                 ]},
+                 { id: 'dataInsights', title: 'Data Insights', icon: 'fas fa-brain', submenus: [
+                     { title: 'User-centric', url: '#' },
+                     { title: 'Product-centric', url: '#' },
+                     { title: 'Conversions', url: '#' },
+                 ]},
+                 { id: 'consent', title: 'Consent', icon: 'fas fa-cookie-bite', submenus: [
+                     // Consent has no sub-items under the title itself, but is a main element.
+                 ]},
+            ];
 
-                <!-- Main Grid Layout -->
-                <div class="row mx-0 mt-1 h-100">
-                    
-                    <!-- LEFT COLUMN: Icons Navigation -->
-                    <div class="col-3 px-0 d-flex flex-column align-items-center border-end pe-2">
-                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'accueil' }" @click.prevent="$emit('change-tab', 'accueil')">
-                            <i class="fas fa-home"></i>
-                            Accueil
-                        </a>
-                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'projets' }" @click.prevent="$emit('change-tab', 'projets')">
-                            <i class="far fa-folder"></i>
-                            Projets
-                        </a>
-                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'modeles' }" @click.prevent="$emit('change-tab', 'modeles')">
-                            <i class="fas fa-columns"></i>
-                            Modèles
-                        </a>
-                        <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'integrations' }" @click.prevent="$emit('change-tab', 'integrations')">
-                            <i class="fas fa-plug"></i>
-                            Intégratio...
-                        </a>
-                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'apps' }" @click.prevent="$emit('change-tab', 'apps')">
-                            <i class="fas fa-th-large"></i>
-                            Apps
-                        </a>
-                         <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'copilot' }" @click.prevent="$emit('change-tab', 'copilot')">
-                            <i class="fas fa-robot"></i>
-                            Copilot
-                        </a>
+            return {
+                integrationMenus,
+                analysesMenus
+            };
+        },
+        template: `
+            <nav id="sidebar" :class="{ 'collapsed': isCollapsed }">
+                <div class="sidebar-header">
+                    <button class="btn-toggle-sidebar" @click="$emit('toggle-sidebar')" :title="isCollapsed ? 'Ouvrir le menu' : 'Réduire le menu'">
+                        <i v-if="isCollapsed" class="fas fa-bars"></i>
+                        <i v-else class="fas fa-outdent"></i>
+                    </button>
+                    <div class="logo-wrapper">
+                        <i class="fas fa-hexagon-nodes logo-hexagon"></i>
+                        <span class="logo-text">COMMANDERS ACT</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-content-wrapper">
+                    <!-- LEFT COLUMN -->
+                    <div class="sidebar-left-col">
+                        <!-- TOP NAVIGATION GROUP -->
+                        <div class="sidebar-nav-top">
+                             <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'accueil' }" @click.prevent="$emit('change-tab', 'accueil')"><i class="fas fa-home"></i>Accueil</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'projets' }" @click.prevent="$emit('change-tab', 'projets')"><i class="far fa-folder"></i>Projets</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'modeles' }" @click.prevent="$emit('change-tab', 'modeles')"><i class="fas fa-columns"></i>Modèles</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'integrations' }" @click.prevent="$emit('change-tab', 'integrations')"><i class="fas fa-plug"></i>Intégrations</a>
+                            
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'analyses' }" @click.prevent="$emit('change-tab', 'analyses')"><i class="fas fa-chart-line"></i>Analyses</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'gouvernance' }" @click.prevent="$emit('change-tab', 'gouvernance')"><i class="fas fa-shield-alt"></i>Gouvernance</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'admin' }" @click.prevent="$emit('change-tab', 'admin')"><i class="fas fa-cog"></i>Admin</a>
+                        </div>
+                        
+                        <!-- BOTTOM NAVIGATION GROUP (DETACHED) -->
+                        <div class="sidebar-nav-bottom">
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'copilot' }" @click.prevent="$emit('change-tab', 'copilot')"><i class="fas fa-robot"></i>Copilot</a>
+                        </div>
                     </div>
 
-                    <!-- RIGHT COLUMN: Actions, Alerts, Favorites, Recent -->
-                    <div class="col-9 ps-3 d-flex flex-column">
+                    <!-- RIGHT COLUMN: DYNAMIC CONTENT -->
+                    <div class="sidebar-right-col d-flex flex-column">
                         
-                        <!-- NEW PLACEMENT: Create Button inside the right column -->
-                        <button class="btn btn-create">
-                            <i class="fas fa-plus me-2"></i> Créer un projet
-                        </button>
-                        
-                        <!-- Alerts / News -->
-                        <div class="new-feature-alert">
-                            <div class="d-flex align-items-center mb-1">
-                                <i class="fas fa-bolt text-warning me-2"></i> 
-                                <strong>Découvrez les nouveautés</strong>
+                        <!-- VIEW: ANALYSES SPECIFIC (NEW) -->
+                        <div v-if="activeTab === 'analyses'">
+                            <span class="section-title">Analyses</span>
+                            <div class="mb-2 mt-2">
+                                <template v-for="menu in analysesMenus" :key="menu.id">
+                                    <a href="#" class="main-nav-item" 
+                                       :class="{ 'open': analysesMenuState[menu.id] }"
+                                       @click.prevent="menu.submenus.length > 0 ? $emit('toggle-analyses-menu', menu.id) : null">
+                                        <div class="main-nav-item-content">
+                                            <!-- Icon is now primary-blue by default -->
+                                            <i :class="[menu.icon]"></i> 
+                                            {{ menu.title }}
+                                        </div>
+                                        <i v-if="menu.submenus.length > 0" class="fas" :class="analysesMenuState[menu.id] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                    </a>
+                                    
+                                    <ul v-if="menu.submenus.length > 0" class="submenu-links" :class="{ 'open': analysesMenuState[menu.id] }">
+                                        <li v-for="sub in menu.submenus" :key="sub.title">
+                                            <a :href="sub.url">
+                                                {{ sub.title }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </template>
                             </div>
-                            <div class="close-alert">&times;</div>
-                            <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.75rem; color: #555;">
-                                <li class="mb-1">1. Modèles et applis</li>
-                                <li>2. Guide du First Party</li>
-                            </ul>
-                        </div>
+                            
+                            <div class="sidebar-divider"></div>
 
-                        <!-- Favorites -->
-                        <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
-                            <span class="section-title mb-0">Vos favoris</span>
-                            <i class="fas fa-plus text-muted" style="font-size: 0.7rem; cursor: pointer"></i>
+                            <span class="section-title">Rapports Récents</span>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-file-invoice-dollar"></i> Performance Média Q4</a>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-chart-bar"></i> Attribution Multi-touch</a>
                         </div>
                         
-                        <a href="#" class="sub-nav-item">
-                            <i class="fas fa-folder"></i> Segments actifs
-                        </a>
-                        <a href="#" class="sub-nav-item">
-                            <i class="fas fa-adjust"></i> Suivi Campagne Noël
-                        </a>
-                        <a href="#" class="sub-nav-item">
-                            <i class="fas fa-folder"></i> Tests
-                        </a>
+                        <!-- VIEW: INTEGRATIONS SPECIFIC -->
+                        <div v-else-if="activeTab === 'integrations'">
+                            <!-- MAIN ITEMS / ACCORDION -->
+                            <div class="mb-2 mt-2">
+                                <template v-for="menu in integrationMenus" :key="menu.id">
+                                    <a href="#" class="main-nav-item" 
+                                       :class="{ 'open': integrationMenuState[menu.id] }"
+                                       @click.prevent="$emit('toggle-integration-menu', menu.id)">
+                                        <div class="main-nav-item-content">
+                                            <i :class="[menu.icon]"></i> 
+                                            {{ menu.title }}
+                                        </div>
+                                        <i class="fas" :class="integrationMenuState[menu.id] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                    </a>
+                                    
+                                    <ul class="submenu-links" :class="{ 'open': integrationMenuState[menu.id] }">
+                                        <li v-for="sub in menu.submenus" :key="sub.title">
+                                            <a :href="sub.url">
+                                                {{ sub.title }}
+                                                <i v-if="sub.isLocked" class="fas fa-lock text-muted ms-1" style="font-size: 0.7rem;"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </div>
 
-                        <div class="sidebar-divider"></div>
-                        
-                        <!-- Recent Projects Sidebar -->
-                        <span class="section-title">Projets récents</span>
-                        <a href="#" class="sub-nav-item">
-                            <i class="fas fa-file-alt text-info"></i> Guide du travail...
-                        </a>
-                         <a href="#" class="sub-nav-item">
-                            <i class="fas fa-file-image text-success"></i> Modèles et applis
-                        </a>
-                         <a href="#" class="sub-nav-item">
-                            <i class="fas fa-file-code text-danger"></i> Pink & Blue Futuri...
-                        </a>
-                         <a href="#" class="sub-nav-item">
-                            <i class="fas fa-file-alt text-info"></i> Guide du travail...
-                        </a>
+                            <div class="sidebar-divider"></div>
 
-                        <!-- Trash (pushed to bottom of this column) -->
+                            <!-- FAVORITES BELOW - SECONDARY STYLE -->
+                            <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                                <span class="section-title mb-0">Vos favoris</span>
+                                <i class="fas fa-plus text-muted" style="font-size: 0.7rem; cursor: pointer"></i>
+                            </div>
+                            
+                            <div class="favorites-list">
+                                <a href="#" class="fav-item">
+                                    <i class="fas fa-box fav-icon"></i> 
+                                    <span class="text-truncate">Web container 'footer'</span>
+                                    <i class="fas fa-thumbtack ms-auto text-muted" style="font-size: 0.7rem; transform: rotate(45deg);"></i>
+                                </a>
+                                <a href="#" class="fav-item">
+                                    <i class="fab fa-amazon fav-icon"></i> 
+                                    <span class="text-truncate">Amazon CAPI</span>
+                                    <i class="fas fa-thumbtack ms-auto text-muted" style="font-size: 0.7rem; transform: rotate(45deg);"></i>
+                                </a>
+                                <a href="#" class="fav-item">
+                                    <i class="fab fa-facebook fav-icon"></i> 
+                                    <span class="text-truncate">Meta CAPI</span>
+                                    <i class="fas fa-thumbtack ms-auto text-muted" style="font-size: 0.7rem; transform: rotate(45deg);"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- VIEW: PROJETS SPECIFIC -->
+                        <div v-else-if="activeTab === 'projets'">
+                            <button class="btn btn-create mb-3"><i class="fas fa-plus me-2"></i> Nouveau dossier</button>
+                            
+                            <a href="#" class="sub-nav-item active mb-1"><i class="far fa-folder-open"></i> Tous les projets</a>
+                            <a href="#" class="sub-nav-item mb-1"><i class="fas fa-user-circle"></i> Vos projets</a>
+                            <a href="#" class="sub-nav-item mb-1"><i class="fas fa-users"></i> Partagés avec vous</a>
+                            
+                            <div class="sidebar-divider"></div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                                <span class="section-title mb-0">Vos Dossiers</span><i class="fas fa-plus text-muted" style="font-size: 0.7rem; cursor: pointer"></i>
+                            </div>
+                            <a href="#" class="sub-nav-item"><i class="far fa-folder"></i> website perso</a>
+                            <a href="#" class="sub-nav-item"><i class="far fa-folder"></i> Affiliation serverside</a>
+                            <a href="#" class="sub-nav-item"><i class="far fa-folder"></i> CAPIs</a>
+                            <a href="#" class="sub-nav-item"><i class="far fa-folder"></i> Data Enrichments</a>
+                            <a href="#" class="sub-nav-item"><i class="far fa-folder"></i> Campaign reports</a>
+                        </div>
+
+                        <!-- VIEW: ACCUEIL/DEFAULT (activeTab !== 'integrations' && activeTab !== 'projets') -->
+                        <div v-else>
+                            <button class="btn btn-create"><i class="fas fa-plus me-2"></i> Créer un projet</button>
+                            <div class="new-feature-alert">
+                                <div class="d-flex align-items-center mb-1"><i class="fas fa-bolt text-warning me-2"></i><strong>Découvrez les nouveautés</strong></div>
+                                <div class="close-alert">&times;</div>
+                                <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.75rem; color: #555;">
+                                    <li class="mb-1">1. Modèles et applis</li><li>2. Guide du First Party</li>
+                                </ul>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                                <span class="section-title mb-0">Vos favoris</span><i class="fas fa-plus text-muted" style="font-size: 0.7rem; cursor: pointer"></i>
+                            </div>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-folder"></i> Segments actifs</a>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-adjust"></i> Suivi Campagne Noël</a>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-folder"></i> Tests</a>
+                            <div class="sidebar-divider"></div>
+                            <span class="section-title">Projets récents</span>
+                            <a href="#" class="sub-nav-item"><i class="fas fa-file-alt text-info"></i> Guide du travail...</a>
+                             <a href="#" class="sub-nav-item"><i class="fas fa-file-image text-success"></i> Modèles et applis</a>
+                             <a href="#" class="sub-nav-item"><i class="fas fa-file-code text-danger"></i> Pink & Blue Futuri...</a>
+                        </div>
+
                         <div class="mt-auto pb-3">
-                            <a href="#" class="sub-nav-item text-muted">
-                                <i class="far fa-trash-alt"></i> Corbeille
-                            </a>
+                            <a href="#" class="sub-nav-item text-muted"><i class="far fa-trash-alt"></i> Corbeille</a>
                         </div>
                     </div>
                 </div>
@@ -817,7 +1005,6 @@
         `
     };
 
-    // --- Component: Top Bar ---
     const TopBar = {
         template: `
             <div class="top-bar">
@@ -852,14 +1039,55 @@
         setup() {
             const activeTab = ref('accueil');
             const activeTemplateFilter = ref('all');
+            const sidebarCollapsed = ref(false);
+            
+            // State for the Integration Submenu Accordion
+            const integrationMenuState = ref({
+                sources: false,
+                enrichments: false,
+                destinations: false,
+                health: false,
+            });
+
+            // State for the Analyses Submenu Accordion (NEW)
+            const analysesMenuState = ref({
+                campaigns: false,
+                dataInsights: false,
+                consent: false,
+            });
 
             const activeTabName = computed(() => {
-                return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1);
+                // A helper to display the current view name for placeholders
+                const tabNames = {
+                    accueil: 'Accueil',
+                    projets: 'Projets',
+                    modeles: 'Modèles',
+                    integrations: 'Intégrations',
+                    analyses: 'Analyses',
+                    gouvernance: 'Gouvernance',
+                    admin: 'Admin',
+                    copilot: 'Copilot'
+                };
+                return tabNames[activeTab.value] || activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1);
             });
 
             const setActiveTab = (tab) => {
                 activeTab.value = tab;
             };
+            
+            const toggleSidebar = () => {
+                sidebarCollapsed.value = !sidebarCollapsed.value;
+            };
+
+            const toggleIntegrationMenu = (menuId) => {
+                integrationMenuState.value[menuId] = !integrationMenuState.value[menuId];
+            };
+            
+            // Toggle function for Analyses (NEW)
+            const toggleAnalysesMenu = (menuId) => {
+                analysesMenuState.value[menuId] = !analysesMenuState.value[menuId];
+            };
+
 
             const quickActions = ref([
                 { label: 'Conversions', icon: 'fas fa-file-invoice-dollar', bgClass: 'bg-teal' },
@@ -873,202 +1101,76 @@
                 { label: 'Collector', icon: 'fas fa-cloud-upload-alt', bgClass: 'bg-gray' },
             ]);
 
-            const recentProjects = ref([
+            const recentProjectsAccueil = ref([
                 { title: 'Home personalisation', category: 'Website Personalisation', color: '#20c997', visualType: 'layout' },
                 { title: 'Exit coupon', category: 'Exit Intent Popin', color: '#d63384', visualType: 'popin' },
                 { title: 'CA Campaign optimisation', category: 'Insights', color: '#0dcaf0', visualType: 'chart' },
                 { title: 'Product personalisation', category: 'Product recommendation', color: '#0d6efd', visualType: 'grid' }
             ]);
+            
+            // --- DATA FOR PROJECTS PAGE ---
+            const projectsPageRecents = ref([
+                { name: "Website perso 'Loyal Customers'", date: 'Modifié il y a 2h', type: 'web' },
+                { name: 'Facebook CAPI', date: 'Modifié il y a 1j', type: 'fb' },
+                { name: 'Amazon CAPI', date: 'Modifié il y a 3j', type: 'amazon' },
+                { name: 'Christmas campaign report', date: 'Modifié il y a 4j', type: 'doc' },
+                { name: 'Awin Serverside', date: 'Modifié il y a 5j', type: 'awin' },
+                { name: 'Enrichment: Add Margin', date: 'Modifié il y a 1 sem', type: 'doc' },
+                { name: 'Cross-sell Onsite', date: 'Modifié il y a 1 mois', type: 'web' },
+            ]);
 
-            // --- Updated Template Categories & Data ---
+            // Calculated Counts based on projects
+            const projectFolders = ref([
+                { name: 'Importations', count: 0 },
+                { name: 'Affiliation serverside', count: 1 },
+                { name: 'CAPIs', count: 2 },
+                { name: 'website perso', count: 2 },
+                { name: 'Data Enrichments', count: 2 },
+                { name: 'Campaign reports', count: 1 },
+            ]);
+
+            // Replaced generic Canva items with real marketing cases
+            // And merged "Recents" items into this main list
+            const projectDesigns = ref([
+                 { title: 'Cross-sell Onsite', category: 'Website Personalisation', color: '#0d6efd', visualType: 'layout', type: 'web' },
+                 { title: 'Popin New User', category: 'Exit Intent', color: '#d63384', visualType: 'popin' },
+                 { title: 'Segmentation RFM', category: 'Data', color: '#20c997', visualType: 'chart' },
+                 
+                 // MERGED FROM RECENTS (to have same visuals/types)
+                 { title: "Website perso 'Loyal Customers'", category: 'Personnalisation', color: '#20c997', type: 'web' },
+                 { title: 'Facebook CAPI', category: 'Integration', color: '#0d6efd', type: 'fb' },
+                 { title: 'Amazon CAPI', category: 'Integration', color: '#ff9900', type: 'amazon' },
+                 { title: 'Christmas campaign report', category: 'Analytics', color: '#dc3545', type: 'doc' },
+                 { title: 'Awin Serverside', category: 'Integration', color: '#e36a29', type: 'awin' },
+                 { title: 'Enrichment: Add Margin', category: 'Data', color: '#6f42c1', type: 'doc' },
+            ]);
+
             const categories = ref([
-                'Acquisition & Conversion',
-                'Personnalisation Contenu',
-                'Analytics & Mesure',
-                'Budget & Performance',
-                'Consentement',
-                'Data Quality',
-                'Activation CRM',
-                'UX / UI',
-                'Performance & Fiabilité'
+                'Acquisition & Conversion', 'Personnalisation Contenu', 'Analytics & Mesure',
+                'Budget & Performance', 'Consentement', 'Data Quality', 'Activation CRM', 'UX / UI', 'Performance & Fiabilité'
             ]);
 
             const allTemplates = ref([
-                // 1. Acquisition & Conversion
-                { 
-                    title: 'Landing Page Personalization', 
-                    category: 'Acquisition & Conversion', 
-                    description: 'Adaptez le contenu post-clic pour maximiser la conversion.', 
-                    icon: 'fas fa-bullseye', 
-                    bgClass: 'bg-blue' 
-                },
-                { 
-                    title: 'Smart Exit Intent', 
-                    category: 'Acquisition & Conversion', 
-                    description: 'Déclenchement optimisé de popin lors de la sortie de site.', 
-                    icon: 'fas fa-door-open', 
-                    bgClass: 'bg-pink' 
-                },
-                // Additional Acquisition
-                {
-                    title: 'Lead Gen Form',
-                    category: 'Acquisition & Conversion',
-                    description: 'Formulaire multi-étapes pour qualifier les prospects entrants.',
-                    icon: 'fas fa-filter',
-                    bgClass: 'bg-teal'
-                },
-                // 2. Personnalisation de Contenu
-                { 
-                    title: 'Bannière Dynamique', 
-                    category: 'Personnalisation Contenu', 
-                    description: 'Affichage personnalisé selon la campagne marketing source.', 
-                    icon: 'fas fa-image', 
-                    bgClass: 'bg-indigo' 
-                },
-                { 
-                    title: 'Contenu Recommandé', 
-                    category: 'Personnalisation Contenu', 
-                    description: 'Bloc de recommandation basé sur l\'historique de navigation.', 
-                    icon: 'fas fa-robot', 
-                    bgClass: 'bg-purple' 
-                },
-                 { 
-                    title: 'Message Nouveau vs Récurrent', 
-                    category: 'Personnalisation Contenu', 
-                    description: 'Adaptez le ton et l\'offre selon le statut du visiteur.', 
-                    icon: 'fas fa-user-tag', 
-                    bgClass: 'bg-orange' 
-                },
-                // 3. Analytics & Mesure
-                { 
-                    title: 'GA4 Server-Side', 
-                    category: 'Analytics & Mesure', 
-                    description: 'Tracking server-side robuste et prêt à l\'emploi pour GA4.', 
-                    icon: 'fab fa-google', 
-                    bgClass: 'bg-orange' 
-                },
-                 { 
-                    title: 'Quality Dashboard', 
-                    category: 'Analytics & Mesure', 
-                    description: 'Vérifiez la perte d’événements et la qualité de la collecte.', 
-                    icon: 'fas fa-chart-bar', 
-                    bgClass: 'bg-teal' 
-                },
-                {
-                    title: 'Piano Analytics SS',
-                    category: 'Analytics & Mesure',
-                    description: 'Implémentation server-side pour Piano Analytics.',
-                    icon: 'fas fa-music',
-                    bgClass: 'bg-blue'
-                },
-                // 4. Budget & Performance
-                { 
-                    title: 'Budget Reallocation (DDA)', 
-                    category: 'Budget & Performance', 
-                    description: 'Réallocation automatique via attribution data-driven.', 
-                    icon: 'fas fa-coins', 
-                    bgClass: 'bg-green' 
-                },
-                 { 
-                    title: 'Low Performance Alert', 
-                    category: 'Budget & Performance', 
-                    description: 'Alerte email automatique si le CPA dépasse le seuil défini.', 
-                    icon: 'fas fa-bell', 
-                    bgClass: 'bg-red' 
-                },
-                // 5. Consentement
-                { 
-                    title: 'Realtime Cookie Scanner', 
-                    category: 'Consentement', 
-                    description: 'Audit cookies et alertes de conformité en temps réel.', 
-                    icon: 'fas fa-cookie-bite', 
-                    bgClass: 'bg-red' 
-                },
-                { 
-                    title: 'Consent Renewal', 
-                    category: 'Consentement', 
-                    description: 'Scénario de renouvellement du consentement après 6 mois.', 
-                    icon: 'fas fa-sync-alt', 
-                    bgClass: 'bg-gray' 
-                },
-                // 6. Data Quality
-                { 
-                    title: 'Data Cleansing', 
-                    category: 'Data Quality', 
-                    description: 'Nettoyage et correction automatique des champs incohérents.', 
-                    icon: 'fas fa-broom', 
-                    bgClass: 'bg-gray' 
-                },
-                 { 
-                    title: 'Dédoublonnage Contacts', 
-                    category: 'Data Quality', 
-                    description: 'Fusion des profils basés sur email et téléphone.', 
-                    icon: 'fas fa-users', 
-                    bgClass: 'bg-blue' 
-                },
-                // 7. Activation CRM
-                { 
-                    title: 'Cart Abandonment Trigger', 
-                    category: 'Activation CRM', 
-                    description: 'Relance multicanale suite à un abandon de panier.', 
-                    icon: 'fas fa-shopping-cart', 
-                    bgClass: 'bg-blue' 
-                },
-                { 
-                    title: 'Product View Follow-up', 
-                    category: 'Activation CRM', 
-                    description: 'Email de relance sur produit consulté sans achat.', 
-                    icon: 'fas fa-eye', 
-                    bgClass: 'bg-purple' 
-                },
-                 { 
-                    title: 'Audience Sync Google', 
-                    category: 'Activation CRM', 
-                    description: 'Synchronisation automatique des segments vers Google Ads.', 
-                    icon: 'fab fa-google', 
-                    bgClass: 'bg-green' 
-                },
-                // 8. UX / UI
-                { 
-                    title: 'New Customer Incentive', 
-                    category: 'UX / UI', 
-                    description: 'Popin de bienvenue avec offre spéciale pour nouveaux clients.', 
-                    icon: 'fas fa-gift', 
-                    bgClass: 'bg-pink' 
-                },
-                 { 
-                    title: 'Cross-sell Exit', 
-                    category: 'UX / UI', 
-                    description: 'Proposition de produits complémentaires en fin de session.', 
-                    icon: 'fas fa-exchange-alt', 
-                    bgClass: 'bg-indigo' 
-                },
-                // 9. Performance
-                { 
-                    title: 'Low-Latency Server-Side', 
-                    category: 'Performance & Fiabilité', 
-                    description: 'Setup optimisé pour minimiser la perte d’événements.', 
-                    icon: 'fas fa-tachometer-alt', 
-                    bgClass: 'bg-dark-blue' 
-                }
+                { title: 'Landing Page Personalization', category: 'Acquisition & Conversion', description: 'Adaptez le contenu post-clic pour maximiser la conversion.', icon: 'fas fa-bullseye', bgClass: 'bg-blue' },
+                { title: 'Smart Exit Intent', category: 'Acquisition & Conversion', description: 'Déclenchement optimisé de popin lors de la sortie de site.', icon: 'fas fa-door-open', bgClass: 'bg-pink' },
+                { title: 'Lead Gen Form', category: 'Acquisition & Conversion', description: 'Formulaire multi-étapes pour qualifier les prospects entrants.', icon: 'fas fa-filter', bgClass: 'bg-teal' },
+                { title: 'Bannière Dynamique', category: 'Personnalisation Contenu', description: 'Affichage personnalisé selon la campagne marketing source.', icon: 'fas fa-image', bgClass: 'bg-indigo' },
+                { title: 'GA4 Server-Side', category: 'Analytics & Mesure', description: 'Tracking server-side robuste et prêt à l\'emploi pour GA4.', icon: 'fab fa-google', bgClass: 'bg-orange' },
+                { title: 'Realtime Cookie Scanner', category: 'Consentement', description: 'Audit cookies et alertes de conformité en temps réel.', icon: 'fas fa-cookie-bite', bgClass: 'bg-red' },
+                { title: 'Cart Abandonment Trigger', category: 'Activation CRM', description: 'Relance multicanale suite à un abandon de panier.', icon: 'fas fa-shopping-cart', bgClass: 'bg-blue' },
             ]);
 
             const filteredTemplates = computed(() => {
-                if (activeTemplateFilter.value === 'all') {
-                    return allTemplates.value;
-                }
+                if (activeTemplateFilter.value === 'all') return allTemplates.value;
                 return allTemplates.value.filter(t => t.category === activeTemplateFilter.value);
             });
 
             return {
-                activeTab,
-                activeTabName,
-                setActiveTab,
-                quickActions,
-                recentProjects,
-                activeTemplateFilter,
-                categories,
-                filteredTemplates
+                activeTab, activeTabName, setActiveTab, toggleSidebar, sidebarCollapsed,
+                integrationMenuState, toggleIntegrationMenu,
+                analysesMenuState, toggleAnalysesMenu,
+                quickActions, recentProjectsAccueil, projectsPageRecents, projectFolders, projectDesigns,
+                activeTemplateFilter, categories, filteredTemplates
             };
         }
     }).mount('#app');
