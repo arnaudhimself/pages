@@ -11,17 +11,16 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     
     <style>
-        /* Custom Styles to match the screenshot visuals */
+        /* --- Global Variables & Colors --- */
         :root {
             --ca-blue: #0099cc;
             --ca-dark-blue: #0f1636;
             --ca-sidebar-bg: #ffffff;
             --ca-text-primary: #333333;
             --ca-text-secondary: #6c757d;
-            --ca-pink: #d63384;
             --bg-light: #f4f6f8;
-            --ca-active-bg: #fce4ec; /* Light pink background for active items */
-            --ca-active-text: #c2185b; /* Dark pink text for active items */
+            --ca-active-bg: #fce4ec; 
+            --ca-active-text: #c2185b;
         }
 
         body {
@@ -49,7 +48,7 @@
         .brand-logo-container {
             display: flex;
             align-items: center;
-            width: 240px; /* Match sidebar width */
+            width: 240px;
         }
 
         .platform-selector {
@@ -63,9 +62,7 @@
             align-items: center;
             height: 30px;
         }
-        .platform-selector:hover {
-            color: white;
-        }
+        .platform-selector:hover { color: white; }
 
         /* --- Sidebar --- */
         .sidebar {
@@ -108,7 +105,6 @@
             background-color: #f8f9fa;
         }
 
-        /* Active parent category styling (pink background) */
         .nav-link.active-parent {
             background-color: var(--ca-active-bg);
             color: var(--ca-active-text);
@@ -117,17 +113,12 @@
             padding-left: 17px;
         }
 
-        .nav-link.active-parent .nav-icon {
-            color: var(--ca-active-text);
-        }
+        .nav-link.active-parent .nav-icon { color: var(--ca-active-text); }
         
-        /* Sub-items styling */
-        .sub-menu {
-            background-color: white;
-        }
+        .sub-menu { background-color: white; }
         
         .nav-link.sub-item {
-            padding-left: 48px; /* Indent sub items */
+            padding-left: 48px;
             padding-top: 6px;
             padding-bottom: 6px;
             font-size: 0.85rem;
@@ -191,7 +182,7 @@
         }
 
         .btn-create {
-            background-color: #00bceb; /* Bright cyan/blue */
+            background-color: #00bceb;
             border: none;
             color: white;
             font-weight: 600;
@@ -204,7 +195,7 @@
             color: white;
         }
 
-        /* Table */
+        /* --- Table Component Styles --- */
         .custom-table {
             width: 100%;
             border-collapse: separate;
@@ -249,10 +240,9 @@
             min-width: 60px;
         }
         
-        /* UPDATED Active Color */
         .badge-active {
-            background-color: rgba(52, 195, 143, 0.15); /* Light version for bg */
-            color: #34c38f; /* Requested green */
+            background-color: rgba(52, 195, 143, 0.15);
+            color: #34c38f;
         }
         
         .badge-revoked {
@@ -260,9 +250,7 @@
             color: #6c757d;
         }
 
-        .actions-cell {
-            white-space: nowrap;
-        }
+        .actions-cell { white-space: nowrap; }
         .action-btn {
             color: #adb5bd;
             cursor: pointer;
@@ -270,9 +258,7 @@
             margin-right: 10px;
             transition: color 0.2s;
         }
-        .action-btn:hover {
-            color: #495057;
-        }
+        .action-btn:hover { color: #495057; }
 
         /* --- Modals --- */
         .modal-content {
@@ -280,96 +266,26 @@
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
-        
-        .modal-header {
-            border-bottom: none;
-            padding: 24px 24px 0;
-        }
-        
-        .modal-title {
-            font-weight: 700;
-            font-size: 1.25rem;
-            margin-bottom: 5px;
-        }
-        
-        .modal-subtitle {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .modal-body {
-            padding: 24px;
-        }
-        
-        .modal-footer {
-            border-top: none;
-            padding: 0 24px 24px;
-            justify-content: flex-end;
-        }
+        .modal-header { border-bottom: none; padding: 24px 24px 0; }
+        .modal-title { font-weight: 700; font-size: 1.25rem; margin-bottom: 5px; }
+        .modal-subtitle { font-size: 0.9rem; color: #6c757d; }
+        .modal-body { padding: 24px; }
+        .modal-footer { border-top: none; padding: 0 24px 24px; justify-content: flex-end; }
 
-        .form-label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            color: #212529;
-        }
+        .form-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #212529; }
+        .form-control, .form-select { padding: 10px 12px; font-size: 0.95rem; border-color: #dee2e6; }
+        .form-control:focus, .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); }
+        .form-control:disabled, .form-control[readonly] { background-color: #e9ecef; opacity: 1; }
+        .form-text { font-size: 0.8rem; color: #6c757d; margin-top: 4px; }
         
-        .form-control, .form-select {
-            padding: 10px 12px;
-            font-size: 0.95rem;
-            border-color: #dee2e6;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-        }
-        
-        .form-text {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-        
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .radio-description {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 4px;
-            margin-left: 24px;
-            line-height: 1.4;
-            margin-bottom: 8px;
-        }
-        
-        .form-check-input:checked {
-            background-color: var(--ca-blue);
-            border-color: var(--ca-blue);
-        }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        .radio-description { font-size: 0.8rem; color: #6c757d; margin-top: 4px; margin-left: 24px; line-height: 1.4; margin-bottom: 8px; }
+        .form-check-input:checked { background-color: var(--ca-blue); border-color: var(--ca-blue); }
 
-        /* Advanced Security Section */
-        .advanced-toggle {
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            color: #212529;
-            margin-top: 10px;
-            user-select: none;
-        }
-        .advanced-toggle:hover {
-            color: var(--ca-blue);
-        }
-        .advanced-content {
-            margin-left: 20px;
-            margin-top: 10px;
-        }
+        .advanced-toggle { cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; color: #212529; margin-top: 10px; user-select: none; }
+        .advanced-toggle:hover { color: var(--ca-blue); }
+        .advanced-content { margin-left: 20px; margin-top: 10px; }
 
-        /* Security Alert in Success Modal */
         .alert-security {
             background-color: #e3f6fc;
             border: 1px solid #bce6f7;
@@ -380,36 +296,64 @@
             padding: 15px;
             border-radius: 6px;
         }
-        .alert-security i {
-            font-size: 1.3rem;
-            margin-right: 12px;
-            margin-top: 2px;
-            color: #0dcaf0;
-        }
+        .alert-security i { font-size: 1.3rem; margin-right: 12px; margin-top: 2px; color: #0dcaf0; }
         
-        /* Revoke Modal Specifics */
-        .btn-danger-custom {
-            background-color: #dc3545;
-            color: white;
-            font-weight: 500;
-        }
-        .token-display-revoke {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: 'Roboto Mono', monospace;
-            color: #333;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 0.9rem;
-        }
+        .btn-danger-custom { background-color: #dc3545; color: white; font-weight: 500; }
+        .token-display-revoke { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px; font-family: 'Roboto Mono', monospace; color: #333; text-align: center; margin: 20px 0; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <!-- 1. Top Navigation Bar -->
+    <!-- Component Usage -->
+    <app-navbar></app-navbar>
+    
+    <app-sidebar></app-sidebar>
+    
+    <div class="main-content">
+        <h1 class="page-title">API tokens</h1>
+        <div class="content-card">
+            <div class="card-header-row">
+                <p class="helper-text">Create and manage API tokens for Commanders Act. Token values are only shown once at creation.</p>
+                <button class="btn btn-create" @click="showCreateModal">Create token</button>
+            </div>
+            
+            <!-- List Component -->
+            <token-list 
+                :tokens="tokens" 
+                @request-edit="openEditModal"
+                @request-revoke="confirmRevokeToken">
+            </token-list>
+        </div>
+    </div>
+
+    <!-- Modals as Components -->
+    <create-token-modal 
+        ref="createModalComp"
+        @token-created="handleTokenCreated">
+    </create-token-modal>
+
+    <edit-token-modal
+        ref="editModalComp"
+        @token-updated="handleTokenUpdated">
+    </edit-token-modal>
+
+    <success-modal 
+        ref="successModalComp"
+        :token-value="createdTokenValue">
+    </success-modal>
+    
+    <revoke-modal 
+        ref="revokeModalComp"
+        :token-value="tokenToRevokeValue"
+        @confirm-revoke="executeRevocation">
+    </revoke-modal>
+</div>
+
+<!-- ================= TEMPLATES ================= -->
+
+<!-- 1. Navbar Template -->
+<script type="text/x-template" id="tpl-navbar">
     <nav class="top-navbar">
         <div class="brand-logo-container">
             <i class='bx bxl-codepen' style="font-size: 24px; color: #d63384; margin-right: 8px;"></i>
@@ -420,56 +364,35 @@
             <i class='bx bx-laptop' style="margin-right:6px;"></i> CA+ Platform <i class='bx bx-chevron-down' style="margin-left:4px;"></i>
         </div>
     </nav>
+</script>
 
-    <!-- 2. Sidebar -->
+<!-- 2. Sidebar Template -->
+<script type="text/x-template" id="tpl-sidebar">
     <div class="sidebar">
-        <!-- Integrations Group -->
+        <!-- Integrations -->
         <div class="sidebar-group-title">Integrations</div>
-        <a href="#" class="nav-link">
-            <span><i class='bx bx-import nav-icon'></i> Sources</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <a href="#" class="nav-link">
-            <span><i class='bx bx-layer nav-icon'></i> Enrichments</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <!-- Destinations (Inactive in screen 1, Administration is active) -->
-        <a href="#" class="nav-link">
-            <span><i class='bx bx-export nav-icon'></i> Destinations</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-pulse nav-icon'></i> Health</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
+        <a href="#" class="nav-link"><span><i class='bx bx-import nav-icon'></i> Sources</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-layer nav-icon'></i> Enrichments</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-export nav-icon'></i> Destinations</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-pulse nav-icon'></i> Health</span> <i class='bx bx-chevron-down'></i></a>
 
-        <!-- Customers Group -->
+        <!-- Customers -->
         <div class="sidebar-group-title">Customers</div>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-group nav-icon'></i> Segments</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-id-card nav-icon'></i> Identities</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
+        <a href="#" class="nav-link"><span><i class='bx bx-group nav-icon'></i> Segments</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-id-card nav-icon'></i> Identities</span> <i class='bx bx-chevron-down'></i></a>
 
-        <!-- Explore Group -->
+        <!-- Explore -->
         <div class="sidebar-group-title">Explore</div>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-bar-chart-alt-2 nav-icon'></i> Campaign Analysis</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-shield-quarter nav-icon'></i> Consent Analysis</span>
-        </a>
+        <a href="#" class="nav-link"><span><i class='bx bx-bar-chart-alt-2 nav-icon'></i> Campaign Analysis</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-shield-quarter nav-icon'></i> Consent Analysis</span></a>
 
-        <!-- Configure Group -->
+        <!-- Configure -->
         <div class="sidebar-group-title">Configure</div>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-data nav-icon'></i> Data Management</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-lock-alt nav-icon'></i> Data Governance</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
+        <a href="#" class="nav-link"><span><i class='bx bx-data nav-icon'></i> Data Management</span> <i class='bx bx-chevron-down'></i></a>
+        <a href="#" class="nav-link"><span><i class='bx bx-lock-alt nav-icon'></i> Data Governance</span> <i class='bx bx-chevron-down'></i></a>
         
-        <!-- Active Administration Group -->
-        <a href="#" class="nav-link active-parent">
-             <span><i class='bx bx-key nav-icon'></i> Administration</span> <i class='bx bx-chevron-up' style="font-size:16px; color:#c2185b;"></i>
-        </a>
+        <!-- Administration (Active) -->
+        <a href="#" class="nav-link active-parent"><span><i class='bx bx-key nav-icon'></i> Administration</span> <i class='bx bx-chevron-up' style="color:#c2185b;"></i></a>
         <div class="sub-menu">
             <a href="#" class="nav-link sub-item">Overview</a>
             <a href="#" class="nav-link sub-item active-item">API tokens</a>
@@ -477,70 +400,60 @@
             <a href="#" class="nav-link sub-item">Partner integration</a>
         </div>
         
-        <a href="#" class="nav-link">
-             <span><i class='bx bx-cog nav-icon'></i> Settings</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
-        </a>
+        <a href="#" class="nav-link"><span><i class='bx bx-cog nav-icon'></i> Settings</span> <i class='bx bx-chevron-down'></i></a>
     </div>
+</script>
 
-    <!-- 3. Main Content -->
-    <div class="main-content">
-        <h1 class="page-title">API tokens</h1>
-
-        <div class="content-card">
-            <div class="card-header-row">
-                <p class="helper-text">Create and manage API tokens for Commanders Act. Token values are only shown once at creation.</p>
-                <button class="btn btn-create" @click="openCreateModal">Create token</button>
-            </div>
-            
-            <!-- Tokens Table -->
-            <div class="table-responsive">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">Name</th>
-                            <th style="width: 15%;">Token</th>
-                            <th style="width: 10%;">Type</th>
-                            <th style="width: 10%;">API</th>
-                            <th style="width: 15%;">IP restriction</th>
-                            <th style="width: 10%;">Status</th>
-                            <th style="width: 10%;">Created by</th>
-                            <th style="width: 10%;">Created</th>
-                            <th style="width: 80px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(token, index) in tokens" :key="index">
-                            <td>{{ token.name }}</td>
-                            <td><span class="token-code">{{ token.maskedToken }}</span></td>
-                            <td>{{ token.type }}</td>
-                            <td>{{ token.api }}</td>
-                            <td>
-                                <div v-if="token.ipRestricted" class="d-flex align-items-center">
-                                    <i class='bx bx-x-circle' style="font-size:1.1rem; margin-right:4px;"></i> Restricted
-                                </div>
-                                <span v-else>Any IP</span>
-                            </td>
-                            <td>
-                                <span class="badge-status" 
-                                      :class="token.status === 'Active' ? 'badge-active' : 'badge-revoked'">
-                                    {{ token.status }}
-                                </span>
-                            </td>
-                            <td>{{ token.createdBy }}</td>
-                            <td>{{ token.createdDate }}</td>
-                            <td class="actions-cell">
-                                <i class='bx bx-pencil action-btn'></i>
-                                <i class='bx bx-trash action-btn' @click="confirmRevokeToken(index)" title="Revoke"></i>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- 3. Token List Template -->
+<script type="text/x-template" id="tpl-token-list">
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Name</th>
+                    <th style="width: 15%;">Token</th>
+                    <th style="width: 10%;">Type</th>
+                    <th style="width: 10%;">API</th>
+                    <th style="width: 15%;">IP restriction</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 10%;">Created by</th>
+                    <th style="width: 10%;">Created</th>
+                    <th style="width: 80px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(token, index) in tokens" :key="index">
+                    <td>{{ token.name }}</td>
+                    <td><span class="token-code">{{ token.maskedToken }}</span></td>
+                    <td>{{ token.type }}</td>
+                    <td>{{ token.api }}</td>
+                    <td>
+                        <div v-if="token.ipRestrictions && token.ipRestrictions.length > 0" class="d-flex align-items-center">
+                            <i class='bx bx-x-circle' style="font-size:1.1rem; margin-right:4px;"></i> Restricted
+                        </div>
+                        <span v-else>Any IP</span>
+                    </td>
+                    <td>
+                        <span class="badge-status" 
+                              :class="token.status === 'Active' ? 'badge-active' : 'badge-revoked'">
+                            {{ token.status }}
+                        </span>
+                    </td>
+                    <td>{{ token.createdBy }}</td>
+                    <td>{{ token.createdDate }}</td>
+                    <td class="actions-cell">
+                        <i class='bx bx-pencil action-btn' @click="$emit('request-edit', index)" title="Edit"></i>
+                        <i class='bx bx-trash action-btn' @click="$emit('request-revoke', index)" title="Revoke"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+</script>
 
-    <!-- 4. Create Token Modal -->
-    <div class="modal fade" id="createTokenModal" tabindex="-1" aria-hidden="true" ref="createModal">
+<!-- 4. Create Token Modal Template -->
+<script type="text/x-template" id="tpl-create-modal">
+    <div class="modal fade" id="createTokenModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -548,10 +461,10 @@
                         <h5 class="modal-title">Create API token</h5>
                         <div class="modal-subtitle">Define the scope and security of this token.</div>
                     </div>
-                    <button type="button" class="btn-close" @click="closeCreateModal"></button>
+                    <button type="button" class="btn-close" @click="close"></button>
                 </div>
                 <div class="modal-body">
-                    <form @submit="submitCreateForm">
+                    <form @submit="submitForm">
                         <!-- Name -->
                         <div class="mb-4">
                             <label class="form-label">Name</label>
@@ -559,28 +472,26 @@
                             <div class="form-text">Short name to recognize this token.</div>
                         </div>
 
-                        <!-- Token Type -->
+                        <!-- Type -->
                         <div class="mb-4">
                             <label class="form-label">Token type</label>
-                            
                             <div class="radio-group">
                                 <div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="tokenType" id="typeConfig" value="Config API" v-model="form.type">
+                                        <input class="form-check-input" type="radio" value="Config API" v-model="form.type" id="typeConfig">
                                         <label class="form-check-label fw-bold" for="typeConfig">Config APIs</label>
                                     </div>
                                     <div class="radio-description">
-                                        <strong>CONFIG APIS:</strong> Config APIs automate everything you can already do in the Commanders Act interface: creating, editing or deleting configuration elements such as destinations, sources, enrichments, or segments.
+                                        <strong>CONFIG APIS:</strong> Config APIs automate everything you can already do in the Commanders Act interface...
                                     </div>
                                 </div>
-                                
                                 <div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="tokenType" id="typeData" value="Data API" v-model="form.type">
+                                        <input class="form-check-input" type="radio" value="Data API" v-model="form.type" id="typeData">
                                         <label class="form-check-label fw-bold" for="typeData">Data APIs</label>
                                     </div>
                                     <div class="radio-description">
-                                        <strong>DATA APIS:</strong> Data APIs give access to customer and event data: visitors, users, conversions, product catalog, segments, and more. When selecting Data APIs, you must choose exactly one specific API.
+                                        <strong>DATA APIS:</strong> Data APIs give access to customer and event data...
                                     </div>
                                 </div>
                             </div>
@@ -589,13 +500,9 @@
                         <!-- API Selection -->
                         <div class="mb-4">
                             <label class="form-label">API <span class="text-danger">*</span></label>
-                            
-                            <!-- If Config API is selected -->
                             <div v-if="form.type === 'Config API'">
                                 <input type="text" class="form-control" value="All" disabled style="background-color: #e9ecef;">
                             </div>
-                            
-                            <!-- If Data API is selected -->
                             <div v-else>
                                 <select class="form-select" v-model="form.api" required>
                                     <option disabled value="">Select an API...</option>
@@ -604,43 +511,106 @@
                                     <option value="putUser">putUser</option>
                                     <option value="getUser">getUser</option>
                                     <option value="getSegments">getSegments</option>
-                                    <option value="getConversionDetailsV1_0">getConversionDetailsV1_0</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Allowed Attributes (Mock field based on image) -->
+                        <!-- Allowed Attributes -->
                         <div class="mb-4" v-if="form.type === 'Data API'">
-                            <label class="form-label">Allowed attributes to be returned by the API in the case of a GET API</label>
-                            <textarea class="form-control" rows="3" v-model="form.allowedAttributes" placeholder="user_id&#10;email_hash&#10;segments"></textarea>
+                            <label class="form-label">Allowed attributes</label>
+                            <textarea class="form-control" rows="3" v-model="form.allowedAttributes" placeholder="user_id&#10;email_hash"></textarea>
                             <div class="form-text">One attribute per line.</div>
                         </div>
 
-                        <!-- Advanced Security -->
+                        <!-- Advanced -->
                         <div class="mb-2">
                             <div class="advanced-toggle" @click="isAdvancedSecurityOpen = !isAdvancedSecurityOpen">
                                 <i class='bx' :class="isAdvancedSecurityOpen ? 'bx-chevron-down' : 'bx-chevron-right'"></i>
                                 <span style="margin-left: 6px;">Advanced security options</span>
                             </div>
-                            
                             <div v-if="isAdvancedSecurityOpen" class="advanced-content">
-                                <label class="form-label">Restrict to IPs or ranges (optional)</label>
-                                <textarea class="form-control" rows="3" v-model="form.ipRestrictions" placeholder="203.0.113.54&#10;203.0.113.0/24"></textarea>
+                                <label class="form-label">Restrict to IPs or ranges</label>
+                                <textarea class="form-control" rows="3" v-model="form.ipRestrictions" placeholder="203.0.113.54"></textarea>
                                 <div class="form-text">One IP or CIDR per line.</div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" @click="closeCreateModal">Cancel</button>
-                    <!-- Button type is button, calls handler directly -->
-                    <button type="button" class="btn btn-create" @click="submitCreateForm">Create token</button>
+                    <button type="button" class="btn btn-light me-2" @click="close">Cancel</button>
+                    <button type="button" class="btn btn-create" @click="submitForm">Create token</button>
                 </div>
             </div>
         </div>
     </div>
+</script>
 
-    <!-- 5. Token Created Modal -->
+<!-- 7. Edit Token Modal Template -->
+<script type="text/x-template" id="tpl-edit-modal">
+    <div class="modal fade" id="editTokenModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">Edit API token</h5>
+                        <div class="modal-subtitle">Modify the settings for this token.</div>
+                    </div>
+                    <button type="button" class="btn-close" @click="close"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit="submitForm">
+                        <!-- Name (Editable) -->
+                        <div class="mb-4">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" v-model="form.name" required>
+                        </div>
+
+                        <!-- Token Type (Read-only) -->
+                        <div class="mb-4">
+                            <label class="form-label">Token type</label>
+                            <input type="text" class="form-control" :value="form.type" disabled readonly>
+                            <div class="form-text">Token type cannot be changed.</div>
+                        </div>
+
+                        <!-- API Selection (Read-only) -->
+                        <div class="mb-4">
+                            <label class="form-label">API</label>
+                            <input type="text" class="form-control" :value="form.api" disabled readonly>
+                            <div class="form-text">Target API cannot be changed.</div>
+                        </div>
+
+                        <!-- Allowed Attributes (Editable if Data API) -->
+                        <div class="mb-4" v-if="form.type === 'Data API'">
+                            <label class="form-label">Allowed attributes</label>
+                            <textarea class="form-control" rows="3" v-model="form.allowedAttributes" placeholder="user_id&#10;email_hash"></textarea>
+                            <div class="form-text">One attribute per line.</div>
+                        </div>
+
+                        <!-- Advanced Security (Editable) -->
+                        <div class="mb-2">
+                            <div class="advanced-toggle" @click="isAdvancedSecurityOpen = !isAdvancedSecurityOpen">
+                                <i class='bx' :class="isAdvancedSecurityOpen ? 'bx-chevron-down' : 'bx-chevron-right'"></i>
+                                <span style="margin-left: 6px;">Advanced security options</span>
+                            </div>
+                            <div v-if="isAdvancedSecurityOpen" class="advanced-content">
+                                <label class="form-label">Restrict to IPs or ranges</label>
+                                <textarea class="form-control" rows="3" v-model="form.ipRestrictions"></textarea>
+                                <div class="form-text">One IP or CIDR per line.</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" @click="close">Cancel</button>
+                    <button type="button" class="btn btn-create" @click="submitForm">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- 5. Success Modal Template -->
+<script type="text/x-template" id="tpl-success-modal">
     <div class="modal fade" id="tokenCreatedModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -649,153 +619,98 @@
                 </div>
                 <div class="modal-body">
                     <p class="text-secondary mb-3" style="font-size: 0.95rem; line-height: 1.5;">
-                        This token will only be shown once. Please save your secret token in a safe place since you won't be able to view it again. Keep it secure, as anyone with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new one.
+                        This token will only be shown once. Please save your secret token in a safe place...
                     </p>
-
                     <div class="alert-security mb-4">
                         <i class='bx bx-info-circle'></i>
-                        <div>
-                            <strong>Do not share your API token with others or expose it in the browser or other client-side code.</strong>
-                        </div>
+                        <div><strong>Do not share your API token with others...</strong></div>
                     </div>
-
                     <label class="form-label">Token value</label>
                     <div class="input-group mb-1">
-                        <input type="text" class="form-control font-monospace" :value="createdTokenValue" readonly id="tokenValueInput" style="font-size: 0.9rem; background-color: #f8f9fa; color: #333;">
+                        <input type="text" class="form-control font-monospace" :value="tokenValue" readonly id="tokenValueInput" style="font-size: 0.9rem; background-color: #f8f9fa; color: #333;">
                         <button class="btn btn-outline-secondary d-flex align-items-center" type="button" @click="copyToken">
                             <i class='bx bx-copy me-1'></i> Copy
                         </button>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-create" @click="finalizeCreation">Close</button>
+                    <button type="button" class="btn btn-create" @click="close">Close</button>
                 </div>
             </div>
         </div>
     </div>
+</script>
 
-    <!-- 6. Revoke Confirmation Modal -->
+<!-- 6. Revoke Modal Template -->
+<script type="text/x-template" id="tpl-revoke-modal">
     <div class="modal fade" id="revokeTokenModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Revoke secret token</h5>
-                    <button type="button" class="btn-close" @click="closeRevokeModal"></button>
+                    <button type="button" class="btn-close" @click="close"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.5;">
-                        This API token will immediately be disabled. API requests made using this key will be rejected, which could cause any systems still depending on it to break. Once revoked, you'll no longer be able to view or modify this API token.
+                        This API token will immediately be disabled. API requests made using this key will be rejected...
                     </p>
-                    
-                    <div class="token-display-revoke">
-                        {{ tokenToRevokeValue }}
-                    </div>
+                    <div class="token-display-revoke">{{ tokenValue }}</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" @click="closeRevokeModal">Cancel</button>
-                    <button type="button" class="btn btn-danger-custom btn" @click="executeRevocation">Revoke token</button>
+                    <button type="button" class="btn btn-light" @click="close">Cancel</button>
+                    <button type="button" class="btn btn-danger-custom btn" @click="$emit('confirm-revoke')">Revoke token</button>
                 </div>
             </div>
         </div>
     </div>
+</script>
 
-</div>
-
-<!-- Vue.js -->
+<!-- Vue & Bootstrap -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     const { createApp } = Vue;
 
-    const app = createApp({
+    // --- Component 1: Navbar ---
+    const AppNavbar = {
+        template: '#tpl-navbar'
+    };
+
+    // --- Component 2: Sidebar ---
+    const AppSidebar = {
+        template: '#tpl-sidebar'
+    };
+
+    // --- Component 3: Token List ---
+    const TokenList = {
+        template: '#tpl-token-list',
+        props: ['tokens'],
+        emits: ['request-revoke', 'request-edit']
+    };
+
+    // --- Component 4: Create Modal ---
+    const CreateTokenModal = {
+        template: '#tpl-create-modal',
+        emits: ['token-created'],
         data() {
             return {
-                // Mock Data with UPDATED masked format "...."
-                tokens: [
-                    {
-                        name: "CRM sync - production",
-                        maskedToken: "ca_sk_....8F2C",
-                        type: "Data API",
-                        api: "getUser",
-                        ipRestricted: false,
-                        status: "Active",
-                        createdBy: "Obiwan Kenobi",
-                        createdDate: "28 août 2025"
-                    },
-                    {
-                        name: "BI export - visitors",
-                        maskedToken: "ca_sk_....4B10",
-                        type: "Data API",
-                        api: "getVisitor",
-                        ipRestricted: true,
-                        status: "Active",
-                        createdBy: "Luc Sky",
-                        createdDate: "28 août 2025"
-                    },
-                    {
-                        name: "Sandbox config",
-                        maskedToken: "ca_sk_....C7F8",
-                        type: "Config API",
-                        api: "All",
-                        ipRestricted: false,
-                        status: "Revoked",
-                        createdBy: "Luc Sky",
-                        createdDate: "28 août 2025"
-                    },
-                    {
-                        name: "Mobile app tracking",
-                        maskedToken: "ca_sk_....0892",
-                        type: "Data API",
-                        api: "getUser",
-                        ipRestricted: true,
-                        status: "Active",
-                        createdBy: "Luc Sky",
-                        createdDate: "28 août 2025"
-                    },
-                    {
-                        name: "Partner integration",
-                        maskedToken: "ca_sk_....F01A",
-                        type: "Config API",
-                        api: "All",
-                        ipRestricted: false,
-                        status: "Active",
-                        createdBy: "Luc Sky",
-                        createdDate: "28 août 2025"
-                    }
-                ],
-                // Modal Instances
-                createModalInstance: null,
-                createdModalInstance: null,
-                revokeModalInstance: null, // New instance
-                
-                // Form Data
+                modalInstance: null,
+                isAdvancedSecurityOpen: false,
                 form: {
                     name: '',
                     type: 'Data API',
                     api: 'getUser',
                     allowedAttributes: '',
                     ipRestrictions: ''
-                },
-                isAdvancedSecurityOpen: false,
-                
-                // New Token Data
-                createdTokenValue: '',
-                
-                // Revoke logic
-                tokenToRevokeIndex: null,
-                tokenToRevokeValue: ''
+                }
             }
         },
         mounted() {
-            // Initialize Bootstrap Modals
-            this.createModalInstance = new bootstrap.Modal(document.getElementById('createTokenModal'));
-            this.createdModalInstance = new bootstrap.Modal(document.getElementById('tokenCreatedModal'));
-            this.revokeModalInstance = new bootstrap.Modal(document.getElementById('revokeTokenModal'));
+            this.modalInstance = new bootstrap.Modal(document.getElementById('createTokenModal'));
         },
         methods: {
-            openCreateModal() {
+            show() {
                 // Reset form
                 this.form = {
                     name: '',
@@ -805,93 +720,274 @@
                     ipRestrictions: ''
                 };
                 this.isAdvancedSecurityOpen = false;
-                this.createModalInstance.show();
+                this.modalInstance.show();
             },
-            closeCreateModal() {
-                this.createModalInstance.hide();
+            close() {
+                this.modalInstance.hide();
             },
-            submitCreateForm(event) {
+            submitForm(event) {
                 if (event) event.preventDefault();
-
-                // Validation
-                if (!this.form.name) {
-                    alert('Please enter a name.');
-                    return;
-                }
-                if (this.form.type === 'Data API' && !this.form.api) {
-                    alert('Please select a Data API.');
-                    return;
-                }
-
-                // Generate fake token
-                const randomHex = Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 14);
-                this.createdTokenValue = `ca_sk_live_${randomHex}`;
                 
-                // Switch modals
-                this.createModalInstance.hide();
-                this.createdModalInstance.show();
+                // Simple validation
+                if (!this.form.name) { alert('Name is required'); return; }
+                if (this.form.type === 'Data API' && !this.form.api) { alert('API selection is required'); return; }
+
+                // Generate Data
+                const randomHex = Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 14);
+                const fullToken = `ca_sk_live_${randomHex}`;
+
+                // Emit payload to parent
+                this.$emit('token-created', {
+                    formData: { ...this.form }, // clone
+                    fullToken: fullToken
+                });
+
+                this.close();
+            }
+        }
+    };
+
+    // --- Component 7: Edit Token Modal ---
+    const EditTokenModal = {
+        template: '#tpl-edit-modal',
+        emits: ['token-updated'],
+        data() {
+            return {
+                modalInstance: null,
+                isAdvancedSecurityOpen: false,
+                currentIndex: null,
+                form: {
+                    name: '',
+                    type: '',
+                    api: '',
+                    allowedAttributes: '',
+                    ipRestrictions: ''
+                }
+            }
+        },
+        mounted() {
+            this.modalInstance = new bootstrap.Modal(document.getElementById('editTokenModal'));
+        },
+        methods: {
+            open(index, token) {
+                this.currentIndex = index;
+                // Clone existing token data into form
+                this.form = {
+                    name: token.name,
+                    type: token.type,
+                    api: token.api,
+                    allowedAttributes: token.allowedAttributes || '',
+                    ipRestrictions: token.ipRestrictions || ''
+                };
+                
+                // If there are existing restrictions, open the tab by default for convenience
+                this.isAdvancedSecurityOpen = (this.form.ipRestrictions.length > 0);
+                
+                this.modalInstance.show();
+            },
+            close() {
+                this.modalInstance.hide();
+            },
+            submitForm(event) {
+                if (event) event.preventDefault();
+                
+                if (!this.form.name) { alert('Name is required'); return; }
+
+                this.$emit('token-updated', {
+                    index: this.currentIndex,
+                    formData: { ...this.form }
+                });
+
+                this.close();
+            }
+        }
+    };
+
+    // --- Component 5: Success Modal ---
+    const SuccessModal = {
+        template: '#tpl-success-modal',
+        props: ['tokenValue'],
+        data() {
+            return { modalInstance: null }
+        },
+        mounted() {
+            this.modalInstance = new bootstrap.Modal(document.getElementById('tokenCreatedModal'));
+        },
+        methods: {
+            show() {
+                this.modalInstance.show();
+            },
+            close() {
+                this.modalInstance.hide();
             },
             copyToken() {
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(this.createdTokenValue).then(() => {
-                        const btn = document.querySelector('.btn-outline-secondary');
-                        const originalHtml = btn.innerHTML;
+                    navigator.clipboard.writeText(this.tokenValue).then(() => {
+                        const btn = document.querySelector('#tokenCreatedModal .btn-outline-secondary');
+                        const original = btn.innerHTML;
                         btn.innerHTML = "<i class='bx bx-check'></i> Copied";
-                        setTimeout(() => btn.innerHTML = originalHtml, 2000);
+                        setTimeout(() => btn.innerHTML = original, 2000);
                     });
                 } else {
                     const input = document.getElementById('tokenValueInput');
                     input.select();
                     document.execCommand('copy');
                 }
+            }
+        }
+    };
+
+    // --- Component 6: Revoke Modal ---
+    const RevokeModal = {
+        template: '#tpl-revoke-modal',
+        props: ['tokenValue'],
+        emits: ['confirm-revoke'],
+        data() {
+            return { modalInstance: null }
+        },
+        mounted() {
+            this.modalInstance = new bootstrap.Modal(document.getElementById('revokeTokenModal'));
+        },
+        methods: {
+            show() {
+                this.modalInstance.show();
             },
-            finalizeCreation() {
-                // Add to table
-                const isRestricted = this.form.ipRestrictions.trim().length > 0;
-                const last4 = this.createdTokenValue.slice(-4).toUpperCase();
+            close() {
+                this.modalInstance.hide();
+            }
+        }
+    };
+
+    // --- Main Application ---
+    const app = createApp({
+        components: {
+            'app-navbar': AppNavbar,
+            'app-sidebar': AppSidebar,
+            'token-list': TokenList,
+            'create-token-modal': CreateTokenModal,
+            'edit-token-modal': EditTokenModal,
+            'success-modal': SuccessModal,
+            'revoke-modal': RevokeModal
+        },
+        data() {
+            return {
+                tokens: [
+                    { 
+                        name: "CRM sync - production", 
+                        maskedToken: "ca_sk_....8F2C", 
+                        type: "Data API", 
+                        api: "getUser", 
+                        ipRestrictions: "", 
+                        allowedAttributes: "",
+                        status: "Active", 
+                        createdBy: "Obiwan Kenobi", 
+                        createdDate: "28 août 2025" 
+                    },
+                    { 
+                        name: "BI export - visitors", 
+                        maskedToken: "ca_sk_....4B10", 
+                        type: "Data API", 
+                        api: "getVisitor", 
+                        ipRestrictions: "203.0.113.54", 
+                        allowedAttributes: "",
+                        status: "Active", 
+                        createdBy: "Luc Sky", 
+                        createdDate: "28 août 2025" 
+                    },
+                    { 
+                        name: "Sandbox config", 
+                        maskedToken: "ca_sk_....C7F8", 
+                        type: "Config API", 
+                        api: "All", 
+                        ipRestrictions: "", 
+                        allowedAttributes: "",
+                        status: "Revoked", 
+                        createdBy: "Luc Sky", 
+                        createdDate: "28 août 2025" 
+                    },
+                    { 
+                        name: "Mobile app tracking", 
+                        maskedToken: "ca_sk_....0892", 
+                        type: "Data API", 
+                        api: "getUser", 
+                        ipRestrictions: "192.168.1.1", 
+                        allowedAttributes: "",
+                        status: "Active", 
+                        createdBy: "Luc Sky", 
+                        createdDate: "28 août 2025" 
+                    },
+                    { 
+                        name: "Partner integration", 
+                        maskedToken: "ca_sk_....F01A", 
+                        type: "Config API", 
+                        api: "All", 
+                        ipRestrictions: "", 
+                        allowedAttributes: "",
+                        status: "Active", 
+                        createdBy: "Luc Sky", 
+                        createdDate: "28 août 2025" 
+                    }
+                ],
+                // State for Modals logic
+                createdTokenValue: '',
+                tokenToRevokeValue: '',
+                tokenToRevokeIndex: null
+            }
+        },
+        methods: {
+            // Create Flow
+            showCreateModal() {
+                this.$refs.createModalComp.show();
+            },
+            handleTokenCreated(payload) {
+                this.createdTokenValue = payload.fullToken;
                 
-                // UPDATED Mask format using "...."
+                // Add to list
+                const last4 = payload.fullToken.slice(-4).toUpperCase();
                 const masked = `ca_sk_....${last4}`;
-                
-                const apiValue = this.form.type === 'Config API' ? 'All' : this.form.api;
+                const apiValue = payload.formData.type === 'Config API' ? 'All' : payload.formData.api;
 
                 this.tokens.unshift({
-                    name: this.form.name,
+                    name: payload.formData.name,
                     maskedToken: masked,
-                    type: this.form.type,
+                    type: payload.formData.type,
                     api: apiValue,
-                    ipRestricted: isRestricted,
+                    ipRestrictions: payload.formData.ipRestrictions,
+                    allowedAttributes: payload.formData.allowedAttributes,
                     status: 'Active',
                     createdBy: 'Current User',
                     createdDate: '28 août 2025'
                 });
 
-                this.createdModalInstance.hide();
-                this.createdTokenValue = '';
+                // Show Success Modal
+                this.$refs.successModalComp.show();
             },
-            
-            // New Revoke Methods
-            confirmRevokeToken(index) {
-                // Don't do anything if already revoked
-                // Note: If you want to allow deleting revoked tokens, remove this check.
-                // Assuming "Revoke" means delete now, we probably always allow it unless specifically restricted.
-                // But the user said "Revoke secret token" modal text, implying the action is "Revoke".
-                // However, they also said "supprime la ligne" (delete the row).
-                // So I will remove the check that prevents action if status is 'Revoked',
-                // OR just proceed to delete regardless of status.
+
+            // Edit Flow
+            openEditModal(index) {
+                const token = this.tokens[index];
+                this.$refs.editModalComp.open(index, token);
+            },
+            handleTokenUpdated(payload) {
+                const idx = payload.index;
+                const updatedData = payload.formData;
                 
+                // Update only allowed fields
+                this.tokens[idx].name = updatedData.name;
+                this.tokens[idx].allowedAttributes = updatedData.allowedAttributes;
+                this.tokens[idx].ipRestrictions = updatedData.ipRestrictions;
+            },
+
+            // Revoke Flow
+            confirmRevokeToken(index) {
                 this.tokenToRevokeIndex = index;
                 this.tokenToRevokeValue = this.tokens[index].maskedToken;
-                this.revokeModalInstance.show();
-            },
-            closeRevokeModal() {
-                this.revokeModalInstance.hide();
+                this.$refs.revokeModalComp.show();
             },
             executeRevocation() {
                 if (this.tokenToRevokeIndex !== null) {
-                    // CHANGED: Splice to remove instead of status update
                     this.tokens.splice(this.tokenToRevokeIndex, 1);
-                    this.revokeModalInstance.hide();
+                    this.$refs.revokeModalComp.close();
                     this.tokenToRevokeIndex = null;
                 }
             }
