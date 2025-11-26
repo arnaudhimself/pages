@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tokens - Commanders Act</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    
+    <style>
+        /* Custom Styles to match the screenshot visuals */
+        :root {
+            --ca-blue: #0099cc;
+            --ca-dark-blue: #0f1636;
+            --ca-sidebar-bg: #ffffff;
+            --ca-text-primary: #333333;
+            --ca-text-secondary: #6c757d;
+            --ca-pink: #d63384;
+            --bg-light: #f4f6f8;
+            --ca-active-bg: #fce4ec; /* Light pink background for active items */
+            --ca-active-text: #c2185b; /* Dark pink text for active items */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-light);
+            overflow-x: hidden;
+            color: var(--ca-text-primary);
+        }
+
+        /* --- Top Navigation --- */
+        .top-navbar {
+            background-color: var(--ca-dark-blue);
+            height: 48px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+        
+        .brand-logo-container {
+            display: flex;
+            align-items: center;
+            width: 240px; /* Match sidebar width */
+        }
+
+        .platform-selector {
+            border-left: 1px solid rgba(255,255,255,0.2);
+            padding-left: 15px;
+            margin-left: 5px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 30px;
+        }
+        .platform-selector:hover {
+            color: white;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            position: fixed;
+            top: 48px;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background-color: white;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            padding-top: 15px;
+            font-size: 0.9rem;
+            z-index: 1020;
+            padding-bottom: 50px;
+        }
+
+        .sidebar-group-title {
+            color: #adb5bd;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 15px 20px 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link {
+            color: #495057;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover {
+            color: var(--ca-blue);
+            background-color: #f8f9fa;
+        }
+
+        /* Active parent category styling (pink background) */
+        .nav-link.active-parent {
+            background-color: var(--ca-active-bg);
+            color: var(--ca-active-text);
+            font-weight: 600;
+            border-left: 3px solid var(--ca-active-text);
+            padding-left: 17px;
+        }
+
+        .nav-link.active-parent .nav-icon {
+            color: var(--ca-active-text);
+        }
+        
+        /* Sub-items styling */
+        .sub-menu {
+            background-color: white;
+        }
+        
+        .nav-link.sub-item {
+            padding-left: 48px; /* Indent sub items */
+            padding-top: 6px;
+            padding-bottom: 6px;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+        
+        .nav-link.sub-item.active-item {
+            color: var(--ca-active-text);
+            font-weight: 600;
+            background-color: transparent;
+        }
+        .nav-link.sub-item:hover {
+            color: var(--ca-blue);
+            background-color: transparent;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 16px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 240px;
+            margin-top: 48px;
+            padding: 30px 40px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--ca-text-primary);
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 25px;
+            position: relative;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .helper-text {
+            color: var(--ca-text-secondary);
+            font-size: 0.95rem;
+            max-width: 70%;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        .btn-create {
+            background-color: #00bceb; /* Bright cyan/blue */
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 8px 24px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .btn-create:hover {
+            background-color: #00a6d0;
+            color: white;
+        }
+
+        /* Table */
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .custom-table th {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #212529;
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 10px;
+            text-align: left;
+        }
+        
+        .custom-table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+            color: #333;
+            padding: 15px 10px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .token-code {
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #333;
+            border: 1px solid #e9ecef;
+            display: inline-block;
+        }
+
+        .badge-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 60px;
+        }
+        
+        /* UPDATED Active Color */
+        .badge-active {
+            background-color: rgba(52, 195, 143, 0.15); /* Light version for bg */
+            color: #34c38f; /* Requested green */
+        }
+        
+        .badge-revoked {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+        .action-btn {
+            color: #adb5bd;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            transition: color 0.2s;
+        }
+        .action-btn:hover {
+            color: #495057;
+        }
+
+        /* --- Modals --- */
+        .modal-content {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            border-bottom: none;
+            padding: 24px 24px 0;
+        }
+        
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            border-top: none;
+            padding: 0 24px 24px;
+            justify-content: flex-end;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #212529;
+        }
+        
+        .form-control, .form-select {
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border-color: #dee2e6;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        
+        .form-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .radio-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 4px;
+            margin-left: 24px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--ca-blue);
+            border-color: var(--ca-blue);
+        }
+
+        /* Advanced Security Section */
+        .advanced-toggle {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            color: #212529;
+            margin-top: 10px;
+            user-select: none;
+        }
+        .advanced-toggle:hover {
+            color: var(--ca-blue);
+        }
+        .advanced-content {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        /* Security Alert in Success Modal */
+        .alert-security {
+            background-color: #e3f6fc;
+            border: 1px solid #bce6f7;
+            color: #055160;
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .alert-security i {
+            font-size: 1.3rem;
+            margin-right: 12px;
+            margin-top: 2px;
+            color: #0dcaf0;
+        }
+        
+        /* Revoke Modal Specifics */
+        .btn-danger-custom {
+            background-color: #dc3545;
+            color: white;
+            font-weight: 500;
+        }
+        .token-display-revoke {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Roboto Mono', monospace;
+            color: #333;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- 1. Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="brand-logo-container">
+            <i class='bx bxl-codepen' style="font-size: 24px; color: #d63384; margin-right: 8px;"></i>
+            <span style="color:#d63384; font-weight: 800; letter-spacing: -0.5px;">COMMANDERS</span>
+            <span style="color:white; font-weight: 700; margin-left: 4px;">ACT</span>
+        </div>
+        <div class="platform-selector">
+            <i class='bx bx-laptop' style="margin-right:6px;"></i> CA+ Platform <i class='bx bx-chevron-down' style="margin-left:4px;"></i>
+        </div>
+    </nav>
+
+    <!-- 2. Sidebar -->
+    <div class="sidebar">
+        <!-- Integrations Group -->
+        <div class="sidebar-group-title">Integrations</div>
+        <a href="#" class="nav-link">
+            <span><i class='bx bx-import nav-icon'></i> Sources</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <a href="#" class="nav-link">
+            <span><i class='bx bx-layer nav-icon'></i> Enrichments</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <!-- Destinations (Inactive in screen 1, Administration is active) -->
+        <a href="#" class="nav-link">
+            <span><i class='bx bx-export nav-icon'></i> Destinations</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-pulse nav-icon'></i> Health</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+
+        <!-- Customers Group -->
+        <div class="sidebar-group-title">Customers</div>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-group nav-icon'></i> Segments</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-id-card nav-icon'></i> Identities</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+
+        <!-- Explore Group -->
+        <div class="sidebar-group-title">Explore</div>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-bar-chart-alt-2 nav-icon'></i> Campaign Analysis</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-shield-quarter nav-icon'></i> Consent Analysis</span>
+        </a>
+
+        <!-- Configure Group -->
+        <div class="sidebar-group-title">Configure</div>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-data nav-icon'></i> Data Management</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-lock-alt nav-icon'></i> Data Governance</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+        
+        <!-- Active Administration Group -->
+        <a href="#" class="nav-link active-parent">
+             <span><i class='bx bx-key nav-icon'></i> Administration</span> <i class='bx bx-chevron-up' style="font-size:16px; color:#c2185b;"></i>
+        </a>
+        <div class="sub-menu">
+            <a href="#" class="nav-link sub-item">Overview</a>
+            <a href="#" class="nav-link sub-item active-item">API tokens</a>
+            <a href="#" class="nav-link sub-item">Common tokens</a>
+            <a href="#" class="nav-link sub-item">Partner integration</a>
+        </div>
+        
+        <a href="#" class="nav-link">
+             <span><i class='bx bx-cog nav-icon'></i> Settings</span> <i class='bx bx-chevron-down' style="font-size:16px;"></i>
+        </a>
+    </div>
+
+    <!-- 3. Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">API tokens</h1>
+
+        <div class="content-card">
+            <div class="card-header-row">
+                <p class="helper-text">Create and manage API tokens for Commanders Act. Token values are only shown once at creation.</p>
+                <button class="btn btn-create" @click="openCreateModal">Create token</button>
+            </div>
+            
+            <!-- Tokens Table -->
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Name</th>
+                            <th style="width: 15%;">Token</th>
+                            <th style="width: 10%;">Type</th>
+                            <th style="width: 10%;">API</th>
+                            <th style="width: 15%;">IP restriction</th>
+                            <th style="width: 10%;">Status</th>
+                            <th style="width: 10%;">Created by</th>
+                            <th style="width: 10%;">Created</th>
+                            <th style="width: 80px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(token, index) in tokens" :key="index">
+                            <td>{{ token.name }}</td>
+                            <td><span class="token-code">{{ token.maskedToken }}</span></td>
+                            <td>{{ token.type }}</td>
+                            <td>{{ token.api }}</td>
+                            <td>
+                                <div v-if="token.ipRestricted" class="d-flex align-items-center">
+                                    <i class='bx bx-x-circle' style="font-size:1.1rem; margin-right:4px;"></i> Restricted
+                                </div>
+                                <span v-else>Any IP</span>
+                            </td>
+                            <td>
+                                <span class="badge-status" 
+                                      :class="token.status === 'Active' ? 'badge-active' : 'badge-revoked'">
+                                    {{ token.status }}
+                                </span>
+                            </td>
+                            <td>{{ token.createdBy }}</td>
+                            <td>{{ token.createdDate }}</td>
+                            <td class="actions-cell">
+                                <i class='bx bx-pencil action-btn'></i>
+                                <i class='bx bx-trash action-btn' @click="confirmRevokeToken(index)" title="Revoke"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Create Token Modal -->
+    <div class="modal fade" id="createTokenModal" tabindex="-1" aria-hidden="true" ref="createModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">Create API token</h5>
+                        <div class="modal-subtitle">Define the scope and security of this token.</div>
+                    </div>
+                    <button type="button" class="btn-close" @click="closeCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit="submitCreateForm">
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" v-model="form.name" required placeholder="e.g. CRM sync - production">
+                            <div class="form-text">Short name to recognize this token.</div>
+                        </div>
+
+                        <!-- Token Type -->
+                        <div class="mb-4">
+                            <label class="form-label">Token type</label>
+                            
+                            <div class="radio-group">
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tokenType" id="typeConfig" value="Config API" v-model="form.type">
+                                        <label class="form-check-label fw-bold" for="typeConfig">Config APIs</label>
+                                    </div>
+                                    <div class="radio-description">
+                                        <strong>CONFIG APIS:</strong> Config APIs automate everything you can already do in the Commanders Act interface: creating, editing or deleting configuration elements such as destinations, sources, enrichments, or segments.
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tokenType" id="typeData" value="Data API" v-model="form.type">
+                                        <label class="form-check-label fw-bold" for="typeData">Data APIs</label>
+                                    </div>
+                                    <div class="radio-description">
+                                        <strong>DATA APIS:</strong> Data APIs give access to customer and event data: visitors, users, conversions, product catalog, segments, and more. When selecting Data APIs, you must choose exactly one specific API.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">API <span class="text-danger">*</span></label>
+                            
+                            <!-- If Config API is selected -->
+                            <div v-if="form.type === 'Config API'">
+                                <input type="text" class="form-control" value="All" disabled style="background-color: #e9ecef;">
+                            </div>
+                            
+                            <!-- If Data API is selected -->
+                            <div v-else>
+                                <select class="form-select" v-model="form.api" required>
+                                    <option disabled value="">Select an API...</option>
+                                    <option value="putConversion">putConversion</option>
+                                    <option value="getVisitor">getVisitor</option>
+                                    <option value="putUser">putUser</option>
+                                    <option value="getUser">getUser</option>
+                                    <option value="getSegments">getSegments</option>
+                                    <option value="getConversionDetailsV1_0">getConversionDetailsV1_0</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Allowed Attributes (Mock field based on image) -->
+                        <div class="mb-4" v-if="form.type === 'Data API'">
+                            <label class="form-label">Allowed attributes to be returned by the API in the case of a GET API</label>
+                            <textarea class="form-control" rows="3" v-model="form.allowedAttributes" placeholder="user_id&#10;email_hash&#10;segments"></textarea>
+                            <div class="form-text">One attribute per line.</div>
+                        </div>
+
+                        <!-- Advanced Security -->
+                        <div class="mb-2">
+                            <div class="advanced-toggle" @click="isAdvancedSecurityOpen = !isAdvancedSecurityOpen">
+                                <i class='bx' :class="isAdvancedSecurityOpen ? 'bx-chevron-down' : 'bx-chevron-right'"></i>
+                                <span style="margin-left: 6px;">Advanced security options</span>
+                            </div>
+                            
+                            <div v-if="isAdvancedSecurityOpen" class="advanced-content">
+                                <label class="form-label">Restrict to IPs or ranges (optional)</label>
+                                <textarea class="form-control" rows="3" v-model="form.ipRestrictions" placeholder="203.0.113.54&#10;203.0.113.0/24"></textarea>
+                                <div class="form-text">One IP or CIDR per line.</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" @click="closeCreateModal">Cancel</button>
+                    <!-- Button type is button, calls handler directly -->
+                    <button type="button" class="btn btn-create" @click="submitCreateForm">Create token</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Token Created Modal -->
+    <div class="modal fade" id="tokenCreatedModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Save your token</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary mb-3" style="font-size: 0.95rem; line-height: 1.5;">
+                        This token will only be shown once. Please save your secret token in a safe place since you won't be able to view it again. Keep it secure, as anyone with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new one.
+                    </p>
+
+                    <div class="alert-security mb-4">
+                        <i class='bx bx-info-circle'></i>
+                        <div>
+                            <strong>Do not share your API token with others or expose it in the browser or other client-side code.</strong>
+                        </div>
+                    </div>
+
+                    <label class="form-label">Token value</label>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control font-monospace" :value="createdTokenValue" readonly id="tokenValueInput" style="font-size: 0.9rem; background-color: #f8f9fa; color: #333;">
+                        <button class="btn btn-outline-secondary d-flex align-items-center" type="button" @click="copyToken">
+                            <i class='bx bx-copy me-1'></i> Copy
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-create" @click="finalizeCreation">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Revoke Confirmation Modal -->
+    <div class="modal fade" id="revokeTokenModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Revoke secret token</h5>
+                    <button type="button" class="btn-close" @click="closeRevokeModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.5;">
+                        This API token will immediately be disabled. API requests made using this key will be rejected, which could cause any systems still depending on it to break. Once revoked, you'll no longer be able to view or modify this API token.
+                    </p>
+                    
+                    <div class="token-display-revoke">
+                        {{ tokenToRevokeValue }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" @click="closeRevokeModal">Cancel</button>
+                    <button type="button" class="btn btn-danger-custom btn" @click="executeRevocation">Revoke token</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Vue.js -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const { createApp } = Vue;
+
+    const app = createApp({
+        data() {
+            return {
+                // Mock Data with UPDATED masked format "...."
+                tokens: [
+                    {
+                        name: "CRM sync - production",
+                        maskedToken: "ca_sk_....8F2C",
+                        type: "Data API",
+                        api: "getUser",
+                        ipRestricted: false,
+                        status: "Active",
+                        createdBy: "Obiwan Kenobi",
+                        createdDate: "28 août 2025"
+                    },
+                    {
+                        name: "BI export - visitors",
+                        maskedToken: "ca_sk_....4B10",
+                        type: "Data API",
+                        api: "getVisitor",
+                        ipRestricted: true,
+                        status: "Active",
+                        createdBy: "Luc Sky",
+                        createdDate: "28 août 2025"
+                    },
+                    {
+                        name: "Sandbox config",
+                        maskedToken: "ca_sk_....C7F8",
+                        type: "Config API",
+                        api: "All",
+                        ipRestricted: false,
+                        status: "Revoked",
+                        createdBy: "Luc Sky",
+                        createdDate: "28 août 2025"
+                    },
+                    {
+                        name: "Mobile app tracking",
+                        maskedToken: "ca_sk_....0892",
+                        type: "Data API",
+                        api: "getUser",
+                        ipRestricted: true,
+                        status: "Active",
+                        createdBy: "Luc Sky",
+                        createdDate: "28 août 2025"
+                    },
+                    {
+                        name: "Partner integration",
+                        maskedToken: "ca_sk_....F01A",
+                        type: "Config API",
+                        api: "All",
+                        ipRestricted: false,
+                        status: "Active",
+                        createdBy: "Luc Sky",
+                        createdDate: "28 août 2025"
+                    }
+                ],
+                // Modal Instances
+                createModalInstance: null,
+                createdModalInstance: null,
+                revokeModalInstance: null, // New instance
+                
+                // Form Data
+                form: {
+                    name: '',
+                    type: 'Data API',
+                    api: 'getUser',
+                    allowedAttributes: '',
+                    ipRestrictions: ''
+                },
+                isAdvancedSecurityOpen: false,
+                
+                // New Token Data
+                createdTokenValue: '',
+                
+                // Revoke logic
+                tokenToRevokeIndex: null,
+                tokenToRevokeValue: ''
+            }
+        },
+        mounted() {
+            // Initialize Bootstrap Modals
+            this.createModalInstance = new bootstrap.Modal(document.getElementById('createTokenModal'));
+            this.createdModalInstance = new bootstrap.Modal(document.getElementById('tokenCreatedModal'));
+            this.revokeModalInstance = new bootstrap.Modal(document.getElementById('revokeTokenModal'));
+        },
+        methods: {
+            openCreateModal() {
+                // Reset form
+                this.form = {
+                    name: '',
+                    type: 'Data API',
+                    api: 'getUser',
+                    allowedAttributes: '',
+                    ipRestrictions: ''
+                };
+                this.isAdvancedSecurityOpen = false;
+                this.createModalInstance.show();
+            },
+            closeCreateModal() {
+                this.createModalInstance.hide();
+            },
+            submitCreateForm(event) {
+                if (event) event.preventDefault();
+
+                // Validation
+                if (!this.form.name) {
+                    alert('Please enter a name.');
+                    return;
+                }
+                if (this.form.type === 'Data API' && !this.form.api) {
+                    alert('Please select a Data API.');
+                    return;
+                }
+
+                // Generate fake token
+                const randomHex = Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 14);
+                this.createdTokenValue = `ca_sk_live_${randomHex}`;
+                
+                // Switch modals
+                this.createModalInstance.hide();
+                this.createdModalInstance.show();
+            },
+            copyToken() {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(this.createdTokenValue).then(() => {
+                        const btn = document.querySelector('.btn-outline-secondary');
+                        const originalHtml = btn.innerHTML;
+                        btn.innerHTML = "<i class='bx bx-check'></i> Copied";
+                        setTimeout(() => btn.innerHTML = originalHtml, 2000);
+                    });
+                } else {
+                    const input = document.getElementById('tokenValueInput');
+                    input.select();
+                    document.execCommand('copy');
+                }
+            },
+            finalizeCreation() {
+                // Add to table
+                const isRestricted = this.form.ipRestrictions.trim().length > 0;
+                const last4 = this.createdTokenValue.slice(-4).toUpperCase();
+                
+                // UPDATED Mask format using "...."
+                const masked = `ca_sk_....${last4}`;
+                
+                const apiValue = this.form.type === 'Config API' ? 'All' : this.form.api;
+
+                this.tokens.unshift({
+                    name: this.form.name,
+                    maskedToken: masked,
+                    type: this.form.type,
+                    api: apiValue,
+                    ipRestricted: isRestricted,
+                    status: 'Active',
+                    createdBy: 'Current User',
+                    createdDate: '28 août 2025'
+                });
+
+                this.createdModalInstance.hide();
+                this.createdTokenValue = '';
+            },
+            
+            // New Revoke Methods
+            confirmRevokeToken(index) {
+                // Don't do anything if already revoked
+                // Note: If you want to allow deleting revoked tokens, remove this check.
+                // Assuming "Revoke" means delete now, we probably always allow it unless specifically restricted.
+                // But the user said "Revoke secret token" modal text, implying the action is "Revoke".
+                // However, they also said "supprime la ligne" (delete the row).
+                // So I will remove the check that prevents action if status is 'Revoked',
+                // OR just proceed to delete regardless of status.
+                
+                this.tokenToRevokeIndex = index;
+                this.tokenToRevokeValue = this.tokens[index].maskedToken;
+                this.revokeModalInstance.show();
+            },
+            closeRevokeModal() {
+                this.revokeModalInstance.hide();
+            },
+            executeRevocation() {
+                if (this.tokenToRevokeIndex !== null) {
+                    // CHANGED: Splice to remove instead of status update
+                    this.tokens.splice(this.tokenToRevokeIndex, 1);
+                    this.revokeModalInstance.hide();
+                    this.tokenToRevokeIndex = null;
+                }
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
+
+</body>
+</html>
