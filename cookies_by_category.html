@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookies by Category Dashboard</title>
     
-    <!-- Google Fonts - Roboto --><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 CSS --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons --><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #F8F9FA; /* Fond très clair */
+            --bg-color: #F8F9FA; 
             --text-color: #334155;
-            /* MISE À JOUR OMBRAGE : Plus subtil, comme une ombre portée */
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03); 
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03); 
             
             /* Couleurs des catégories */
             --color-essential: #002CBD; 
@@ -28,42 +31,23 @@
             --color-danger: #ef4444;
 
             /* Couleurs pour l'histogramme */
-            --color-bar-before: #EB536C; /* Rouge modéré */
-            --color-bar-after: #74D9E8;
+            --color-bar-before: #F39C12; /* Orange */
+            --color-bar-accept: #74D9E8; /* Cyan */
+            --color-bar-refuse: #EB536C; /* Rouge */
 
             /* COULEUR D'ACCENTUATION */
-            --color-accent: #f40754; 
+            --color-accent: #07bbf4; 
         }
 
         body {
             background-color: var(--bg-color);
-            /* Utilisation de Roboto */
             font-family: 'Roboto', sans-serif;
             color: var(--text-color);
-        }
-
-        /* Navigation Tabs Simulation */
-        .main-nav {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 0 20px;
-        }
-        .nav-link {
-            color: #64748b;
-            font-weight: 500;
-            padding: 15px 20px;
-            border-radius: 0;
-        }
-        .nav-link.active {
-            /* Mise à jour de la couleur du lien actif */
-            color: var(--color-accent);
-            border-bottom: 2px solid var(--color-accent);
         }
 
         /* KPI Cards */
         .kpi-card {
             background: white;
-            /* MISE À JOUR ARRONDI */
             border-radius: 8px; 
             border: none;
             box-shadow: var(--card-shadow);
@@ -71,6 +55,10 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
         .kpi-card:hover {
@@ -78,7 +66,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Indicateur actif (barre bleue en bas) */
         .kpi-card.active::after {
             content: '';
             position: absolute;
@@ -86,8 +73,20 @@
             left: 0;
             width: 100%;
             height: 4px;
-            /* Mise à jour de la couleur de surlignage */
             background-color: var(--color-accent);
+        }
+
+        /* Icon container in KPI Card */
+        .card-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.03); 
         }
 
         .dot {
@@ -99,7 +98,7 @@
         }
 
         .trend-badge {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
         }
         .text-success-custom { color: var(--color-success); }
@@ -108,7 +107,6 @@
         /* Charts & Containers */
         .dashboard-card {
             background: white;
-            /* MISE À JOUR ARRONDI */
             border-radius: 8px; 
             border: none;
             box-shadow: var(--card-shadow);
@@ -116,47 +114,218 @@
             padding: 20px;
         }
 
-        /* Table Styles */
-        .custom-table th {
+        /* Table Filter Toolbar Styles */
+        .table-filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-btn i {
+            font-size: 1.1rem;
+        }
+        .filter-btn:hover {
+            color: var(--color-accent);
+            background-color: rgba(7, 187, 244, 0.05); 
+        }
+        .filter-btn.active {
+            background-color: var(--color-accent); 
+            color: white;
+            box-shadow: 0 2px 5px rgba(7, 187, 244, 0.3); 
+        }
+        .filter-btn.active:hover {
+            color: white; 
+        }
+        .filter-count {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        /* Category Section */
+        .category-section {
+            background: #fff; 
+            border-radius: 6px;
+            border: 1px solid #e2e8f0; 
+            margin-bottom: 25px;
+            padding: 0; 
+            overflow: hidden;
+        }
+        .category-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 25px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .section-icon {
+            font-size: 1.5rem;
+            color: #475569;
+        }
+        .section-title {
+            font-size: 1.2rem;
             font-weight: 600;
             color: #1e293b;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 15px;
+            margin: 0;
+        }
+
+        /* Inner Table Styles */
+        .custom-table th {
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
         .custom-table td {
             vertical-align: middle;
-            padding: 15px 10px;
-            color: #475569;
+            padding: 16px 20px;
+            color: #334155;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f8fafc;
         }
-        .table-row-active {
-            /* Mise à jour de la couleur du fond du surlignage (couleur plus claire) */
-            background-color: #fde8ed !important; 
-            /* Mise à jour de la couleur de la bordure */
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Cookie Details */
+        .cookie-detail-container {
+            background-color: #f8fafc;
             border-left: 4px solid var(--color-accent);
+            margin: 10px 20px 20px 20px;
+            padding: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+        .detail-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 0.9rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        .url-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .url-list li {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #475569;
+            background: #e2e8f0;
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
         }
 
-        /* Styles pour les lignes de détails (cookies) */
-        .detail-row {
-            background-color: #f8fafc;
-        }
+        /* Cookie Badges */
         .cookie-badge {
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.35em 0.65em;
+            padding: 0.4em 0.8em;
         }
         .bg-before {
             background-color: var(--color-bar-before);
             color: white;
         }
-        .bg-after {
-            background-color: var(--color-bar-after);
+        .bg-accept {
+            background-color: var(--color-bar-accept);
             color: #334155;
         }
-        .chevron-icon {
-            transition: transform 0.2s ease;
+        .bg-refuse {
+            background-color: var(--color-bar-refuse);
+            color: white;
         }
-        .chevron-rotated {
-            transform: rotate(180deg);
+
+        /* Pagination Styles */
+        .pagination-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #fff;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .page-btn {
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            padding: 0 6px;
+        }
+        .page-btn:hover:not(:disabled) {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        .page-btn.active {
+            background-color: var(--color-accent); 
+            border-color: var(--color-accent);
+            color: white;
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .rows-per-page {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .rows-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: #334155;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .showing-text {
+            color: #64748b;
+            font-size: 0.9rem;
         }
 
         /* Top Controls */
@@ -170,21 +339,41 @@
             border: 1px solid #cbd5e1;
             padding: 5px 30px 5px 10px;
         }
+        
+        /* Chevron transition */
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+        .chevron-rotated {
+            transform: rotate(90deg); /* 90deg pour le chevron vers le bas */
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-
-    <div class="container-fluid px-4 pb-5">
+    
+    <div class="container-fluid px-4 py-5">
         
-        <!-- Header Section --><div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 fw-bold text-dark m-0">Cookies by Category</h2>
             
             <div class="control-bar">
-                <span class="text-secondary small fw-bold">Last 7 days</span>
+                <!-- Time Range Dropdown -->
+                <div class="bg-white p-1 rounded border">
+                    <select class="form-select form-select-sm border-0 fw-bold text-secondary" v-model="selectedTimeRange">
+                        <option>Now</option>
+                        <option>Last 10 minutes</option>
+                        <option>Last 1h</option>
+                        <option>Last 24h</option>
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                    </select>
+                </div>
                 
-                <!-- Domain Dropdown --><div class="bg-white p-1 rounded border">
+                <!-- Domain Dropdown -->
+                <div class="bg-white p-1 rounded border">
                     <select class="form-select form-select-sm border-0 fw-bold" v-model="selectedDomain">
                         <option>Domain</option>
                         <option>example.com</option>
@@ -194,29 +383,33 @@
             </div>
         </div>
 
-        <!-- Top KPI Cards Row --><div class="row g-4 mb-4">
+        <!-- Top KPI Cards Row -->
+        <div class="row g-4 mb-4">
             <div class="col-md-3" v-for="(cat, index) in categories" :key="cat.name">
                 <kpi-card
                     :category="cat"
+                    :icon-class="getCategoryIcon(cat.name)"
                     :is-active="selectedCategory === cat.name"
                     @select="selectCategory(cat.name)"
                 ></kpi-card>
             </div>
         </div>
 
-        <!-- Charts Row --><div class="row g-4 mb-4">
-            <!-- Donut Chart --><div class="col-md-5">
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Donut Chart -->
+            <div class="col-md-5">
                 <div class="dashboard-card d-flex flex-column align-items-center justify-content-center">
                     <h5 class="fw-bold mb-4 w-100 text-center">Category share</h5>
                     <div style="height: 250px; width: 250px; position: relative;">
-                        <!-- Utilisation du nouveau composant pour le Donut Chart --><chart-wrapper
+                        <chart-wrapper
                             chart-id="donutChart"
                             type="doughnut"
                             :chart-data="donutChartData"
                             :chart-options="donutChartOptions"
                         ></chart-wrapper>
                     </div>
-                    <!-- Custom Legend --><div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
                         <div v-for="cat in categories" :key="cat.name" class="d-flex align-items-center small">
                             <span class="dot" :style="{ backgroundColor: cat.color }"></span>
                             <span class="fw-bold text-secondary">{{ cat.name }}</span>
@@ -225,11 +418,12 @@
                 </div>
             </div>
 
-            <!-- Bar Chart --><div class="col-md-7">
+            <!-- Bar Chart -->
+            <div class="col-md-7">
                 <div class="dashboard-card">
-                    <h5 class="fw-bold mb-4 text-center">Before consent vs After consent by category</h5>
+                    <h5 class="fw-bold mb-4 text-center">Cookies by consent status and category</h5>
                     <div style="height: 300px;">
-                        <!-- Utilisation du nouveau composant pour le Bar Chart --><chart-wrapper
+                        <chart-wrapper
                             chart-id="barChart"
                             type="bar"
                             :chart-data="barChartData"
@@ -237,62 +431,106 @@
                         ></chart-wrapper>
                     </div>
                     <div class="d-flex justify-content-center gap-4 mt-2 small">
-                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-before)' }"></span> Before</div>
-                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-after)' }"></span> After</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-before)' }"></span> Before consent</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-accept)' }"></span> After consent (compliant)</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-refuse)' }"></span> After Refuse all (violation)</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detail Table --><data-table
+        <!-- DETAIL TABLE SECTION -->
+        <data-table
             :categories="categories"
             :selected-category="selectedCategory"
+            :get-icon="getCategoryIcon"
             @select-category="selectCategory"
         ></data-table>
 
     </div>
 </div>
 
-<!-- Scripts --><!-- Vue 3 --><script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Chart.js --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Scripts -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script>
     const { createApp, ref, onMounted, watch, computed, nextTick } = Vue;
 
-    // Définir la police pour Chart.js globalement
     Chart.defaults.font.family = 'Roboto, sans-serif';
+    Chart.register(ChartDataLabels);
+
+    // Boxicons Mapping
+    const getCategoryIcon = (name) => {
+        switch(name) {
+            case 'Essential': return 'bx bx-shield-quarter';
+            case 'Analytics': return 'bx bx-line-chart';
+            case 'Marketing': return 'bx bx-target-lock';
+            case 'Others': return 'bx bx-purchase-tag';
+            default: return 'bx bx-cookie';
+        }
+    };
 
     // --- 1. KPI Card Component ---
     const KpiCard = {
-        props: ['category', 'isActive'],
+        props: ['category', 'isActive', 'iconClass'],
         template: `
             <div 
-                class="kpi-card p-3 text-center" 
+                class="kpi-card p-3" 
                 :class="{ 'active': isActive }"
                 @click="$emit('select')"
             >
-                <div class="text-secondary mb-2 fw-bold">
-                    {{ category.name }} <span class="dot ms-1" :style="{ backgroundColor: category.color }"></span>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">
+                            {{ category.name }}
+                        </div>
+                        <h2 class="display-6 fw-bold m-0 text-dark">{{ category.count }}</h2>
+                    </div>
+                    
+                    <div class="card-icon-wrapper" :style="{ color: category.color, backgroundColor: category.color + '15' }">
+                        <i :class="iconClass"></i>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-center align-items-end gap-2">
-                    <h2 class="display-5 fw-bold m-0">{{ category.count }}</h2>
-                    <div class="mb-2 d-flex flex-column align-items-center" 
-                            :class="category.trend > 0 ? 'text-success-custom' : 'text-danger-custom'">
-                        <i :class="category.trend > 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+
+                <div class="mt-auto pt-2">
+                    <div class="d-flex align-items-center small" 
+                         :class="category.trend > 0 ? 'text-success-custom' : 'text-danger-custom'">
+                        <i :class="category.trend > 0 ? 'bx bx-up-arrow-alt me-1' : 'bx bx-down-arrow-alt me-1'" style="font-size: 1.1rem;"></i>
                         <span class="trend-badge">{{ Math.abs(category.trend) }}%</span>
+                        <span class="text-muted ms-2 fw-normal">vs last week</span>
                     </div>
                 </div>
             </div>
         `
     };
 
-    // --- 2. Data Table Component (Updated for Expansion and Column Removal) ---
+    // --- 2. Data Table Component (With Pagination & Cookie Expansion) ---
     const DataTable = {
-        props: ['categories', 'selectedCategory'],
+        props: ['categories', 'selectedCategory', 'getIcon'],
         emits: ['selectCategory'],
         setup(props) {
-            const expandedCategories = ref([]);
+            // Pagination state
+            const paginationState = ref({});
+            // Expanded Cookies state (Set of cookie names)
+            const expandedCookies = ref([]);
 
+            const initPagination = () => {
+                props.categories.forEach(cat => {
+                    if (!paginationState.value[cat.name]) {
+                        paginationState.value[cat.name] = {
+                            page: 1,
+                            rowsPerPage: 5
+                        };
+                    }
+                });
+            };
+
+            watch(() => props.categories, initPagination, { immediate: true, deep: true });
+
+            // Expanded Categories logic (for the main sections)
+            const expandedCategories = ref([]);
             const toggleExpand = (categoryName) => {
                 const index = expandedCategories.value.indexOf(categoryName);
                 if (index === -1) {
@@ -301,101 +539,264 @@
                     expandedCategories.value.splice(index, 1);
                 }
             };
-
             const isExpanded = (categoryName) => {
                 return expandedCategories.value.includes(categoryName);
             };
 
-            return { expandedCategories, toggleExpand, isExpanded };
+            // Cookie Expansion logic
+            const toggleCookieExpand = (cookieName) => {
+                const index = expandedCookies.value.indexOf(cookieName);
+                if (index === -1) {
+                    expandedCookies.value.push(cookieName);
+                } else {
+                    expandedCookies.value.splice(index, 1);
+                }
+            };
+            const isCookieExpanded = (cookieName) => {
+                return expandedCookies.value.includes(cookieName);
+            };
+
+            // Pagination helpers
+            const getPagination = (catName) => {
+                return paginationState.value[catName] || { page: 1, rowsPerPage: 5 };
+            };
+
+            const getPaginatedCookies = (category) => {
+                const state = getPagination(category.name);
+                const start = (state.page - 1) * state.rowsPerPage;
+                const end = start + state.rowsPerPage;
+                return category.cookiesList.slice(start, end);
+            };
+
+            const getTotalPages = (category) => {
+                const state = getPagination(category.name);
+                return Math.ceil(category.cookiesList.length / state.rowsPerPage);
+            };
+
+            const getStartEntry = (category) => {
+                const state = getPagination(category.name);
+                if (category.cookiesList.length === 0) return 0;
+                return (state.page - 1) * state.rowsPerPage + 1;
+            };
+
+            const getEndEntry = (category) => {
+                const state = getPagination(category.name);
+                return Math.min(state.page * state.rowsPerPage, category.cookiesList.length);
+            };
+
+            const setPage = (catName, newPage) => {
+                if (paginationState.value[catName]) {
+                    paginationState.value[catName].page = newPage;
+                }
+            };
+
+            const updateRowsPerPage = (catName) => {
+                if (paginationState.value[catName]) {
+                    paginationState.value[catName].page = 1;
+                }
+            };
+
+            return { 
+                paginationState, 
+                expandedCategories,
+                toggleExpand,
+                isExpanded,
+                toggleCookieExpand,
+                isCookieExpanded,
+                getPaginatedCookies, 
+                getTotalPages,
+                getStartEntry,
+                getEndEntry,
+                setPage,
+                updateRowsPerPage
+            };
         },
         template: `
-            <div class="dashboard-card p-0 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-hover custom-table m-0">
-                        <thead class="bg-white">
-                            <tr>
-                                <th class="ps-4" style="width: 50px;"></th> <!-- Chevron column -->
-                                <th class="text-secondary" style="width: 50px;">#</th> <!-- Index column -->
-                                <th>Category</th>
-                                <th class="text-center">Cookies count</th>
-                                <th>Pre-consent detected</th>
-                                <!-- Colonnes supprimées: Pages impacted, Visible in Notice -->
-                                <th class="text-center">Vendors</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="(cat, index) in categories" :key="cat.name">
-                                <!-- Main Row -->
-                                <tr 
-                                    :class="{ 'table-row-active': selectedCategory === cat.name }"
-                                    @click="toggleExpand(cat.name); $emit('selectCategory', cat.name)"
-                                    style="cursor: pointer;">
-                                    
-                                    <td class="ps-4 text-secondary">
-                                        <i class="fas fa-chevron-down chevron-icon" :class="{ 'chevron-rotated': isExpanded(cat.name) }"></i>
-                                    </td>
-                                    <td class="text-secondary">{{ index + 1 }}</td>
-                                    <td class="fw-bold">{{ cat.name }}</td>
-                                    <td class="text-center">{{ cat.count }}</td>
-                                    <td>
-                                        <!-- Affichage de la valeur cohérente (Yes/No) -->
-                                        <span class="fw-bold">{{ cat.preConsentDetected }}</span>
-                                    </td>
-                                    <td class="text-center">{{ cat.vendors }}</td>
-                                </tr>
-                                
-                                <!-- Detail Row (Cookies List) -->
-                                <tr v-if="isExpanded(cat.name)" class="detail-row">
-                                    <td colspan="7" class="p-0"> <!-- Colspan ajusté à 7 (total des colonnes) -->
-                                        <div class="p-4">
-                                            <h6 class="fw-bold mb-3 text-secondary small text-uppercase">Cookies Detected in {{ cat.name }}</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-borderless mb-0">
-                                                    <thead class="text-secondary small">
-                                                        <tr>
-                                                            <th>Cookie Name</th>
-                                                            <th>Domain</th>
-                                                            <th>Duration</th>
-                                                            <th>Detection Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="cookie in cat.cookiesList" :key="cookie.name">
-                                                            <td class="fw-medium text-dark">{{ cookie.name }}</td>
-                                                            <td class="text-muted small">{{ cookie.domain }}</td>
-                                                            <td class="text-muted small">{{ cookie.duration }}</td>
-                                                            <td>
-                                                                <span class="badge rounded-pill cookie-badge" 
-                                                                    :class="cookie.type === 'Before' ? 'bg-before' : 'bg-after'">
-                                                                    {{ cookie.type }} Consent
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr v-if="!cat.cookiesList || cat.cookiesList.length === 0">
-                                                            <td colspan="4" class="text-muted fst-italic">No specific cookies data available.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+            <div class="dashboard-card"> 
+                <div class="table-filter-bar">
+                    <button 
+                        class="filter-btn" 
+                        :class="{ 'active': selectedCategory === 'All' }"
+                        @click="$emit('selectCategory', 'All')"
+                    >
+                        All
+                    </button>
+                    <button 
+                        v-for="cat in categories" 
+                        :key="cat.name"
+                        class="filter-btn"
+                        :class="{ 'active': selectedCategory === cat.name }"
+                        @click="$emit('selectCategory', cat.name)"
+                    >
+                        <i :class="getIcon(cat.name)"></i>
+                        {{ cat.name }}
+                        <span class="filter-count">({{ cat.count }})</span>
+                    </button>
                 </div>
+
+                <template v-for="cat in categories" :key="cat.name">
+                    <div v-if="selectedCategory === 'All' || selectedCategory === cat.name" class="category-section">
+                        <div class="section-header">
+                            <i :class="getIcon(cat.name)" class="section-icon"></i>
+                            <h4 class="section-title">{{ cat.name }}</h4>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table custom-table table-borderless m-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th style="width: 20%;">Cookie Name</th>
+                                        <th style="width: 15%;">Vendor</th>
+                                        <th style="width: 15%;">Domain</th>
+                                        <th style="width: 10%;">Duration</th>
+                                        <th style="width: 10%;">% Occur.</th>
+                                        <th style="width: 20%;" class="text-end">Detection Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="cookie in getPaginatedCookies(cat)" :key="cookie.name">
+                                        <!-- Cookie Row (Clickable) -->
+                                        <tr 
+                                            style="cursor: pointer; transition: background-color 0.1s;"
+                                            @click="toggleCookieExpand(cookie.name)"
+                                            :style="isCookieExpanded(cookie.name) ? 'background-color: #f8fafc;' : ''"
+                                        >
+                                            <td class="text-center text-secondary">
+                                                <i class='bx bx-chevron-right chevron-icon' :class="{ 'chevron-rotated': isCookieExpanded(cookie.name) }"></i>
+                                            </td>
+                                            <td class="fw-medium text-dark">{{ cookie.name }}</td>
+                                            <td class="text-muted">{{ cookie.vendor || '-' }}</td>
+                                            <td class="text-muted">{{ cookie.domain }}</td>
+                                            <td class="text-muted">{{ cookie.duration }}</td>
+                                            <td class="text-muted">{{ cookie.occurrence || 'N/A' }}</td>
+                                            <td class="text-end">
+                                                <span class="badge rounded-pill cookie-badge" 
+                                                    :class="{
+                                                        'bg-before': cookie.type === 'Before',
+                                                        'bg-accept': cookie.type === 'After',
+                                                        'bg-refuse': cookie.type === 'Refuse'
+                                                    }">
+                                                    {{ cookie.type === 'Refuse' ? 'Refused' : cookie.type }}
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Expanded Detail Row -->
+                                        <tr v-if="isCookieExpanded(cookie.name)">
+                                            <td colspan="7" class="p-0 border-0">
+                                                <div class="cookie-detail-container">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <div class="detail-label">Description</div>
+                                                                <div class="detail-value">{{ cookie.description }}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="detail-label">Type</div>
+                                                                <div class="detail-value">{{ cookie.technicalType }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-8">
+                                                            <div class="detail-label">Detected URLs (Sample)</div>
+                                                            <ul class="url-list">
+                                                                <li v-for="url in cookie.detectedUrls" :key="url">{{ url }}</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    
+                                    <tr v-if="!cat.cookiesList || cat.cookiesList.length === 0">
+                                        <td colspan="7" class="text-center text-muted fst-italic py-3">No specific cookies data available.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="pagination-footer" v-if="cat.cookiesList.length > 0">
+                            <div class="rows-per-page">
+                                <span>Rows per page</span>
+                                <select 
+                                    class="rows-select" 
+                                    v-if="paginationState[cat.name]" 
+                                    v-model="paginationState[cat.name].rowsPerPage"
+                                    @change="updateRowsPerPage(cat.name)"
+                                >
+                                    <option :value="5">5</option>
+                                    <option :value="10">10</option>
+                                    <option :value="25">25</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="showing-text">
+                                    Showing {{ getStartEntry(cat) }} to {{ getEndEntry(cat) }} of {{ cat.cookiesList.length }} entries
+                                </div>
+                                <div class="pagination-controls" v-if="paginationState[cat.name]">
+                                    <button 
+                                        class="page-btn" 
+                                        :disabled="paginationState[cat.name].page === 1"
+                                        @click="setPage(cat.name, 1)"
+                                    >
+                                        <i class='bx bx-chevrons-left'></i>
+                                    </button>
+                                    <button 
+                                        class="page-btn" 
+                                        :disabled="paginationState[cat.name].page === 1"
+                                        @click="setPage(cat.name, paginationState[cat.name].page - 1)"
+                                    >
+                                        <i class='bx bx-chevron-left'></i>
+                                    </button>
+                                    
+                                    <button 
+                                        v-for="p in getTotalPages(cat)" 
+                                        :key="p"
+                                        class="page-btn"
+                                        :class="{ 'active': paginationState[cat.name].page === p }"
+                                        @click="setPage(cat.name, p)"
+                                    >
+                                        {{ p }}
+                                    </button>
+
+                                    <button 
+                                        class="page-btn" 
+                                        :disabled="paginationState[cat.name].page === getTotalPages(cat)"
+                                        @click="setPage(cat.name, paginationState[cat.name].page + 1)"
+                                    >
+                                        <i class='bx bx-chevron-right'></i>
+                                    </button>
+                                    <button 
+                                        class="page-btn" 
+                                        :disabled="paginationState[cat.name].page === getTotalPages(cat)"
+                                        @click="setPage(cat.name, getTotalPages(cat))"
+                                    >
+                                        <i class='bx bx-chevrons-right'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         `
     };
 
     // --- 3. Chart Wrapper Component ---
     const ChartWrapper = {
-        props: ['chartId', 'type', 'chartData', 'chartOptions'],
+        props: ['type', 'chartData', 'chartOptions'],
         setup(props) {
+            const canvasRef = ref(null);
             let chartInstance = null;
             
             const renderChart = () => {
-                const ctx = document.getElementById(props.chartId).getContext('2d');
+                if (!canvasRef.value) return; 
+                
+                const ctx = canvasRef.value.getContext('2d');
+                
                 if (chartInstance) {
                     chartInstance.data = props.chartData;
                     chartInstance.options = props.chartOptions;
@@ -417,56 +818,60 @@
                 renderChart();
             });
 
-            return {};
+            return { canvasRef };
         },
-        template: `<canvas :id="chartId"></canvas>`
+        template: `<canvas ref="canvasRef"></canvas>`
     };
 
 
     const App = {
         setup() {
-            // --- State ---
-            const selectedCategory = ref('Essential'); 
+            const selectedCategory = ref('All'); 
             const selectedDomain = ref('Domain');
+            const selectedTimeRange = ref('Last 7 days'); 
 
-            // Data Model with Mock Cookies List
+            // Data Model with Richer Details for Expansion
             const categories = ref([
                 { 
                     name: 'Essential', 
                     count: 7, 
                     trend: 12, 
                     color: '#002CBD', 
-                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
-                    pagesImpacted: 5,
+                    preConsentDetected: 'Yes',
                     vendors: 5,
                     visibleInNotice: true,
-                    chartDataBefore: 7, /* Tous en BEFORE */
-                    chartDataAfter: 0, /* Aucun en AFTER */
+                    chartDataBefore: 7,
+                    chartDataAfter: 0,
+                    chartDataRefuse: 0,
                     cookiesList: [
-                        { name: 'PHPSESSID', domain: '.example.com', duration: 'Session', type: 'Before' },
-                        { name: 'cc_cookie', domain: '.example.com', duration: '6 months', type: 'Before' },
-                        { name: 'AWSALB', domain: 'aws.amazon.com', duration: '7 days', type: 'Before' },
-                        { name: 'XSRF-TOKEN', domain: '.example.com', duration: 'Session', type: 'Before' },
-                        { name: 'auth_token', domain: '.shop.example.com', duration: '1 day', type: 'Before' }
+                        { name: 'PHPSESSID', vendor: 'Internal', domain: '.example.com', duration: 'Session', type: 'Before', occurrence: '100%', description: 'Preserves user session state across page requests.', technicalType: 'HTTP Cookie', detectedUrls: ['/login', '/cart', '/checkout'] },
+                        { name: 'cc_cookie', vendor: 'CookieConsent', domain: '.example.com', duration: '6 months', type: 'Before', occurrence: '100%', description: 'Stores the user\'s cookie consent preferences.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'AWSALB', vendor: 'Amazon Web Services', domain: 'aws.amazon.com', duration: '7 days', type: 'Before', occurrence: '95%', description: 'Registers which server-cluster is serving the visitor.', technicalType: 'HTTP Cookie', detectedUrls: ['/api/v1/data'] },
+                        { name: 'XSRF-TOKEN', vendor: 'Internal', domain: '.example.com', duration: 'Session', type: 'Before', occurrence: '100%', description: 'Ensures visitor browsing security by preventing cross-site request forgery.', technicalType: 'HTTP Cookie', detectedUrls: ['/login'] },
+                        { name: 'auth_token', vendor: 'Internal', domain: '.shop.example.com', duration: '1 day', type: 'Before', occurrence: '80%', description: 'Used for authentication.', technicalType: 'HTTP Cookie', detectedUrls: ['/account'] },
+                        { name: 'secure_cart', vendor: 'Internal', domain: '.shop.example.com', duration: '1 day', type: 'Before', occurrence: '40%', description: 'Stores encrypted cart data.', technicalType: 'HTTP Cookie', detectedUrls: ['/cart'] },
+                        { name: 'cf_clearance', vendor: 'Cloudflare', domain: '.example.com', duration: '1 year', type: 'Before', occurrence: '90%', description: 'Stores proof of challenge passage.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] }
                     ]
                 },
                 { 
                     name: 'Analytics', 
                     count: 18, 
                     trend: -5, 
-                    color: '#FFAE01', 
-                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
-                    pagesImpacted: 50,
+                    color: '#6B1FFF', 
+                    preConsentDetected: 'Yes',
                     vendors: 4,
                     visibleInNotice: false,
                     chartDataBefore: 3,  
                     chartDataAfter: 15,
+                    chartDataRefuse: 0, 
                     cookiesList: [
-                        { name: '_ga', domain: '.example.com', duration: '2 years', type: 'Before' },
-                        { name: '_gid', domain: '.example.com', duration: '24 hours', type: 'Before' },
-                        { name: '_gat', domain: '.example.com', duration: '1 minute', type: 'Before' },
-                        { name: 'ai_user', domain: '.microsoft.com', duration: '1 year', type: 'After' },
-                        { name: '_hjid', domain: '.hotjar.com', duration: '1 year', type: 'After' }
+                        { name: '_ga', vendor: 'Google Analytics', domain: '.example.com', duration: '2 years', type: 'Before', occurrence: '100%', description: 'Registers a unique ID to generate statistical data on how the visitor uses the website.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: '_gid', vendor: 'Google Analytics', domain: '.example.com', duration: '24 hours', type: 'Before', occurrence: '98%', description: 'Used to generate data on visitor use of the website.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: '_gat', vendor: 'Google Analytics', domain: '.example.com', duration: '1 minute', type: 'Before', occurrence: '98%', description: 'Used to throttle request rate.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'ai_user', vendor: 'Microsoft Clarity', domain: '.microsoft.com', duration: '1 year', type: 'After', occurrence: '45%', description: 'Unique user identifier for Clarity.', technicalType: 'HTTP Cookie', detectedUrls: ['/blog'] },
+                        { name: '_hjid', vendor: 'Hotjar', domain: '.hotjar.com', duration: '1 year', type: 'After', occurrence: '30%', description: 'Sets a unique ID for the session.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: '_hjIncludedInSessionSample', vendor: 'Hotjar', domain: '.hotjar.com', duration: '2 mins', type: 'After', occurrence: '30%', description: 'Determines if the user is included in the data sampling.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: '_hjAbsoluteSessionInProgress', vendor: 'Hotjar', domain: '.hotjar.com', duration: '30 mins', type: 'After', occurrence: '30%', description: 'Detects the first pageview session.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] }
                     ]
                 },
                 { 
@@ -474,19 +879,23 @@
                     count: 40, 
                     trend: -18, 
                     color: '#F31DAC', 
-                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes */
-                    pagesImpacted: 8,
+                    preConsentDetected: 'Yes',
                     vendors: 8,
-                    chartDataBefore: 5,  
-                    chartDataAfter: 35,
                     visibleInNotice: false,
+                    chartDataBefore: 5,  
+                    chartDataAfter: 33, 
+                    chartDataRefuse: 2, 
                     cookiesList: [
-                        { name: 'fbp', domain: '.facebook.com', duration: '3 months', type: 'Before' },
-                        { name: 'fr', domain: '.facebook.com', duration: '3 months', type: 'Before' },
-                        { name: 'ads_prefs', domain: '.google.com', duration: '1 year', type: 'Before' },
-                        { name: 'IDE', domain: '.doubleclick.net', duration: '1 year', type: 'Before' },
-                        { name: 'MUID', domain: '.bing.com', duration: '1 year', type: 'Before' },
-                        { name: 'test_cookie', domain: '.doubleclick.net', duration: '15 mins', type: 'After' }
+                        { name: 'fbp', vendor: 'Meta (Facebook)', domain: '.facebook.com', duration: '3 months', type: 'Before', occurrence: '90%', description: 'Used by Facebook to deliver a series of advertisement products.', technicalType: 'Pixel Cookie', detectedUrls: ['/'] },
+                        { name: 'fr', vendor: 'Meta (Facebook)', domain: '.facebook.com', duration: '3 months', type: 'Before', occurrence: '90%', description: 'Used to deliver, measure and improve the relevance of ads.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'ads_prefs', vendor: 'Google Ads', domain: '.google.com', duration: '1 year', type: 'Before', occurrence: '85%', description: 'Used to track user preferences for ads.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'IDE', vendor: 'Doubleclick', domain: '.doubleclick.net', duration: '1 year', type: 'Before', occurrence: '85%', description: 'Used to register and report the website user actions after viewing or clicking one of the advertiser ads.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'MUID', vendor: 'Microsoft Bing', domain: '.bing.com', duration: '1 year', type: 'Before', occurrence: '40%', description: 'Used widely by Microsoft as a unique user ID.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'test_cookie', vendor: 'Doubleclick', domain: '.doubleclick.net', duration: '15 mins', type: 'After', occurrence: '85%', description: 'Used to check if the user\'s browser supports cookies.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'personalization_id', vendor: 'Twitter', domain: '.twitter.com', duration: '2 years', type: 'Refuse', occurrence: '10%', description: 'This cookie is set due to Twitter integration and used for social media tracking.', technicalType: 'HTTP Cookie', detectedUrls: ['/blog/article-1'] },
+                        { name: 'uuid2', vendor: 'AppNexus', domain: '.adnxs.com', duration: '3 months', type: 'Refuse', occurrence: '5%', description: 'Contains a unique randomly generated value that enables the Platform to distinguish browsers.', technicalType: 'HTTP Cookie', detectedUrls: ['/shop'] },
+                        { name: '_uetsid', vendor: 'Microsoft Bing', domain: '.bing.com', duration: '1 day', type: 'After', occurrence: '40%', description: 'Collects data on visitor behaviour from multiple websites.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: '_uetvid', vendor: 'Microsoft Bing', domain: '.bing.com', duration: '13 months', type: 'After', occurrence: '40%', description: 'Used to track visitors on multiple websites.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] }
                     ]
                 },
                 { 
@@ -494,17 +903,18 @@
                     count: 13, 
                     trend: -3, 
                     color: '#3198FD', 
-                    preConsentDetected: 'Yes', /* MISE À JOUR : Yes (était 'No') */
-                    pagesImpacted: 3,
+                    preConsentDetected: 'Yes',
                     vendors: 2,
-                    chartDataBefore: 2,  
-                    chartDataAfter: 11,
                     visibleInNotice: true,
+                    chartDataBefore: 2,  
+                    chartDataAfter: 10, 
+                    chartDataRefuse: 1,
                     cookiesList: [
-                        { name: 'player_id', domain: '.vimeo.com', duration: '1 year', type: 'Before' },
-                        { name: 'vuid', domain: '.vimeo.com', duration: '2 years', type: 'Before' },
-                        { name: 'lang', domain: '.cdn.net', duration: 'Session', type: 'After' },
-                        { name: 'custom_pref', domain: '.example.com', duration: '30 days', type: 'After' }
+                        { name: 'player_id', vendor: 'Vimeo', domain: '.vimeo.com', duration: '1 year', type: 'Before', occurrence: '20%', description: 'Saves the user\'s preferences when playing embedded videos from Vimeo.', technicalType: 'HTTP Cookie', detectedUrls: ['/about'] },
+                        { name: 'vuid', vendor: 'Vimeo', domain: '.vimeo.com', duration: '2 years', type: 'Before', occurrence: '20%', description: 'Collects data on the user\'s visits to the website, such as which pages have been read.', technicalType: 'HTTP Cookie', detectedUrls: ['/about'] },
+                        { name: 'lang', vendor: 'CDN', domain: '.cdn.net', duration: 'Session', type: 'After', occurrence: '100%', description: 'Remembers the user\'s selected language version of a website.', technicalType: 'HTTP Cookie', detectedUrls: ['/'] },
+                        { name: 'custom_pref', vendor: 'Internal', domain: '.example.com', duration: '30 days', type: 'After', occurrence: '50%', description: 'Stores custom UI preferences.', technicalType: 'HTTP Cookie', detectedUrls: ['/dashboard'] },
+                        { name: 'unknown_tracker', vendor: 'Unknown', domain: '.adtech.com', duration: 'Session', type: 'Refuse', occurrence: '2%', description: 'Unclassified tracker found during scan.', technicalType: 'Pixel', detectedUrls: ['/landing-page-b'] }
                     ]
                 }
             ]);
@@ -514,7 +924,18 @@
                 labels: categories.value.map(c => c.name),
                 datasets: [{
                     data: categories.value.map(c => c.count), 
-                    backgroundColor: categories.value.map(c => c.color), 
+                    backgroundColor: categories.value.map(c => {
+                        if (selectedCategory.value === 'All' || c.name === selectedCategory.value) {
+                            return c.color;
+                        }
+                        return c.color + '80'; // 50% opacity
+                    }),
+                    offset: categories.value.map(c => {
+                        if (selectedCategory.value !== 'All' && c.name === selectedCategory.value) {
+                            return 30; 
+                        }
+                        return 0;
+                    }),
                     borderWidth: 0,
                     hoverOffset: 4
                 }]
@@ -524,9 +945,42 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '55%',
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const clickedCat = categories.value[index].name;
+                        if (selectedCategory.value === clickedCat) {
+                            selectedCategory.value = 'All';
+                        } else {
+                            selectedCategory.value = clickedCat;
+                        }
+                    } 
+                },
+                onHover: (event, chartElement) => {
+                    event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                },
                 plugins: {
                     legend: { display: false }, 
-                    tooltip: { enabled: true }
+                    tooltip: { enabled: true },
+                    datalabels: {
+                        color: (context) => {
+                            const index = context.dataIndex;
+                            const categoryName = categories.value[index].name;
+                            const isSelected = selectedCategory.value === 'All' || selectedCategory.value === categoryName;
+                            return isSelected ? '#fff' : '#334155';
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 13
+                        },
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => { sum += data; });
+                            let percentage = (value * 100 / sum).toFixed(0) + "%";
+                            return percentage;
+                        }
+                    }
                 }
             };
 
@@ -534,17 +988,40 @@
                 labels: categories.value.map(c => c.name),
                 datasets: [
                     {
-                        label: 'Before',
+                        label: 'Before consent',
                         data: categories.value.map(c => c.chartDataBefore),
-                        backgroundColor: '#EB536C', 
+                        backgroundColor: categories.value.map(c => {
+                            if (selectedCategory.value === 'All' || c.name === selectedCategory.value) {
+                                return '#F39C12'; // Orange
+                            }
+                            return '#F39C1240'; 
+                        }),
                         borderRadius: 4,
                         barPercentage: 0.6,
                         categoryPercentage: 0.8
                     },
                     {
-                        label: 'After',
+                        label: 'After consent (compliant)',
                         data: categories.value.map(c => c.chartDataAfter),
-                        backgroundColor: '#74D9E8', 
+                        backgroundColor: categories.value.map(c => {
+                            if (selectedCategory.value === 'All' || c.name === selectedCategory.value) {
+                                return '#74D9E8'; // Cyan
+                            }
+                            return '#74D9E840'; 
+                        }),
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'After Refuse all (violation)', 
+                        data: categories.value.map(c => c.chartDataRefuse),
+                        backgroundColor: categories.value.map(c => {
+                            if (selectedCategory.value === 'All' || c.name === selectedCategory.value) {
+                                return '#EB536C'; // Red
+                            }
+                            return '#EB536C40'; 
+                        }),
                         borderRadius: 4,
                         barPercentage: 0.6,
                         categoryPercentage: 0.8
@@ -559,7 +1036,7 @@
                     y: {
                         beginAtZero: true,
                         stacked: false, 
-                        max: 40, 
+                        max: 50, 
                         grid: {
                             color: '#f1f5f9',
                             borderDash: [5, 5]
@@ -573,7 +1050,10 @@
                     }
                 },
                 plugins: {
-                    legend: { display: false } 
+                    legend: { display: false },
+                    datalabels: {
+                        display: false
+                    }
                 }
             };
 
@@ -586,12 +1066,14 @@
             return {
                 selectedCategory,
                 selectedDomain,
+                selectedTimeRange,
                 categories,
                 selectCategory,
                 donutChartData,
                 donutChartOptions,
                 barChartData,
-                barChartOptions
+                barChartOptions,
+                getCategoryIcon
             };
         }
     };
