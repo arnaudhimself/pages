@@ -515,6 +515,8 @@
             const paginationState = ref({});
             // Expanded Cookies state (Set of cookie names)
             const expandedCookies = ref([]);
+            // Filter state for cookies
+            const selectedConsentStatus = ref('All');
 
             const initPagination = () => {
                 props.categories.forEach(cat => {
@@ -528,6 +530,15 @@
             };
 
             watch(() => props.categories, initPagination, { immediate: true, deep: true });
+
+            // Watcher to reset pagination when filtering changes
+            watch(selectedConsentStatus, () => {
+                props.categories.forEach(cat => {
+                    if (paginationState.value[cat.name]) {
+                        paginationState.value[cat.name].page = 1;
+                    }
+                });
+            });
 
             // Expanded Categories logic (for the main sections)
             const expandedCategories = ref([]);
@@ -556,32 +567,44 @@
                 return expandedCookies.value.includes(cookieName);
             };
 
+            // Filter logic
+            const getFilteredCookies = (category) => {
+                if (selectedConsentStatus.value === 'All') {
+                    return category.cookiesList;
+                }
+                return category.cookiesList.filter(cookie => cookie.type === selectedConsentStatus.value);
+            };
+
             // Pagination helpers
             const getPagination = (catName) => {
                 return paginationState.value[catName] || { page: 1, rowsPerPage: 5 };
             };
 
             const getPaginatedCookies = (category) => {
+                const filteredCookies = getFilteredCookies(category);
                 const state = getPagination(category.name);
                 const start = (state.page - 1) * state.rowsPerPage;
                 const end = start + state.rowsPerPage;
-                return category.cookiesList.slice(start, end);
+                return filteredCookies.slice(start, end);
             };
 
             const getTotalPages = (category) => {
+                const filteredCookies = getFilteredCookies(category);
                 const state = getPagination(category.name);
-                return Math.ceil(category.cookiesList.length / state.rowsPerPage);
+                return Math.ceil(filteredCookies.length / state.rowsPerPage) || 1;
             };
 
             const getStartEntry = (category) => {
+                const filteredCookies = getFilteredCookies(category);
                 const state = getPagination(category.name);
-                if (category.cookiesList.length === 0) return 0;
+                if (filteredCookies.length === 0) return 0;
                 return (state.page - 1) * state.rowsPerPage + 1;
             };
 
             const getEndEntry = (category) => {
+                const filteredCookies = getFilteredCookies(category);
                 const state = getPagination(category.name);
-                return Math.min(state.page * state.rowsPerPage, category.cookiesList.length);
+                return Math.min(state.page * state.rowsPerPage, filteredCookies.length);
             };
 
             const setPage = (catName, newPage) => {
@@ -599,11 +622,13 @@
             return { 
                 paginationState, 
                 expandedCategories,
+                selectedConsentStatus,
                 toggleExpand,
                 isExpanded,
                 toggleCookieExpand,
                 isCookieExpanded,
                 getPaginatedCookies, 
+                getFilteredCookies, // Exposed to check array length
                 getTotalPages,
                 getStartEntry,
                 getEndEntry,
@@ -632,6 +657,16 @@
                         {{ cat.name }}
                         <span class="filter-count">({{ cat.count }})</span>
                     </button>
+
+                    <!-- NEW DROPDOWN -->
+                    <div class="ms-auto bg-white p-1 rounded border">
+                        <select v-model="selectedConsentStatus" class="form-select form-select-sm border-0 fw-bold text-secondary" style="min-width: 150px;">
+                            <option value="All">All consent status</option>
+                            <option value="Before">Before Consent</option>
+                            <option value="After">After Consent</option>
+                            <option value="Refuse">Refused</option>
+                        </select>
+                    </div>
                 </div>
 
                 <template v-for="cat in categories" :key="cat.name">
@@ -709,7 +744,7 @@
                                         </tr>
                                     </template>
                                     
-                                    <tr v-if="!cat.cookiesList || cat.cookiesList.length === 0">
+                                    <tr v-if="getFilteredCookies(cat).length === 0">
                                         <td colspan="7" class="text-center text-muted fst-italic py-3">No specific cookies data available.</td>
                                     </tr>
                                 </tbody>
@@ -717,7 +752,7 @@
                         </div>
 
                         <!-- Pagination Footer -->
-                        <div class="pagination-footer" v-if="cat.cookiesList.length > 0">
+                        <div class="pagination-footer" v-if="getFilteredCookies(cat).length > 0">
                             <div class="rows-per-page">
                                 <span>Rows per page</span>
                                 <select 
@@ -734,7 +769,7 @@
 
                             <div class="d-flex align-items-center gap-4">
                                 <div class="showing-text">
-                                    Showing {{ getStartEntry(cat) }} to {{ getEndEntry(cat) }} of {{ cat.cookiesList.length }} entries
+                                    Showing {{ getStartEntry(cat) }} to {{ getEndEntry(cat) }} of {{ getFilteredCookies(cat).length }} entries
                                 </div>
                                 <div class="pagination-controls" v-if="paginationState[cat.name]">
                                     <button 
