@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies by Category Dashboard</title>
+
+    <!-- Google Fonts - Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #F8F9FA;
+            --text-color: #334155;
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+
+            /* Couleurs des catégories */
+            --color-essential: #002CBD;
+            --color-essential-dark: #00229a;
+            --color-analytics: #FFAE01;
+            --color-marketing: #F31DAC;
+            --color-others: #3198FD;
+
+            --color-success: #22c55e;
+            --color-danger: #ef4444;
+
+            /* Couleurs pour l'histogramme */
+            --color-bar-before: #F39C12; /* Orange */
+            --color-bar-accept: #74D9E8; /* Cyan */
+            --color-bar-refuse: #EB536C; /* Rouge */
+
+            /* COULEUR D'ACCENTUATION */
+            --color-accent: #07bbf4;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-color);
+        }
+
+        /* KPI Cards */
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            border: none;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-card.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--color-accent);
+        }
+
+        /* Icon container in KPI Card */
+        .card-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .trend-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .text-success-custom { color: var(--color-success); }
+        .text-danger-custom { color: var(--color-danger); }
+
+        /* Charts & Containers */
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            border: none;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            padding: 20px;
+        }
+
+        /* Table Filter Toolbar Styles */
+        .table-filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-btn i {
+            font-size: 1.1rem;
+        }
+        .filter-btn:hover {
+            color: var(--color-accent);
+            background-color: rgba(7, 187, 244, 0.05);
+        }
+        .filter-btn.active {
+            background-color: var(--color-accent);
+            color: white;
+            box-shadow: 0 2px 5px rgba(7, 187, 244, 0.3);
+        }
+        .filter-btn.active:hover {
+            color: white;
+        }
+        .filter-count {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        /* Category Section */
+        .category-section {
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 25px;
+            padding: 0;
+            overflow: hidden;
+        }
+        .category-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 25px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .section-icon {
+            font-size: 1.5rem;
+            color: #475569;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        /* Inner Table Styles */
+        .custom-table th {
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .custom-table td {
+            vertical-align: middle;
+            padding: 16px 20px;
+            color: #334155;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Cookie Details */
+        .cookie-detail-container {
+            background-color: #f8fafc;
+            border-left: 4px solid var(--color-accent);
+            margin: 10px 20px 20px 20px;
+            padding: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+        .detail-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 0.9rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        .url-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .url-list li {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #475569;
+            background: #e2e8f0;
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* Cookie Badges */
+        .cookie-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.4em 0.8em;
+        }
+        .bg-before {
+            background-color: var(--color-bar-before);
+            color: white;
+        }
+        .bg-accept {
+            background-color: var(--color-bar-accept);
+            color: #334155;
+        }
+        .bg-refuse {
+            background-color: var(--color-bar-refuse);
+            color: white;
+        }
+
+        /* Pagination Styles */
+        .pagination-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #fff;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .page-btn {
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            padding: 0 6px;
+        }
+        .page-btn:hover:not(:disabled) {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        .page-btn.active {
+            background-color: var(--color-accent);
+            border-color: var(--color-accent);
+            color: white;
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .rows-per-page {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .rows-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: #334155;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .showing-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Top Controls */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .form-select-sm-custom {
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            padding: 5px 30px 5px 10px;
+        }
+
+        /* Chevron transition */
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+        .chevron-rotated {
+            transform: rotate(90deg); /* 90deg pour le chevron vers le bas */
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+
+    <div class="container-fluid px-4 py-5">
+
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h3 fw-bold text-dark m-0">Cookies by Category</h2>
+
+            <div class="control-bar">
+                <!-- Time Range Dropdown -->
+                <div class="bg-white p-1 rounded border">
+                    <select class="form-select form-select-sm border-0 fw-bold text-secondary" v-model="selectedTimeRange">
+                        <option>Now</option>
+                        <option>Last 10 minutes</option>
+                        <option>Last 1h</option>
+                        <option>Last 24h</option>
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                    </select>
+                </div>
+
+                <!-- Domain Dropdown -->
+                <div class="bg-white p-1 rounded border">
+                    <select class="form-select form-select-sm border-0 fw-bold" v-model="selectedDomain">
+                        <option>Domain</option>
+                        <option>example.com</option>
+                        <option>shop.example.com</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top KPI Cards Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3" v-for="(cat, index) in categories" :key="cat.name">
+                <kpi-card
+                    :category="cat"
+                    :icon-class="getCategoryIcon(cat.name)"
+                    :is-active="selectedCategory === cat.name"
+                    @select="selectCategory(cat.name)"
+                ></kpi-card>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Donut Chart -->
+            <div class="col-md-5">
+                <div class="dashboard-card d-flex flex-column align-items-center justify-content-center">
+                    <h5 class="fw-bold mb-4 w-100 text-center">Category share</h5>
+                    <div style="height: 250px; width: 250px; position: relative;">
+                        <chart-wrapper
+                            chart-id="donutChart"
+                            type="doughnut"
+                            :chart-data="donutChartData"
+                            :chart-options="donutChartOptions"
+                        ></chart-wrapper>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                        <div v-for="cat in categories" :key="cat.name" class="d-flex align-items-center small">
+                            <span class="dot" :style="{ backgroundColor: cat.color }"></span>
+                            <span class="fw-bold text-secondary">{{ cat.name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="col-md-7">
+                <div class="dashboard-card">
+                    <h5 class="fw-bold mb-4 text-center">Cookies by consent status and category</h5>
+                    <div style="height: 300px;">
+                        <chart-wrapper
+                            chart-id="barChart"
+                            type="bar"
+                            :chart-data="barChartData"
+                            :chart-options="barChartOptions"
+                        ></chart-wrapper>
+                    </div>
+                    <div class="d-flex justify-content-center gap-4 mt-2 small">
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-before)' }"></span> Before consent</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-accept)' }"></span> After consent (compliant)</div>
+                        <div class="d-flex align-items-center"><span class="dot" :style="{ backgroundColor: 'var(--color-bar-refuse)' }"></span> After Refuse all (violation)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAIL TABLE SECTION -->
+        <data-table
+            :categories="categories"
+            :selected-category="selectedCategory"
+            :get-icon="getCategoryIcon"
+            @select-category="selectCategory"
+        ></data-table>
+
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+<script>
+    const { createApp, ref, onMounted, watch, computed, nextTick } = Vue;
+
+    Chart.defaults.font.family = 'Roboto, sans-serif';
+    Chart.register(ChartDataLabels);
+
+    // Boxicons Mapping
+    const getCategoryIcon = (name) => {
+        switch(name) {
+            case 'Essential': return 'bx bx-shield-quarter';
+            case 'Analytics': return 'bx bx-line-chart';
+            case 'Marketing': return 'bx bx-target-lock';
+            case 'Others': return 'bx bx-purchase-tag';
+            default: return 'bx bx-cookie';
+        }
+    };
+
+    // --- 1. KPI Card Component ---
+    const KpiCard = {
+        props: ['category', 'isActive', 'iconClass'],
+        template: `
+            <div
+                class="kpi-card p-3"
+                :class="{ 'active': isActive }"
+                @click="$emit('select')"
+            >
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">
+                            {{ category.name }}
+                        </div>
+                        <h2 class="display-6 fw-bold m-0 text-dark">{{ category.count }}</h2>
+                    </div>
+
+                    <div class="card-icon-wrapper" :style="{ color: category.color, backgroundColor: category.color + '15' }">
+                        <i :class="iconClass"></i>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-2">
+                    <div class="d-flex align-items-center small"
+                         :class="category.trend > 0 ? 'text-success-custom' : 'text-danger-custom'">
+                        <i :class="category.trend > 0 ? 'bx bx-up-arrow-alt me-1' : 'bx bx-down-arrow-alt me-1'" style="font-size: 1.1rem;"></i>
+                        <span class="trend-badge">{{ Math.abs(category.trend) }}%</span>
+                        <span class="text-muted ms-2 fw-normal">vs last week</span>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // --- 2. Data Table Component (With Pagination & Cookie Expansion) ---
+    const DataTable = {
+        props: ['categories', 'selectedCategory', 'getIcon'],
+        emits: ['selectCategory'],
+        setup(props) {
+            // Pagination state
+            const paginationState = ref({});
+            // Expanded Cookies state (Set of cookie names)
+            const expandedCookies = ref([]);
+            // Filter state for cookies
+            const selectedConsentStatus = ref('All');
+
+            const initPagination = () => {
+                props.categories.forEach(cat => {
+                    if (!paginationState.value[cat.name]) {
+                        paginationState.value[cat.name] = {
+                            page: 1,
+                            rowsPerPage: 5
+                        };
+                    }
+                });
+            };
+
+            watch(() => props.categories, initPagination, { immediate: true, deep: true });
+
+            // Watcher to reset pagination when filtering changes
+            watch(selectedConsentStatus, () => {
+                props.categories.forEach(cat => {
+                    if (paginationState.value[cat.name]) {
+                        paginationState.value[cat.name].page = 1;
+                    }
+                });
+            });
+
+            // Expanded Categories logic (for the main sections)
+            const expandedCategories = ref([]);
+            const toggleExpand = (categoryName) => {
+                const index = expandedCategories.value.indexOf(categoryName);
+                if (index === -1) {
+                    expandedCategories.value.push(categoryName);
+                } else {
+                    expandedCategories.value.splice(index, 1);
+                }
+            };
+            const isExpanded = (categoryName) => {
+                return expandedCategories.value.includes(categoryName);
+            };
+
+            // Cookie Expansion logic
+            const toggleCookieExpand = (cookieName) => {
+                const index = expandedCookies.value.indexOf(cookieName);
+                if (index === -1) {
+                    expandedCookies.value.push(cookieName);
+                } else {
+                    expandedCookies.value.splice(index, 1);
+                }
+            };
+            const isCookieExpanded = (cookieName) => {
+                return expandedCookies.value.includes(cookieName);
+            };
+
+            // Filter logic
+            const getFilteredCookies = (category) => {
+                if (selectedConsentStatus.value === 'All') {
+                    return category.cookiesList;
+                }
+                return category.cookiesList.filter(cookie => cookie.type === selectedConsentStatus.value);
+            };
+
+            // Pagination helpers
+            const getPagination = (catName) => {
+                return paginationState.value[catName] || { page: 1, rowsPerPage: 5 };
+            };
+
+            const getPaginatedCookies = (category) => {
+                const filteredCookies = getFilteredCookies(category);
+                const state = getPagination(category.name);
+                const start = (state.page - 1) * state.rowsPerPage;
+                const end = start + state.rowsPerPage;
+                return filteredCookies.slice(start, end);
+            };
+
+            const getTotalPages = (category) => {
+                const filteredCookies = getFilteredCookies(category);
+                const state = getPagination(category.name);
+                return Math.ceil(filteredCookies.length / state.rowsPerPage) || 1;
+            };
+
+            const getStartEntry = (category) => {
+                const filteredCookies = getFilteredCookies(category);
+                const state = getPagination(category.name);
+                if (filteredCookies.length === 0) return 0;
+                return (state.page - 1) * state.rowsPerPage + 1;
+            };
+
+            const getEndEntry = (category) => {
+                const filteredCookies = getFilteredCookies(category);
+                const state = getPagination(category.name);
+                return Math.min(state.page * state.rowsPerPage, filteredCookies.length);
+            };
+
+            const setPage = (catName, newPage) => {
+                if (paginationState.value[catName]) {
+                    paginationState.value[catName].page = newPage;
+                }
+            };
+
+            const updateRowsPerPage = (catName) => {
+                if (paginationState.value[catName]) {
+                    paginationState.value[catName].page = 1;
+                }
+            };
+
+            return {
+                paginationState,
+                expandedCategories,
+                selectedConsentStatus,
+                toggleExpand,
+                isExpanded,
+                toggleCookieExpand,
+                isCookieExpanded,
+                getPaginatedCookies,
+                getFilteredCookies, // Exposed to check array length
+                getTotalPages,
+                getStartEntry,
+                getEndEntry,
+                setPage,
+                updateRowsPerPage
+            };
+        },
+        template: `
+            <div class="dashboard-card">
+                <div class="table-filter-bar">
+                    <button
+                        class="filter-btn"
+                        :class="{ 'active': selectedCategory === 'All' }"
+                        @click="$emit('selectCategory', 'All')"
+                    >
+                        All
+                    </button>
+                    <button
+                        v-for="cat in categories"
+                        :key="cat.name"
+                        class="filter-btn"
+                        :class="{ 'active': selectedCategory === cat.name }"
+                        @click="$emit('selectCategory', cat.name)"
+                    >
+                        <i :class="getIcon(cat.name)"></i>
+                        {{ cat.name }}
+                        <span class="filter-count">({{ cat.count }})</span>
+                    </button>
+
+                    <!-- NEW DROPDOWN -->
+                    <div class="ms-auto bg-white p-1 rounded border">
+                        <select v-model="selectedConsentStatus" class="form-select form-select-sm border-0 fw-bold text-secondary" style="min-width: 150px;">
+                            <option value="All">All consent status</option>
+                            <option value="Before">Before Consent</option>
+                            <option value="After">After Consent</option>
+                            <option value="Refuse">Refused</option>
+                        </select>
+                    </div>
+                </div>
+
+                <template v-for="cat in categories" :key="cat.name">
+                    <div v-if="selectedCategory === 'All' || selectedCategory === cat.name" class="category-section">
+                        <div class="section-header">
+                            <i :class="getIcon(cat.name)" class="section-icon"></i>
+                            <h4 class="section-title">{{ cat.name }}</h4>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table custom-table table-borderless m-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th style="width: 20%;">Cookie Name</th>
+                                        <th style="width: 15%;">Vendor</th>
+                                        <th style="width: 15%;">Domain</th>
+                                        <th style="width: 10%;">Duration</th>
+                                        <th style="width: 10%;">% Occur.</th>
+                                        <th style="width: 20%;" class="text-end">Detection Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="cookie in getPaginatedCookies(cat)" :key="cookie.name">
+                                        <!-- Cookie Row (Clickable) -->
+                                        <tr
+                                            style="cursor: pointer; transition: background-color 0.1s;"
+                                            @click="toggleCookieExpand(cookie.name)"
+                                            :style="isCookieExpanded(cookie.name) ? 'background-color: #f8fafc;' : ''"
+                                        >
+                                            <td class="text-center text-secondary">
+                                                <i class='bx bx-chevron-right chevron-icon' :class="{ 'chevron-rotated': isCookieExpanded(cookie.name) }"></i>
+                                            </td>
+                                            <td class="fw-medium text-dark">{{ cookie.name }}</td>
+                                            <td class="text-muted">{{ cookie.vendor || '-' }}</td>
+                                            <td class="text-muted">{{ cookie.domain }}</td>
+                                            <td class="text-muted">{{ cookie.duration }}</td>
+                                            <td class="text-muted">{{ cookie.occurrence || 'N/A' }}</td>
+                                            <td class="text-end">
+                                                <span class="badge rounded-pill cookie-badge"
+                                                    :class="{
+                                                        'bg-before': cookie.type === 'Before',
+                                                        'bg-accept': cookie.type === 'After',
+                                                        'bg-refuse': cookie.type === 'Refuse'
+                                                    }">
+                                                    {{ cookie.type === 'Refuse' ? 'Refused' : cookie.type }}
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Expanded Detail Row -->
+                                        <tr v-if="isCookieExpanded(cookie.name)">
+                                            <td colspan="7" class="p-0 border-0">
+                                                <div class="cookie-detail-container">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <div class="detail-label">Description</div>
+                                                                <div class="detail-value">{{ cookie.description }}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="detail-label">Type</div>
+                                                                <div class="detail-value">{{ cookie.technicalType }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-8">
+                                                            <div class="detail-label">Detected URLs (Sample)</div>
+                                                            <ul class="url-list">
+                                                                <li v-for="url in cookie.detectedUrls" :key="url">{{ url }}</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+
+                                    <tr v-if="getFilteredCookies(cat).length === 0">
+                                        <td colspan="7" class="text-center text-muted fst-italic py-3">No specific cookies data available.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="pagination-footer" v-if="getFilteredCookies(cat).length > 0">
+                            <div class="rows-per-page">
+                                <span>Rows per page</span>
+                                <select
+                                    class="rows-select"
+                                    v-if="paginationState[cat.name]"
+                                    v-model="paginationState[cat.name].rowsPerPage"
+                                    @change="updateRowsPerPage(cat.name)"
+                                >
+                                    <option :value="5">5</option>
+                                    <option :value="10">10</option>
+                                    <option :value="25">25</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="showing-text">
+                                    Showing {{ getStartEntry(cat) }} to {{ getEndEntry(cat) }} of {{ getFilteredCookies(cat).length }} entries
+                                </div>
+                                <div class="pagination-controls" v-if="paginationState[cat.name]">
+                                    <button
+                                        class="page-btn"
+                                        :disabled="paginationState[cat.name].page === 1"
+                                        @click="setPage(cat.name, 1)"
+                                    >
+                                        <i class='bx bx-chevrons-left'></i>
+                                    </button>
+                                    <button
+                                        class="page-btn"
+                                        :disabled="paginationState[cat.name].page === 1"
+                                        @click="setPage(cat.name, paginationState[cat.name].page - 1)"
+                                    >
+                                        <i class='bx bx-chevron-left'></i>
+                                    </button>
+
+                                    <button
+                                        v-for="p in getTotalPages(cat)"
+                                        :key="p"
+                                        class="page-btn"
+                                        :class="{ 'active': paginationState[cat.name].page === p }"
+                                        @click="setPage(cat.name, p)"
+                                    >
+                                        {{ p }}
+                                    </button>
+
+                                    <button
+                                        class="page-btn"
+                                        :disabled="paginationState[cat.name].page === getTotalPages(cat)"
+                                        @click="setPage(cat.name, paginationState[cat.name].page + 1)"
+                                    >
+                                        <i class='bx bx-chevron-right'></i>
+                                    </button>
+                                    <button
+                                        class="page-btn"
+                                        :disabled="paginationState[cat.name].page === getTotalPages(cat)"
+                                        @click="setPage(cat.name, getTotalPages(cat))"
+                                    >
+                                        <i class='bx bx-chevrons-right'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        `
+    };
+
+    // --- 3. Chart Wrapper Component ---
+    const ChartWrapper = {
+        props: ['type', 'chartData', 'chartOptions'],
+        setup(props) {
+            const canvasRef = ref(null);
+            let chartInstance = null;
+
+            const renderChart = () => {
+                if (!canvasRef.value) return;
+
+                const ctx = canvasRef.value.getContext('2d');
+
+                if (chartInstance) {
+                    chartInstance.data = props.chartData;
+                    chartInstance.options = props.chartOptions;
+                    chartInstance.update();
+                } else {
+                    chartInstance = new Chart(ctx, {
+                        type: props.type,
+                        data: props.chartData,
+                        options: props.chartOptions,
+                    });
+                }
+            };
+
+            watch(() => props.chartData, () => {
+                nextTick(renderChart);
+            }, { deep: true });
+
+            onMounted(() => {
+                renderChart();
+            });
+
+            return { canvasRef };
+        },
+        template: `<canvas ref="canvasRef"></canvas>`
+    };
+
+
+    const App = {
+    setup() {
+        const selectedCategory = ref('All');
+        const selectedDomain = ref('Domain');
+        const selectedTimeRange = ref('Last 7 days');
+
+        const categories = ref([]);
+        const isLoading = ref(true);
+        const error = ref(null);
+
+        // --- Helpers ---
+
+        // Normalize category label for matching
+        function normalizeCategoryLabel(label) {
+            if (!label) {
+                return '';
+            }
+            return label.toLowerCase().trim();
+        }
+
+        // Map a textual label + optional numeric code to one of the 4 buckets
+        function mapCategoryLabelToBucket(label, code) {
+            const normalized = normalizeCategoryLabel(label);
+
+            // Essential
+
+            if (normalized.indexOf('necessary') !== -1 ||
+                normalized.indexOf('functional') !== -1) {
+                return 'Essential';
+            }
+
+            // Analytics
+
+            if (normalized.indexOf('audience measurement') !== -1 ||
+                normalized.indexOf('statistics') !== -1 ||
+                normalized.indexOf('performance') !== -1 ||
+                normalized.indexOf('analytics') !== -1) {
+                return 'Analytics';
+            }
+
+            // Marketing
+            if (normalized.indexOf('marketing') !== -1 ||
+                normalized.indexOf('advertising') !== -1 ||
+                normalized.indexOf('ads') !== -1) {
+                return 'Marketing';
+            }
+
+            // Fallback
+            return 'Others';
+        }
+
+        // Combine official category + fallback label from custom fields
+        function mapApiCategoryToBucket(categoryAttributes, fallbackLabelFromFields) {
+            let label = null;
+            let code;
+
+            if (categoryAttributes) {
+                label = categoryAttributes.label;
+                code = categoryAttributes.category_public;
+            }
+
+            // Priority: official category reference
+            if (label || typeof code !== 'undefined') {
+                return mapCategoryLabelToBucket(label, code);
+            }
+
+            // Fallback: label coming from custom fields (field_id 3)
+            if (fallbackLabelFromFields) {
+                return mapCategoryLabelToBucket(fallbackLabelFromFields, undefined);
+            }
+
+            return 'Others';
+        }
+
+        // Convert duration in days (string) to human readable label
+        function formatDuration(daysString) {
+            if (!daysString) {
+                return '';
+            }
+
+            const days = parseInt(daysString, 10);
+            if (isNaN(days)) {
+                return daysString;
+            }
+
+            if (days === 0) {
+                return 'Session';
+            }
+
+            if (days === 1) {
+                return '1 day';
+            }
+
+            if (days < 30) {
+                return days + ' days';
+            }
+
+            if (days === 30) {
+                return '1 month';
+            }
+
+            if (days < 365) {
+                const months = Math.round(days / 30);
+                return months + ' months';
+            }
+
+            if (days === 365) {
+                return '1 year';
+            }
+
+            const years = (days / 365).toFixed(1);
+            return years + ' years';
+        }
+
+        // --- Load data from API and build categories ---
+
+        onMounted(async () => {
+            try {
+                const response = await fetch(
+                    'https://cookiescanner.free.beeceptor.com/cookies'
+                );
+                const apiData = await response.json();
+
+                const categoryById = {};
+                const vendorById = {};
+                const customFieldsByCookieId = {};
+
+                // Index included items
+                if (apiData.included && Array.isArray(apiData.included)) {
+                    apiData.included.forEach(function (item) {
+                        if (item.type === 'privacy/category-reference') {
+                            categoryById[item.id] = item.attributes;
+                        } else if (item.type === 'privacy/vendor-reference') {
+                            vendorById[item.id] = item.attributes;
+                        } else if (item.type === 'privacy/cookie-scanner/custom-field') {
+                            const cookieId = item.attributes.cookie_id;
+                            if (!customFieldsByCookieId[cookieId]) {
+                                customFieldsByCookieId[cookieId] = [];
+                            }
+                            customFieldsByCookieId[cookieId].push(item.attributes);
+                        }
+                    });
+                }
+
+                // Prepare buckets
+                const bucketConfig = {
+                    Essential: { color: '#002CBD' },
+                    Analytics: { color: '#6B1FFF' },
+                    Marketing: { color: '#F31DAC' },
+                    Others: { color: '#3198FD' }
+                };
+
+                const buckets = {};
+
+                Object.keys(bucketConfig).forEach(function (name) {
+                    buckets[name] = {
+                        name: name,
+                        count: 0,
+                        trend: 0, // no comparison with previous period yet
+                        color: bucketConfig[name].color,
+                        preConsentDetected: 'No',
+                        vendors: new Set(),
+                        visibleInNotice: true,
+                        chartDataBefore: 0,
+                        chartDataAfter: 0,
+                        chartDataRefuse: 0, // no data yet, always 0 for now
+                        cookiesList: []
+                    };
+                });
+
+                // Build cookies and aggregate by bucket
+                if (apiData.data && Array.isArray(apiData.data)) {
+                    apiData.data.forEach(function (cookie) {
+                        const attr = cookie.attributes;
+                        // Filter: only keep cookies with frequency > 5%. Keep also score=null (they correspond to cookies modified or "moved" to "active" by the user)
+                        if (typeof attr.score === 'undefined' || attr.score < 5) {
+                            return; // skip this cookie
+                        }
+                        const rel = cookie.relationships || {};
+
+                        const categoryId =
+                            rel.category && rel.category.data ? rel.category.data.id : null;
+                        const vendorId =
+                            rel.vendor && rel.vendor.data ? rel.vendor.data.id : null;
+
+                        const categoryAttributes = categoryId ? categoryById[categoryId] : null;
+                        const vendorAttributes = vendorId ? vendorById[vendorId] : null;
+
+                        const fields = customFieldsByCookieId[cookie.id] || [];
+
+                        // We only use field_id 3 as category label fallback
+                        let categoryLabelFromFields = '';
+                        // We use field_id 2 as vendor label
+                        let vendorLabelFromFields = '';
+
+                        fields.forEach(function (f) {
+                            if (f.field_id === 3 && !categoryLabelFromFields) {
+                                categoryLabelFromFields = f.value;
+                            }
+                            if (f.field_id === 2 && !vendorLabelFromFields) {
+                                vendorLabelFromFields = f.value;
+                            }
+                        });
+
+                        // Debug mapping
+                        console.log('Cookie category mapping', attr.name, {
+                            categoryId: categoryId,
+                            categoryAttributes: categoryAttributes,
+                            categoryLabelFromFields: categoryLabelFromFields
+                        });
+
+                        const bucketName = mapApiCategoryToBucket(
+                            categoryAttributes,
+                            categoryLabelFromFields
+                        );
+                        const bucket = buckets[bucketName];
+
+                        if (!bucket) {
+                            console.warn('No bucket for cookie', attr.name, '->', bucketName);
+                            return;
+                        }
+
+                        // Vendor label
+                        let vendorLabel = '';
+
+                        if (vendorLabelFromFields) {
+                            vendorLabel = vendorLabelFromFields;
+                        } else if (vendorAttributes && vendorAttributes.label) {
+                            vendorLabel = vendorAttributes.label;
+                        }
+
+                        // Detection type from is_compliant
+                        const type = attr.is_compliant ? 'Before' : 'After';
+
+                        console.log('Cookie detection type', attr.name, {
+                            is_compliant: attr.is_compliant,
+                            resolvedType: type
+                        });
+
+                        // Occurrence from score (percentage)
+                        let occurrence = '';
+                        if (attr.score !== null && typeof attr.score !== 'undefined') {
+                            occurrence = attr.score + '%';
+                        }
+
+                        const cookieRow = {
+                            name: attr.name,
+                            vendor: vendorLabel,
+                            domain: attr.storage_domain,
+                            duration: formatDuration(attr.storage_duration),
+                            type: type,
+                            occurrence: occurrence,
+                            description: '', // not using field_id 1 here
+                            technicalType: attr.storage_type,
+                            detectedUrls: [] // not available in this API for now
+                        };
+
+                        bucket.cookiesList.push(cookieRow);
+                        bucket.count += 1;
+                        bucket.vendors.add(vendorLabel);
+
+                        if (type === 'Before') {
+                            bucket.chartDataBefore += 1;
+                            bucket.preConsentDetected = 'Yes';
+                        } else {
+                            bucket.chartDataAfter += 1;
+                        }
+
+                        // chartDataRefuse stays 0 (no data for "after refuse all" yet)
+                    });
+                }
+
+                // Finalize buckets into categories array
+                const finalCategories = Object.values(buckets).map(function (b) {
+                    return {
+                        name: b.name,
+                        count: b.count,
+                        trend: b.trend,
+                        color: b.color,
+                        preConsentDetected: b.preConsentDetected,
+                        vendors: b.vendors.size,
+                        visibleInNotice: b.visibleInNotice,
+                        chartDataBefore: b.chartDataBefore,
+                        chartDataAfter: b.chartDataAfter,
+                        chartDataRefuse: b.chartDataRefuse,
+                        cookiesList: b.cookiesList
+                    };
+                });
+
+                categories.value = finalCategories;
+                isLoading.value = false;
+            } catch (e) {
+                console.error(e);
+                error.value = 'Failed to load cookies data from API.';
+                isLoading.value = false;
+            }
+        });
+
+        // --- Charts ---
+
+        const donutChartData = computed(() => {
+            const labels = categories.value.map(function (c) {
+                return c.name;
+            });
+
+            const data = categories.value.map(function (c) {
+                return c.count;
+            });
+
+            const backgroundColor = categories.value.map(function (c) {
+                let color = c.color;
+                if (selectedCategory.value !== 'All' && c.name !== selectedCategory.value) {
+                    color = c.color + '80'; // 50% opacity
+                }
+                return color;
+            });
+
+            const offset = categories.value.map(function (c) {
+                let value = 0;
+                if (selectedCategory.value !== 'All' && c.name === selectedCategory.value) {
+                    value = 30;
+                }
+                return value;
+            });
+
+            return {
+                labels: labels,
+                datasets: [
+                    {
+                        data: data,
+                        backgroundColor: backgroundColor,
+                        offset: offset,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }
+                ]
+            };
+        });
+
+        const donutChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '55%',
+            onClick: (evt, elements) => {
+                if (elements && elements.length > 0) {
+                    const index = elements[0].index;
+                    const clickedCat = categories.value[index].name;
+                    if (selectedCategory.value === clickedCat) {
+                        selectedCategory.value = 'All';
+                    } else {
+                        selectedCategory.value = clickedCat;
+                    }
+                }
+            },
+            onHover: (event, chartElement) => {
+                const native = event.native;
+                const target = native && native.target ? native.target : null;
+
+                if (!target) {
+                    return;
+                }
+
+                if (chartElement && chartElement[0]) {
+                    target.style.cursor = 'pointer';
+                } else {
+                    target.style.cursor = 'default';
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true },
+                datalabels: {
+                    color: (context) => {
+                        const index = context.dataIndex;
+                        const categoryName = categories.value[index].name;
+                        let isSelected = false;
+
+                        if (
+                            selectedCategory.value === 'All' ||
+                            selectedCategory.value === categoryName
+                        ) {
+                            isSelected = true;
+                        }
+
+                        if (isSelected) {
+                            return '#fff';
+                        }
+                        return '#334155';
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 13
+                    },
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        const dataArr = ctx.chart.data.datasets[0].data;
+
+                        dataArr.forEach(function (data) {
+                            sum += data;
+                        });
+
+                        if (sum === 0) {
+                            return '0%';
+                        }
+
+                        const percentage = ((value * 100) / sum).toFixed(0) + '%';
+                        return percentage;
+                    }
+                }
+            }
+        };
+
+        const barChartData = computed(() => {
+            const labels = categories.value.map(function (c) {
+                return c.name;
+            });
+
+            const beforeData = categories.value.map(function (c) {
+                return c.chartDataBefore;
+            });
+
+            const afterData = categories.value.map(function (c) {
+                return c.chartDataAfter;
+            });
+
+            const refuseData = categories.value.map(function (c) {
+                return c.chartDataRefuse;
+            });
+
+            const beforeColors = categories.value.map(function (c) {
+                let color = '#F39C12';
+                if (selectedCategory.value !== 'All' && c.name !== selectedCategory.value) {
+                    color = '#F39C1240';
+                }
+                return color;
+            });
+
+            const afterColors = categories.value.map(function (c) {
+                let color = '#74D9E8';
+                if (selectedCategory.value !== 'All' && c.name !== selectedCategory.value) {
+                    color = '#74D9E840';
+                }
+                return color;
+            });
+
+            const refuseColors = categories.value.map(function (c) {
+                let color = '#EB536C';
+                if (selectedCategory.value !== 'All' && c.name !== selectedCategory.value) {
+                    color = '#EB536C40';
+                }
+                return color;
+            });
+
+            return {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Before consent',
+                        data: beforeData,
+                        backgroundColor: beforeColors,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'After consent (compliant)',
+                        data: afterData,
+                        backgroundColor: afterColors,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'After Refuse all (violation)',
+                        data: refuseData,
+                        backgroundColor: refuseColors,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            };
+        });
+
+        const barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stacked: false,
+                    grid: {
+                        color: '#f1f5f9',
+                        borderDash: [5, 5]
+                    },
+                    border: { display: false }
+                },
+                x: {
+                    stacked: false,
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    display: false
+                }
+            }
+        };
+
+        // --- Methods ---
+
+        function selectCategory(name) {
+            selectedCategory.value = name;
+        }
+
+        // --- Expose to template ---
+
+        return {
+            selectedCategory,
+            selectedDomain,
+            selectedTimeRange,
+            categories,
+            isLoading,
+            error,
+            selectCategory,
+            donutChartData,
+            donutChartOptions,
+            barChartData,
+            barChartOptions,
+            getCategoryIcon // assumed global / already defined elsewhere
+        };
+    }
+};
+
+const app = createApp(App);
+app.component('KpiCard', KpiCard);
+app.component('DataTable', DataTable);
+app.component('ChartWrapper', ChartWrapper);
+app.mount('#app');
+
+</script>
+
+</body>
+</html>
