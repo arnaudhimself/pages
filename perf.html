@@ -649,22 +649,92 @@
                         <div v-for="cat in categories" :key="cat" class="filter-pill" :class="{ active: activeTemplateFilter === cat }" @click="activeTemplateFilter = cat">{{ cat }}</div>
                     </div>
                 </div>
-                <div class="projects-section">
-                    <div class="row g-3">
-                        <div class="col-sm-6 col-md-4 col-xl-3" v-for="(tpl, index) in filteredTemplates" :key="index">
-                            <div class="project-card h-100 p-4 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="template-icon-wrapper" :class="tpl.bgClass"><i :class="tpl.icon"></i></div>
-                                    <span class="badge bg-light text-dark border text-truncate" style="max-width: 100px; font-size: 0.7rem;">{{ tpl.category }}</span>
-                                </div>
-                                <h5 class="fw-bold mb-2" style="font-size: 1rem;">{{ tpl.title }}</h5>
-                                <p class="text-muted small mb-4 flex-grow-1" style="font-size: 0.8rem;">{{ tpl.description }}</p>
-                                <button class="btn btn-outline-primary btn-sm w-100">Utiliser ce modèle</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               <div class="projects-section">
+  <div class="row g-3">
+    <div
+      class="col-sm-6 col-md-4 col-xl-3"
+      v-for="(tpl, index) in filteredTemplates"
+      :key="index"
+    >
+      <div class="project-card h-100 p-4 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="template-icon-wrapper" :class="tpl.bgClass">
+            <i :class="tpl.icon"></i>
+          </div>
+
+          <span
+            class="badge bg-light text-dark border text-truncate"
+            style="max-width: 120px; font-size: 0.7rem;"
+            :title="tpl.category"
+          >
+            {{ tpl.category }}
+          </span>
+        </div>
+
+        <h5 class="fw-bold mb-2" style="font-size: 1rem;">
+          {{ tpl.title }}
+        </h5>
+
+        <p class="text-muted small mb-3" style="font-size: 0.8rem;">
+          {{ tpl.description }}
+        </p>
+
+        <!-- Hook (promise) -->
+        <div
+          v-if="tpl.hook"
+          class="px-3 py-2 rounded-3 border mb-3"
+          style="background: rgba(13,110,253,0.06); border-color: rgba(13,110,253,0.25);"
+        >
+          <div class="d-flex align-items-start gap-2">
+            <i class="fas fa-sparkles" style="margin-top: 2px; color: rgba(13,110,253,0.9);"></i>
+            <div class="fw-semibold" style="font-size: 0.85rem; line-height: 1.2;">
+              {{ tpl.hook }}
             </div>
+          </div>
+        </div>
+
+        <!-- KPIs chips -->
+        <div v-if="tpl.kpis && tpl.kpis.length" class="mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="text-muted" style="font-size: 0.72rem; letter-spacing: .02em;">
+              KPIs tracked
+            </div>
+            <span
+              v-if="tpl.kpis.length > 3"
+              class="text-muted"
+              style="font-size: 0.72rem;"
+              :title="tpl.kpis.join(', ')"
+            >
+              +{{ tpl.kpis.length - 3 }}
+            </span>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <span
+              v-for="(kpi, kIndex) in tpl.kpis.slice(0,3)"
+              :key="kIndex"
+              class="badge rounded-pill bg-light text-dark border"
+              style="font-size: 0.72rem; font-weight: 500;"
+              :title="kpi"
+            >
+              <i class="fas fa-chart-simple me-1 text-muted"></i>{{ kpi }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Optional measurement hint (tiny, unobtrusive) -->
+        <div v-if="tpl.measurement" class="text-muted mb-3" style="font-size: 0.72rem; line-height: 1.2;">
+          <i class="fas fa-flask me-1"></i>{{ tpl.measurement }}
+        </div>
+
+        <button class="btn btn-outline-primary btn-sm w-100 mt-auto">
+          Utiliser ce modèle
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
             <!-- Placeholder -->
             <div v-else class="p-5 text-center text-muted">
@@ -1154,7 +1224,7 @@
   'Activation & Segmentation Avancée'
 ]);
 
-            const allTemplates = ref([
+          const allTemplates = ref([
 
   // ==================================================
   // Campagnes & Conversions
@@ -1162,65 +1232,82 @@
   {
     title: 'Google Ads Conversions API',
     category: 'Campagnes & Conversions',
-    description: 'Récupérez des conversions perdues et améliorez le Smart Bidding grâce au tracking server side.',
+    description: 'Recover lost conversions and improve Smart Bidding with server-side tracking.',
+    hook: '+10–30% more conversions measured in Google Ads',
+    kpis: ['Conversions', 'CPA', 'Conversion rate'],
+    measurement: 'Before/after comparison on identical campaigns, optional holdout period.',
     icon: 'fab fa-google',
     bgClass: 'bg-orange'
   },
   {
     title: 'Meta Conversions API',
     category: 'Campagnes & Conversions',
-    description: 'Améliorez la performance de vos campagnes Meta avec des conversions server side fiables.',
+    description: 'Improve Meta campaign performance with reliable first-party server-side events.',
+    hook: 'Up to +25% more attributed conversions on Meta',
+    kpis: ['Conversions', 'Match quality', 'Cost per result'],
+    measurement: 'Client-side vs client+server comparison, before/after activation.',
     icon: 'fab fa-facebook',
     bgClass: 'bg-blue'
   },
   {
     title: 'TikTok & Bing Ads Conversions API',
     category: 'Campagnes & Conversions',
-    description: 'Activez vos conversions server side sur TikTok et Bing pour une attribution complète.',
+    description: 'Activate server-side conversions on emerging ad platforms.',
+    hook: 'Recover lost conversions on additional ad platforms',
+    kpis: ['Conversions', 'CPA'],
+    measurement: 'Before/after activation on same campaigns and budgets.',
     icon: 'fas fa-bullseye',
     bgClass: 'bg-pink'
   },
   {
-    title: 'Exclusion des Clients Existants',
+    title: 'Exclusion of Existing Customers',
     category: 'Campagnes & Conversions',
-    description: 'Évitez de cibler vos clients déjà acquis pour réduire le gaspillage média.',
+    description: 'Stop wasting ad spend on customers you already acquired.',
+    hook: 'Reduce wasted ad spend on existing customers',
+    kpis: ['Cost per new customer', 'ROAS'],
+    measurement: 'Audience split test, excluded vs non-excluded campaigns.',
     icon: 'fas fa-user-slash',
     bgClass: 'bg-red'
   },
   {
-    title: 'Ciblage Clients à Forte Valeur',
+    title: 'High-Value Customer Targeting',
     category: 'Campagnes & Conversions',
-    description: 'Concentrez vos budgets sur les clients les plus rentables selon leur valeur réelle.',
+    description: 'Focus media spend on your most profitable customers.',
+    hook: 'Increase ROAS by targeting high-value customers',
+    kpis: ['ROAS', 'Average order value'],
+    measurement: 'A/B test between high-value segments and generic targeting.',
     icon: 'fas fa-gem',
     bgClass: 'bg-teal'
   },
   {
-    title: 'Audiences Lookalike Premium',
+    title: 'Lookalike Audiences',
     category: 'Campagnes & Conversions',
-    description: 'Créez des audiences similaires basées sur vos meilleurs acheteurs.',
+    description: 'Acquire better customers using lookalikes based on top buyers.',
+    hook: 'Acquire higher-quality customers, not just more clicks',
+    kpis: ['Conversion rate', 'ROAS'],
+    measurement: 'Parallel campaigns, lookalike vs standard prospecting.',
     icon: 'fas fa-clone',
     bgClass: 'bg-purple'
   },
   {
-    title: 'Mesure Offline & Web-to-Store',
+    title: 'Offline & Web-to-Store Measurement',
     category: 'Campagnes & Conversions',
-    description: 'Reliez vos ventes magasin à vos campagnes digitales pour mesurer leur impact réel.',
+    description: 'Measure the real impact of online campaigns on in-store sales.',
+    hook: 'Reveal hidden offline revenue from digital campaigns',
+    kpis: ['Offline conversions', 'Total revenue', 'ROAS'],
+    measurement: 'Time-based lift analysis, exposed vs non-exposed stores.',
     icon: 'fas fa-store',
     bgClass: 'bg-green'
   },
   {
-    title: 'Optimisation des Enchères selon la Marge',
+    title: 'Margin-Based Bidding',
     category: 'Campagnes & Conversions',
-    description: 'Pilotez vos enchères média en fonction de la marge réelle de vos produits.',
+    description: 'Optimize bids based on real product profitability.',
+    hook: 'Optimize media spend based on real margins',
+    kpis: ['Gross margin', 'Margin-weighted ROAS'],
+    measurement: 'Before/after margin signal injection, product group comparison.',
     icon: 'fas fa-balance-scale',
     bgClass: 'bg-yellow'
-  },
-  {
-    title: 'Optimisation Globale du ROAS',
-    category: 'Campagnes & Conversions',
-    description: 'Réallouez automatiquement votre budget vers les canaux les plus performants.',
-    icon: 'fas fa-chart-line',
-    bgClass: 'bg-indigo'
   },
 
   // ==================================================
@@ -1229,56 +1316,50 @@
   {
     title: 'Smart Exit Intent',
     category: 'Expérience & Vente Onsite',
-    description: 'Interceptez les visiteurs sur le point de quitter votre site sans dégrader l’expérience.',
+    description: 'Intercept visitors about to leave without harming user experience.',
+    hook: '+5–15% conversion lift on exiting visitors',
+    kpis: ['Conversion rate', 'Exit rate'],
+    measurement: 'A/B test, exposed vs control sessions.',
     icon: 'fas fa-door-open',
     bgClass: 'bg-pink'
   },
   {
-    title: 'Rappel Panier Dynamique',
+    title: 'Dynamic Cart Reminder',
     category: 'Expérience & Vente Onsite',
-    description: 'Réduisez les abandons en rappelant automatiquement les articles du panier.',
+    description: 'Reduce cart abandonment with contextual reminders.',
+    hook: 'Reduce cart abandonment by up to 25%',
+    kpis: ['Cart abandonment rate', 'Checkout conversion rate'],
+    measurement: 'A/B test on cart sessions.',
     icon: 'fas fa-shopping-cart',
     bgClass: 'bg-blue'
   },
   {
-    title: 'Rappel Produit Consulté',
+    title: 'Product Viewed Reminder',
     category: 'Expérience & Vente Onsite',
-    description: 'Remettez en avant les produits vus récemment pour favoriser la conversion.',
+    description: 'Bring visitors back to products they viewed.',
+    hook: 'Increase return visits and conversions',
+    kpis: ['Product revisit rate', 'Conversion rate'],
+    measurement: 'A/B test on product page visitors.',
     icon: 'fas fa-eye',
     bgClass: 'bg-orange'
   },
   {
-    title: 'Cross-Sell & Upsell Intelligent',
+    title: 'Cross-Sell & Upsell',
     category: 'Expérience & Vente Onsite',
-    description: 'Augmentez le panier moyen avec des propositions produits contextuelles.',
+    description: 'Increase basket size with contextual product suggestions.',
+    hook: '+5–15% increase in average order value',
+    kpis: ['Average order value', 'Items per order'],
+    measurement: 'Basket-level A/B test.',
     icon: 'fas fa-plus-circle',
     bgClass: 'bg-teal'
   },
   {
-    title: 'Message de Réassurance Contextuel',
+    title: 'Homepage Personalization',
     category: 'Expérience & Vente Onsite',
-    description: 'Affichez les bons arguments selon la page et le profil du visiteur.',
-    icon: 'fas fa-shield-alt',
-    bgClass: 'bg-green'
-  },
-  {
-    title: 'Offre Personnalisée par Segment',
-    category: 'Expérience & Vente Onsite',
-    description: 'Adaptez vos offres selon le statut client ou le comportement.',
-    icon: 'fas fa-tags',
-    bgClass: 'bg-yellow'
-  },
-  {
-    title: 'Seuil Livraison Gratuite',
-    category: 'Expérience & Vente Onsite',
-    description: 'Incitez à l’ajout au panier avec un message dynamique de livraison gratuite.',
-    icon: 'fas fa-truck',
-    bgClass: 'bg-indigo'
-  },
-  {
-    title: 'Personnalisation de la Homepage',
-    category: 'Expérience & Vente Onsite',
-    description: 'Adaptez la page d’accueil selon le profil pour maximiser l’engagement.',
+    description: 'Adapt homepage content based on visitor profile.',
+    hook: 'Boost homepage engagement and conversion',
+    kpis: ['Engagement rate', 'Conversion rate'],
+    measurement: 'Personalized vs generic homepage A/B test.',
     icon: 'fas fa-home',
     bgClass: 'bg-purple'
   },
@@ -1287,46 +1368,34 @@
   // CRM & Fidélisation
   // ==================================================
   {
-    title: 'Relance Abandon Panier',
+    title: 'Cart Abandonment Recovery',
     category: 'CRM & Fidélisation',
-    description: 'Relancez automatiquement les paniers abandonnés via vos canaux CRM.',
+    description: 'Recover abandoned carts through automated reminders.',
+    hook: 'Recover up to 20% of abandoned carts',
+    kpis: ['Recovery rate', 'Recovered revenue'],
+    measurement: 'Holdout group without reminders.',
     icon: 'fas fa-envelope-open-text',
     bgClass: 'bg-blue'
   },
   {
-    title: 'Réactivation Clients Inactifs',
+    title: 'Inactive Customer Reactivation',
     category: 'CRM & Fidélisation',
-    description: 'Faites revenir vos clients dormants avec des messages ciblés.',
+    description: 'Bring dormant customers back with targeted campaigns.',
+    hook: 'Re-activate inactive customers',
+    kpis: ['Reactivation rate', 'Repeat purchase rate'],
+    measurement: 'Control group vs reactivated cohort.',
     icon: 'fas fa-user-clock',
     bgClass: 'bg-orange'
   },
   {
-    title: 'Campagne Anniversaire',
+    title: 'Loyalty Program',
     category: 'CRM & Fidélisation',
-    description: 'Automatisez une offre personnalisée pour renforcer la fidélité.',
-    icon: 'fas fa-birthday-cake',
-    bgClass: 'bg-pink'
-  },
-  {
-    title: 'Programme de Fidélité Temps Réel',
-    category: 'CRM & Fidélisation',
-    description: 'Attribuez points et statuts selon les actions client en temps réel.',
+    description: 'Increase repeat purchases with real-time loyalty mechanics.',
+    hook: 'Increase purchase frequency and lifetime value',
+    kpis: ['Purchase frequency', 'Customer lifetime value'],
+    measurement: 'Members vs non-members cohort analysis.',
     icon: 'fas fa-star',
     bgClass: 'bg-teal'
-  },
-  {
-    title: 'Upsell Post-Achat',
-    category: 'CRM & Fidélisation',
-    description: 'Augmentez la valeur client avec des propositions après achat.',
-    icon: 'fas fa-arrow-up',
-    bgClass: 'bg-purple'
-  },
-  {
-    title: 'Alerte Retour en Stock',
-    category: 'CRM & Fidélisation',
-    description: 'Prévenez les clients dès qu’un produit est à nouveau disponible.',
-    icon: 'fas fa-box-open',
-    bgClass: 'bg-green'
   },
 
   // ==================================================
@@ -1335,30 +1404,22 @@
   {
     title: 'Consent Manager & Triggers',
     category: 'Conformité',
-    description: 'Déclenchez vos tags uniquement selon le consentement utilisateur.',
+    description: 'Trigger tags only when user consent allows it.',
+    hook: 'Stay compliant without sacrificing data',
+    kpis: ['Consent compliance rate', 'Blocked events'],
+    measurement: 'Consent state vs event emission tracking.',
     icon: 'fas fa-cookie-bite',
     bgClass: 'bg-red'
   },
   {
     title: 'Realtime Cookie Scanner',
     category: 'Conformité',
-    description: 'Identifiez et surveillez les cookies déposés en temps réel.',
+    description: 'Detect non-compliant cookies in real time.',
+    hook: 'Detect compliance issues instantly',
+    kpis: ['Non-compliant cookies', 'Time to detection'],
+    measurement: 'Continuous scanning and alerting.',
     icon: 'fas fa-cookie',
     bgClass: 'bg-pink'
-  },
-  {
-    title: 'CMP Compliance Monitoring',
-    category: 'Conformité',
-    description: 'Surveillez la bonne application des règles de consentement.',
-    icon: 'fas fa-shield-alt',
-    bgClass: 'bg-indigo'
-  },
-  {
-    title: 'Consent-Based Data Activation',
-    category: 'Conformité',
-    description: 'Activez vos données uniquement lorsqu’elles sont légalement exploitables.',
-    icon: 'fas fa-check-circle',
-    bgClass: 'bg-green'
   },
 
   // ==================================================
@@ -1367,79 +1428,50 @@
   {
     title: 'One Tag Gateway',
     category: 'Data Quality',
-    description: 'Centralisez votre collecte et distribuez vos données server side.',
+    description: 'Centralize and control all data collection server-side.',
+    hook: 'Improve data reliability across all channels',
+    kpis: ['Event delivery success rate', 'Latency'],
+    measurement: 'Pipeline monitoring before/after centralization.',
     icon: 'fas fa-server',
     bgClass: 'bg-indigo'
   },
   {
     title: 'Data Quality Scoring',
     category: 'Data Quality',
-    description: 'Mesurez la fiabilité et la complétude de vos événements en temps réel.',
+    description: 'Measure and improve event reliability in real time.',
+    hook: 'Make decisions based on reliable data',
+    kpis: ['Valid event ratio', 'Schema compliance rate'],
+    measurement: 'Real-time validation and quality score tracking.',
     icon: 'fas fa-check-circle',
     bgClass: 'bg-green'
-  },
-  {
-    title: 'Monitoring & Alerting de Collecte',
-    category: 'Data Quality',
-    description: 'Soyez alerté immédiatement en cas d’anomalie de tracking.',
-    icon: 'fas fa-bell',
-    bgClass: 'bg-orange'
-  },
-  {
-    title: 'Audit Automatisé des Tags',
-    category: 'Data Quality',
-    description: 'Identifiez et supprimez les tags obsolètes ou défaillants.',
-    icon: 'fas fa-search',
-    bgClass: 'bg-teal'
-  },
-  {
-    title: 'Validation du Schéma d’Événements',
-    category: 'Data Quality',
-    description: 'Assurez la cohérence et la stabilité de vos schémas de données.',
-    icon: 'fas fa-list-check',
-    bgClass: 'bg-blue'
   },
 
   // ==================================================
   // Activation & Segmentation Avancée
   // ==================================================
   {
-    title: 'Segmentation RFM Dynamique',
+    title: 'RFM Segmentation',
     category: 'Activation & Segmentation Avancée',
-    description: 'Segmentez vos clients selon récence, fréquence et valeur.',
+    description: 'Identify your most valuable customers automatically.',
+    hook: 'Identify and activate your best customers',
+    kpis: ['Revenue per segment', 'Conversion rate'],
+    measurement: 'Segment performance comparison.',
     icon: 'fas fa-layer-group',
     bgClass: 'bg-blue'
   },
   {
-    title: 'Scoring d’Appétence',
+    title: 'Propensity Scoring',
     category: 'Activation & Segmentation Avancée',
-    description: 'Scorez les clients selon leur probabilité d’achat ou de churn.',
+    description: 'Predict who is most likely to convert or churn.',
+    hook: 'Target users most likely to convert',
+    kpis: ['Conversion lift', 'Prediction accuracy'],
+    measurement: 'Scored vs non-scored audience comparison.',
     icon: 'fas fa-bolt',
     bgClass: 'bg-yellow'
-  },
-  {
-    title: 'Activation Multi-Canal CDP',
-    category: 'Activation & Segmentation Avancée',
-    description: 'Diffusez vos segments vers les bons canaux en un clic.',
-    icon: 'fas fa-broadcast-tower',
-    bgClass: 'bg-purple'
-  },
-  {
-    title: 'Personnalisation Onsite via CDP',
-    category: 'Activation & Segmentation Avancée',
-    description: 'Adaptez dynamiquement vos contenus selon le segment CDP.',
-    icon: 'fas fa-magic',
-    bgClass: 'bg-pink'
-  },
-  {
-    title: 'Attribution Cross-Canal',
-    category: 'Activation & Segmentation Avancée',
-    description: 'Analysez la contribution réelle de chaque canal à la conversion.',
-    icon: 'fas fa-project-diagram',
-    bgClass: 'bg-orange'
   }
 
 ]);
+
 
 
 
