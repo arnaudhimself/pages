@@ -1145,20 +1145,159 @@
                  { title: 'Enrichment: Add Margin', category: 'Data', color: '#6f42c1', type: 'doc' },
             ]);
 
-            const categories = ref([
-                'Acquisition & Conversion', 'Personnalisation Contenu', 'Analytics & Mesure',
-                'Budget & Performance', 'Consentement', 'Data Quality', 'Activation CRM', 'UX / UI', 'Performance & Fiabilité'
-            ]);
+           const categories = ref([
+  'Campagnes & Conversions',
+  'Expérience & Vente Onsite',
+  'CRM & Fidélisation',
+  'Conformité',
+  'Data Quality',
+  'Activation & Segmentation Avancée'
+]);
 
             const allTemplates = ref([
-                { title: 'Landing Page Personalization', category: 'Acquisition & Conversion', description: 'Adaptez le contenu post-clic pour maximiser la conversion.', icon: 'fas fa-bullseye', bgClass: 'bg-blue' },
-                { title: 'Smart Exit Intent', category: 'Acquisition & Conversion', description: 'Déclenchement optimisé de popin lors de la sortie de site.', icon: 'fas fa-door-open', bgClass: 'bg-pink' },
-                { title: 'Lead Gen Form', category: 'Acquisition & Conversion', description: 'Formulaire multi-étapes pour qualifier les prospects entrants.', icon: 'fas fa-filter', bgClass: 'bg-teal' },
-                { title: 'Bannière Dynamique', category: 'Personnalisation Contenu', description: 'Affichage personnalisé selon la campagne marketing source.', icon: 'fas fa-image', bgClass: 'bg-indigo' },
-                { title: 'GA4 Server-Side', category: 'Analytics & Mesure', description: 'Tracking server-side robuste et prêt à l\'emploi pour GA4.', icon: 'fab fa-google', bgClass: 'bg-orange' },
-                { title: 'Realtime Cookie Scanner', category: 'Consentement', description: 'Audit cookies et alertes de conformité en temps réel.', icon: 'fas fa-cookie-bite', bgClass: 'bg-red' },
-                { title: 'Cart Abandonment Trigger', category: 'Activation CRM', description: 'Relance multicanale suite à un abandon de panier.', icon: 'fas fa-shopping-cart', bgClass: 'bg-blue' },
-            ]);
+
+  // ==================================================
+  // Campagnes & Conversions
+  // ==================================================
+  {
+    title: 'Google Ads Conversions API',
+    category: 'Campagnes & Conversions',
+    description: 'Récupérez des conversions perdues et améliorez le Smart Bidding grâce au tracking server side.',
+    icon: 'fab fa-google',
+    bgClass: 'bg-orange'
+  },
+  {
+    title: 'Meta Conversions API',
+    category: 'Campagnes & Conversions',
+    description: 'Améliorez la performance de vos campagnes Meta avec des conversions server side fiables.',
+    icon: 'fab fa-facebook',
+    bgClass: 'bg-blue'
+  },
+  {
+    title: 'TikTok & Bing Ads Conversions API',
+    category: 'Campagnes & Conversions',
+    description: 'Activez vos conversions server side sur TikTok et Bing pour une attribution complète.',
+    icon: 'fas fa-bullseye',
+    bgClass: 'bg-pink'
+  },
+  {
+    title: 'Exclusion des Clients Existants',
+    category: 'Campagnes & Conversions',
+    description: 'Évitez de cibler vos clients déjà acquis pour réduire le gaspillage média.',
+    icon: 'fas fa-user-slash',
+    bgClass: 'bg-red'
+  },
+  {
+    title: 'Ciblage Clients à Forte Valeur',
+    category: 'Campagnes & Conversions',
+    description: 'Concentrez vos budgets sur les clients les plus rentables selon leur valeur réelle.',
+    icon: 'fas fa-gem',
+    bgClass: 'bg-teal'
+  },
+  {
+    title: 'Audiences Lookalike Premium',
+    category: 'Campagnes & Conversions',
+    description: 'Créez des audiences similaires basées sur vos meilleurs acheteurs.',
+    icon: 'fas fa-clone',
+    bgClass: 'bg-purple'
+  },
+  {
+    title: 'Mesure Offline & Web-to-Store',
+    category: 'Campagnes & Conversions',
+    description: 'Reliez vos ventes magasin à vos campagnes digitales pour mesurer leur impact réel.',
+    icon: 'fas fa-store',
+    bgClass: 'bg-green'
+  },
+  {
+    title: 'Optimisation des Enchères selon la Marge',
+    category: 'Campagnes & Conversions',
+    description: 'Pilotez vos enchères média en fonction de la marge réelle de vos produits.',
+    icon: 'fas fa-balance-scale',
+    bgClass: 'bg-yellow'
+  },
+  {
+    title: 'Optimisation Globale du ROAS',
+    category: 'Campagnes & Conversions',
+    description: 'Réallouez automatiquement votre budget vers les canaux les plus performants.',
+    icon: 'fas fa-chart-line',
+    bgClass: 'bg-indigo'
+  },
+
+  // ==================================================
+  // Expérience & Vente Onsite
+  // ==================================================
+  {
+    title: 'Smart Exit Intent',
+    category: 'Expérience & Vente Onsite',
+    description: 'Interceptez les visiteurs sur le point de quitter votre site sans dégrader l’expérience.',
+    icon: 'fas fa-door-open',
+    bgClass: 'bg-pink'
+  },
+  {
+    title: 'Rappel Panier Dynamique',
+    category: 'Expérience & Vente Onsite',
+    description: 'Réduisez les abandons en rappelant automatiquement les articles du panier.',
+    icon: 'fas fa-shopping-cart',
+    bgClass: 'bg-blue'
+  },
+  {
+    title: 'Rappel Produit Consulté',
+    category: 'Expérience & Vente Onsite',
+    description: 'Remettez en avant les produits vus récemment pour favoriser la conversion.',
+    icon: 'fas fa-eye',
+    bgClass: 'bg-orange'
+  },
+  {
+    title: 'Cross-Sell & Upsell Intelligent',
+    category: 'Expérience & Vente Onsite',
+    description: 'Augmentez le panier moyen avec des propositions produits contextuelles.',
+    icon: 'fas fa-plus-circle',
+    bgClass: 'bg-teal'
+  },
+  {
+    title: 'Message de Réassurance Contextuel',
+    category: 'Expérience & Vente Onsite',
+    description: 'Affichez les bons arguments selon la page et le profil du visiteur.',
+    icon: 'fas fa-shield-alt',
+    bgClass: 'bg-green'
+  },
+  {
+    title: 'Offre Personnalisée par Segment',
+    category: 'Expérience & Vente Onsite',
+    description: 'Adaptez vos offres selon le statut client ou le comportement.',
+    icon: 'fas fa-tags',
+    bgClass: 'bg-yellow'
+  },
+  {
+    title: 'Seuil Livraison Gratuite',
+    category: 'Expérience & Vente Onsite',
+    description: 'Incitez à l’ajout au panier avec un message dynamique de livraison gratuite.',
+    icon: 'fas fa-truck',
+    bgClass: 'bg-indigo'
+  },
+  {
+    title: 'Personnalisation de la Homepage',
+    category: 'Expérience & Vente Onsite',
+    description: 'Adaptez la page d’accueil selon le profil pour maximiser l’engagement.',
+    icon: 'fas fa-home',
+    bgClass: 'bg-purple'
+  },
+
+  // ==================================================
+  // CRM & Fidélisation
+  // ==================================================
+  {
+    title: 'Relance Abandon Panier',
+    category: 'CRM & Fidélisation',
+    description: 'Relancez automatiquement les paniers abandonnés via vos canaux CRM.',
+    icon: 'fas fa-envelope-open-text',
+    bgClass: 'bg-blue'
+  },
+  {
+    title: 'Réactivation Clients Inactifs',
+    category: 'CRM & Fidélisation',
+    description: 'Faites revenir vos clients dormants ave
+
 
             const filteredTemplates = computed(() => {
                 if (activeTemplateFilter.value === 'all') return allTemplates.value;
