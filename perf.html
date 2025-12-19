@@ -1224,11 +1224,7 @@
   'Activation & Segmentation Avancée'
 ]);
 
-          const allTemplates = ref([
-
-  // ==================================================
-  // Campagnes & Conversions
-  // ==================================================
+const allTemplates = ref([
   {
     title: 'Google Ads Conversions API',
     category: 'Campagnes & Conversions',
@@ -1243,7 +1239,7 @@
     title: 'Meta Conversions API',
     category: 'Campagnes & Conversions',
     description: 'Improve Meta campaign performance with reliable first-party server-side events.',
-    hook: 'Up to +25% more attributed conversions on Meta',
+    hook: '+10–25% more attributed conversions on Meta',
     kpis: ['Conversions', 'Match quality', 'Cost per result'],
     measurement: 'Client-side vs client+server comparison, before/after activation.',
     icon: 'fab fa-facebook',
@@ -1253,7 +1249,7 @@
     title: 'TikTok & Bing Ads Conversions API',
     category: 'Campagnes & Conversions',
     description: 'Activate server-side conversions on emerging ad platforms.',
-    hook: 'Recover lost conversions on additional ad platforms',
+    hook: '+5–20% more conversions attributed on TikTok and Bing',
     kpis: ['Conversions', 'CPA'],
     measurement: 'Before/after activation on same campaigns and budgets.',
     icon: 'fas fa-bullseye',
@@ -1263,7 +1259,7 @@
     title: 'Exclusion of Existing Customers',
     category: 'Campagnes & Conversions',
     description: 'Stop wasting ad spend on customers you already acquired.',
-    hook: 'Reduce wasted ad spend on existing customers',
+    hook: '5–20% lower cost per new customer',
     kpis: ['Cost per new customer', 'ROAS'],
     measurement: 'Audience split test, excluded vs non-excluded campaigns.',
     icon: 'fas fa-user-slash',
@@ -1273,7 +1269,7 @@
     title: 'High-Value Customer Targeting',
     category: 'Campagnes & Conversions',
     description: 'Focus media spend on your most profitable customers.',
-    hook: 'Increase ROAS by targeting high-value customers',
+    hook: '+10–30% ROAS on high-value segments',
     kpis: ['ROAS', 'Average order value'],
     measurement: 'A/B test between high-value segments and generic targeting.',
     icon: 'fas fa-gem',
@@ -1283,7 +1279,7 @@
     title: 'Lookalike Audiences',
     category: 'Campagnes & Conversions',
     description: 'Acquire better customers using lookalikes based on top buyers.',
-    hook: 'Acquire higher-quality customers, not just more clicks',
+    hook: '+5–20% conversion rate on prospecting',
     kpis: ['Conversion rate', 'ROAS'],
     measurement: 'Parallel campaigns, lookalike vs standard prospecting.',
     icon: 'fas fa-clone',
@@ -1293,7 +1289,7 @@
     title: 'Offline & Web-to-Store Measurement',
     category: 'Campagnes & Conversions',
     description: 'Measure the real impact of online campaigns on in-store sales.',
-    hook: 'Reveal hidden offline revenue from digital campaigns',
+    hook: '+10–40% more total conversions measured (online + offline)',
     kpis: ['Offline conversions', 'Total revenue', 'ROAS'],
     measurement: 'Time-based lift analysis, exposed vs non-exposed stores.',
     icon: 'fas fa-store',
@@ -1303,16 +1299,12 @@
     title: 'Margin-Based Bidding',
     category: 'Campagnes & Conversions',
     description: 'Optimize bids based on real product profitability.',
-    hook: 'Optimize media spend based on real margins',
+    hook: '+5–15% more profit per ad euro spent',
     kpis: ['Gross margin', 'Margin-weighted ROAS'],
     measurement: 'Before/after margin signal injection, product group comparison.',
     icon: 'fas fa-balance-scale',
     bgClass: 'bg-yellow'
   },
-
-  // ==================================================
-  // Expérience & Vente Onsite
-  // ==================================================
   {
     title: 'Smart Exit Intent',
     category: 'Expérience & Vente Onsite',
@@ -1327,7 +1319,7 @@
     title: 'Dynamic Cart Reminder',
     category: 'Expérience & Vente Onsite',
     description: 'Reduce cart abandonment with contextual reminders.',
-    hook: 'Reduce cart abandonment by up to 25%',
+    hook: '10–25% fewer cart abandonments',
     kpis: ['Cart abandonment rate', 'Checkout conversion rate'],
     measurement: 'A/B test on cart sessions.',
     icon: 'fas fa-shopping-cart',
@@ -1337,7 +1329,7 @@
     title: 'Product Viewed Reminder',
     category: 'Expérience & Vente Onsite',
     description: 'Bring visitors back to products they viewed.',
-    hook: 'Increase return visits and conversions',
+    hook: '+5–15% lift on conversions for exposed visitors',
     kpis: ['Product revisit rate', 'Conversion rate'],
     measurement: 'A/B test on product page visitors.',
     icon: 'fas fa-eye',
@@ -1347,31 +1339,57 @@
     title: 'Cross-Sell & Upsell',
     category: 'Expérience & Vente Onsite',
     description: 'Increase basket size with contextual product suggestions.',
-    hook: '+5–15% increase in average order value',
+    hook: '+5–15% higher average order value',
     kpis: ['Average order value', 'Items per order'],
     measurement: 'Basket-level A/B test.',
     icon: 'fas fa-plus-circle',
     bgClass: 'bg-teal'
   },
   {
+    title: 'Message de Réassurance Contextuel',
+    category: 'Expérience & Vente Onsite',
+    description: 'Display the right reassurance message based on page and visitor profile.',
+    hook: '5–12% higher checkout completion rate',
+    kpis: ['Checkout completion rate', 'Exit rate at checkout'],
+    measurement: 'A/B test on checkout steps, funnel drop-off analysis.',
+    icon: 'fas fa-shield-alt',
+    bgClass: 'bg-green'
+  },
+  {
+    title: 'Offre Personnalisée par Segment',
+    category: 'Expérience & Vente Onsite',
+    description: 'Adapt offers to visitor segment, new, loyal, hesitant.',
+    hook: '+5–15% conversion lift on targeted segments',
+    kpis: ['Conversion rate by segment', 'Offer engagement rate'],
+    measurement: 'Segment-based A/B test, targeted vs non-targeted visitors.',
+    icon: 'fas fa-tags',
+    bgClass: 'bg-yellow'
+  },
+  {
+    title: 'Seuil Livraison Gratuite',
+    category: 'Expérience & Vente Onsite',
+    description: 'Increase basket size with dynamic free-shipping threshold prompts.',
+    hook: '+3–10% higher average order value',
+    kpis: ['Average order value', 'Threshold completion rate'],
+    measurement: 'A/B test on cart messaging, basket value comparison.',
+    icon: 'fas fa-truck',
+    bgClass: 'bg-indigo'
+  },
+  {
     title: 'Homepage Personalization',
     category: 'Expérience & Vente Onsite',
     description: 'Adapt homepage content based on visitor profile.',
-    hook: 'Boost homepage engagement and conversion',
-    kpis: ['Engagement rate', 'Conversion rate'],
+    hook: '+10–25% higher homepage engagement',
+    kpis: ['Engagement rate', 'Bounce rate', 'Conversion rate'],
     measurement: 'Personalized vs generic homepage A/B test.',
     icon: 'fas fa-home',
     bgClass: 'bg-purple'
   },
-
-  // ==================================================
-  // CRM & Fidélisation
-  // ==================================================
   {
     title: 'Cart Abandonment Recovery',
     category: 'CRM & Fidélisation',
     description: 'Recover abandoned carts through automated reminders.',
-    hook: 'Recover up to 20% of abandoned carts',
+    hook: 'Recover 10–20% of abandoned carts',
     kpis: ['Recovery rate', 'Recovered revenue'],
     measurement: 'Holdout group without reminders.',
     icon: 'fas fa-envelope-open-text',
@@ -1381,33 +1399,59 @@
     title: 'Inactive Customer Reactivation',
     category: 'CRM & Fidélisation',
     description: 'Bring dormant customers back with targeted campaigns.',
-    hook: 'Re-activate inactive customers',
+    hook: '+5–15% reactivation rate on dormant customers',
     kpis: ['Reactivation rate', 'Repeat purchase rate'],
-    measurement: 'Control group vs reactivated cohort.',
+    measurement: 'Control group vs reactivated cohort, cohort analysis.',
     icon: 'fas fa-user-clock',
     bgClass: 'bg-orange'
+  },
+  {
+    title: 'Campagne Anniversaire',
+    category: 'CRM & Fidélisation',
+    description: 'Automate a personalized offer for birthdays to drive loyalty.',
+    hook: '+10–30% higher conversion vs standard CRM sends',
+    kpis: ['Conversion rate', 'Revenue per recipient'],
+    measurement: 'Time-boxed analysis, compare with standard campaigns, per recipient revenue.',
+    icon: 'fas fa-birthday-cake',
+    bgClass: 'bg-pink'
   },
   {
     title: 'Loyalty Program',
     category: 'CRM & Fidélisation',
     description: 'Increase repeat purchases with real-time loyalty mechanics.',
-    hook: 'Increase purchase frequency and lifetime value',
+    hook: '+5–15% higher purchase frequency',
     kpis: ['Purchase frequency', 'Customer lifetime value'],
-    measurement: 'Members vs non-members cohort analysis.',
+    measurement: 'Members vs non-members cohort analysis, before/after enrollment.',
     icon: 'fas fa-star',
     bgClass: 'bg-teal'
   },
-
-  // ==================================================
-  // Conformité
-  // ==================================================
+  {
+    title: 'Upsell Post-Achat',
+    category: 'CRM & Fidélisation',
+    description: 'Increase customer value after the first purchase with a post-purchase offer.',
+    hook: '+3–10% incremental revenue per buyer',
+    kpis: ['Upsell conversion rate', 'Revenue per customer'],
+    measurement: 'Holdout group without upsell, time-window attribution.',
+    icon: 'fas fa-arrow-up',
+    bgClass: 'bg-purple'
+  },
+  {
+    title: 'Alerte Retour en Stock',
+    category: 'CRM & Fidélisation',
+    description: 'Convert demand into sales as soon as products are available again.',
+    hook: '+10–30% conversion on notified interested users',
+    kpis: ['Click rate', 'Conversion rate after alert'],
+    measurement: 'Click-to-conversion attribution, time-window analysis.',
+    icon: 'fas fa-box-open',
+    bgClass: 'bg-green'
+  },
   {
     title: 'Consent Manager & Triggers',
     category: 'Conformité',
     description: 'Trigger tags only when user consent allows it.',
-    hook: 'Stay compliant without sacrificing data',
-    kpis: ['Consent compliance rate', 'Blocked events'],
-    measurement: 'Consent state vs event emission tracking.',
+    hook: 'Reduce non-compliant tracking by 80–99%',
+    kpis: ['Consent compliance rate', 'Non-compliant event ratio'],
+    measurement: 'Consent state vs event emission tracking, compliance reporting.',
     icon: 'fas fa-cookie-bite',
     bgClass: 'bg-red'
   },
@@ -1415,23 +1459,39 @@
     title: 'Realtime Cookie Scanner',
     category: 'Conformité',
     description: 'Detect non-compliant cookies in real time.',
-    hook: 'Detect compliance issues instantly',
-    kpis: ['Non-compliant cookies', 'Time to detection'],
-    measurement: 'Continuous scanning and alerting.',
+    hook: 'Cut time-to-detect compliance issues by 50–90%',
+    kpis: ['Time to detection', 'Non-compliant cookies'],
+    measurement: 'Continuous scan baseline vs alerting workflow, time-to-detect tracking.',
     icon: 'fas fa-cookie',
     bgClass: 'bg-pink'
   },
-
-  // ==================================================
-  // Data Quality
-  // ==================================================
+  {
+    title: 'CMP Compliance Monitoring',
+    category: 'Conformité',
+    description: 'Ensure consent rules are always enforced across pages and tags.',
+    hook: 'Reduce consent rule errors by 50–90%',
+    kpis: ['CMP error rate', 'Non-compliant event ratio'],
+    measurement: 'Rule validation logs, CMP state vs event emission comparison.',
+    icon: 'fas fa-shield-alt',
+    bgClass: 'bg-indigo'
+  },
+  {
+    title: 'Consent-Based Data Activation',
+    category: 'Conformité',
+    description: 'Activate data only when it is legally usable.',
+    hook: 'Increase safe-to-activate data by 10–30%',
+    kpis: ['Share of consented activated data', 'Blocked activation rate'],
+    measurement: 'Destination delivery logs with consent flags, coverage ratio tracking.',
+    icon: 'fas fa-check-circle',
+    bgClass: 'bg-green'
+  },
   {
     title: 'One Tag Gateway',
     category: 'Data Quality',
     description: 'Centralize and control all data collection server-side.',
-    hook: 'Improve data reliability across all channels',
-    kpis: ['Event delivery success rate', 'Latency'],
-    measurement: 'Pipeline monitoring before/after centralization.',
+    hook: '+10–30% more stable data delivery across channels',
+    kpis: ['Event delivery success rate', 'Latency', 'Routing success'],
+    measurement: 'Pipeline monitoring before/after centralization, delivery logs.',
     icon: 'fas fa-server',
     bgClass: 'bg-indigo'
   },
@@ -1439,23 +1499,49 @@
     title: 'Data Quality Scoring',
     category: 'Data Quality',
     description: 'Measure and improve event reliability in real time.',
-    hook: 'Make decisions based on reliable data',
+    hook: '+10–35% more valid events for activation and reporting',
     kpis: ['Valid event ratio', 'Schema compliance rate'],
-    measurement: 'Real-time validation and quality score tracking.',
+    measurement: 'Real-time validation, quality score tracking over time.',
     icon: 'fas fa-check-circle',
     bgClass: 'bg-green'
   },
-
-  // ==================================================
-  // Activation & Segmentation Avancée
-  // ==================================================
+  {
+    title: 'Monitoring & Alerting de Collecte',
+    category: 'Data Quality',
+    description: 'Detect data issues before they impact performance.',
+    hook: '50–80% faster detection of tracking breaks',
+    kpis: ['Mean time to detection', 'Number of incidents'],
+    measurement: 'Alert logs, incident tracking, historical comparison.',
+    icon: 'fas fa-bell',
+    bgClass: 'bg-orange'
+  },
+  {
+    title: 'Audit Automatisé des Tags',
+    category: 'Data Quality',
+    description: 'Identify and remove broken and unused tags.',
+    hook: '10–30% fewer broken or unused tags',
+    kpis: ['Inactive tags', 'Tracking error rate'],
+    measurement: 'Tag inventory snapshots, error logs before/after cleanup.',
+    icon: 'fas fa-search',
+    bgClass: 'bg-teal'
+  },
+  {
+    title: 'Validation du Schéma d’Événements',
+    category: 'Data Quality',
+    description: 'Keep your event model clean and stable.',
+    hook: '50–90% fewer schema-related downstream errors',
+    kpis: ['Schema mismatch rate', 'Downstream errors'],
+    measurement: 'Schema enforcement logs, event diff and version comparison.',
+    icon: 'fas fa-list-check',
+    bgClass: 'bg-blue'
+  },
   {
     title: 'RFM Segmentation',
     category: 'Activation & Segmentation Avancée',
     description: 'Identify your most valuable customers automatically.',
-    hook: 'Identify and activate your best customers',
-    kpis: ['Revenue per segment', 'Conversion rate'],
-    measurement: 'Segment performance comparison.',
+    hook: '+5–15% lift on conversion when targeting RFM segments',
+    kpis: ['Conversion rate by segment', 'Revenue per segment'],
+    measurement: 'Segment performance comparison, cohort analysis.',
     icon: 'fas fa-layer-group',
     bgClass: 'bg-blue'
   },
@@ -1463,14 +1549,44 @@
     title: 'Propensity Scoring',
     category: 'Activation & Segmentation Avancée',
     description: 'Predict who is most likely to convert or churn.',
-    hook: 'Target users most likely to convert',
+    hook: '+5–20% conversion lift on scored audiences',
     kpis: ['Conversion lift', 'Prediction accuracy'],
-    measurement: 'Scored vs non-scored audience comparison.',
+    measurement: 'Scored vs non-scored audience comparison, outcome validation.',
     icon: 'fas fa-bolt',
     bgClass: 'bg-yellow'
+  },
+  {
+    title: 'Activation Multi-Canal CDP',
+    category: 'Activation & Segmentation Avancée',
+    description: 'Activate the same audience everywhere.',
+    hook: '+10–25% faster activation rollout across channels',
+    kpis: ['Time-to-activate', 'Activation coverage'],
+    measurement: 'Operational baseline before/after, delivery logs and coverage ratio.',
+    icon: 'fas fa-broadcast-tower',
+    bgClass: 'bg-purple'
+  },
+  {
+    title: 'Personnalisation Onsite via CDP',
+    category: 'Activation & Segmentation Avancée',
+    description: 'Personalize experiences using real customer data.',
+    hook: '+5–15% conversion lift on personalized segments',
+    kpis: ['Conversion rate', 'Engagement rate'],
+    measurement: 'A/B testing, segment vs non-segment performance.',
+    icon: 'fas fa-magic',
+    bgClass: 'bg-pink'
+  },
+  {
+    title: 'Attribution Cross-Canal',
+    category: 'Activation & Segmentation Avancée',
+    description: 'Understand what really drives conversions.',
+    hook: '10–20% better budget efficiency through informed reallocation',
+    kpis: ['Budget efficiency', 'Assisted conversion rate'],
+    measurement: 'Attribution model comparison, scenario simulation, time series analysis.',
+    icon: 'fas fa-project-diagram',
+    bgClass: 'bg-orange'
   }
-
 ]);
+
 
 
 
