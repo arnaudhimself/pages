@@ -1226,7 +1226,7 @@
 
 const allTemplates = ref([
   {
-    title: 'Google Ads Conversions API',
+    title: 'Google Enhanced Conversion',
     category: 'Campagnes & Conversions',
     description: 'Recover lost conversions and improve Smart Bidding with server-side tracking.',
     hook: '+10–30% more conversions measured in Google Ads',
@@ -1445,46 +1445,45 @@ const allTemplates = ref([
     icon: 'fas fa-box-open',
     bgClass: 'bg-green'
   },
-  {
-    title: 'Consent Manager & Triggers',
-    category: 'Conformité',
-    description: 'Trigger tags only when user consent allows it.',
-    hook: 'Reduce non-compliant tracking by 80–99%',
-    kpis: ['Consent compliance rate', 'Non-compliant event ratio'],
-    measurement: 'Consent state vs event emission tracking, compliance reporting.',
-    icon: 'fas fa-cookie-bite',
-    bgClass: 'bg-red'
-  },
-  {
-    title: 'Realtime Cookie Scanner',
-    category: 'Conformité',
-    description: 'Detect non-compliant cookies in real time.',
-    hook: 'Cut time-to-detect compliance issues by 50–90%',
-    kpis: ['Time to detection', 'Non-compliant cookies'],
-    measurement: 'Continuous scan baseline vs alerting workflow, time-to-detect tracking.',
-    icon: 'fas fa-cookie',
-    bgClass: 'bg-pink'
-  },
-  {
-    title: 'CMP Compliance Monitoring',
-    category: 'Conformité',
-    description: 'Ensure consent rules are always enforced across pages and tags.',
-    hook: 'Reduce consent rule errors by 50–90%',
-    kpis: ['CMP error rate', 'Non-compliant event ratio'],
-    measurement: 'Rule validation logs, CMP state vs event emission comparison.',
-    icon: 'fas fa-shield-alt',
-    bgClass: 'bg-indigo'
-  },
-  {
-    title: 'Consent-Based Data Activation',
-    category: 'Conformité',
-    description: 'Activate data only when it is legally usable.',
-    hook: 'Increase safe-to-activate data by 10–30%',
-    kpis: ['Share of consented activated data', 'Blocked activation rate'],
-    measurement: 'Destination delivery logs with consent flags, coverage ratio tracking.',
-    icon: 'fas fa-check-circle',
-    bgClass: 'bg-green'
-  },
+ {
+  title: 'Realtime Cookie Alerts',
+  category: 'Conformité',
+  description: 'Receive real-time alerts whenever a new cookie or storage item is detected on your site.',
+  hook: 'Detect new cookies 90–100% faster',
+  kpis: [
+    'Time to detection',
+    'Number of new cookies detected'
+  ],
+  measurement: 'Compare detection delay with periodic manual audits or crawler-based scans.',
+  icon: 'fas fa-bell',
+  bgClass: 'bg-pink'
+},
+{
+  title: 'Automated Cookie Notice',
+  category: 'Conformité',
+  description: 'Automatically generate and keep your cookie notice fully up to date based on real-time detected cookies.',
+  hook: '100% accurate and always up-to-date cookie notice',
+  kpis: [
+    'Cookie notice accuracy rate',
+    'Time spent maintaining legal cookie documentation'
+  ],
+  measurement: 'Compare detected cookies vs cookies listed in the notice, and track manual maintenance time before/after.',
+  icon: 'fas fa-list-check',
+  bgClass: 'bg-indigo'
+},
+{
+  title: 'Cookie Compliance Risk Reduction',
+  category: 'Conformité',
+  description: 'Continuously reduce the risk of cookie non-compliance by detecting, categorizing and flagging risky cookies.',
+  hook: 'Reduce cookie non-compliance risk by 50–90%',
+  kpis: [
+    'Number of non-compliant cookies',
+    'Time exposed to non-compliant cookies'
+  ],
+  measurement: 'Track non-compliant cookies detected over time and measure exposure duration before remediation.',
+  icon: 'fas fa-shield-alt',
+  bgClass: 'bg-green'
+},
   {
     title: 'One Tag Gateway',
     category: 'Data Quality',
