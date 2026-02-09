@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Meeting, Fun Timer</title>
+  <style>
+    :root {
+      --bg1: #0b1220;
+      --bg2: #0a1633;
+      --stroke: rgba(255, 255, 255, 0.14);
+      --text: rgba(255, 255, 255, 0.92);
+      --muted: rgba(255, 255, 255, 0.74);
+      --muted2: rgba(255, 255, 255, 0.56);
+      --good: #20e3b2;
+      --warn: #ffb020;
+      --danger: #ff3b62;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      --radius: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(32,227,178,0.16), transparent 60%),
+        radial-gradient(900px 600px at 90% 18%, rgba(255,59,98,0.14), transparent 55%),
+        radial-gradient(1000px 800px at 70% 90%, rgba(255,176,32,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.14"/></svg>');
+      mix-blend-mode: overlay;
+      opacity: 0.25;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 26px 18px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .title { display: grid; gap: 6px; }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.6vw, 30px);
+      letter-spacing: 0.2px;
+    }
+
+    .title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+      max-width: 72ch;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.22);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .badge .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 0 0 rgba(32,227,178, 0.5);
+      animation: pulse 2.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(32,227,178, 0.55); }
+      60% { box-shadow: 0 0 0 10px rgba(32,227,178, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(32,227,178, 0); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 980px) {
+      header { flex-direction: column; align-items: stretch; }
+      .badge { width: fit-content; }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.06));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .cardHeader {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.10);
+    }
+
+    .cardHeader h2 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 12px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .pill kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.24);
+      color: rgba(255,255,255,0.86);
+    }
+
+    .cardBody { padding: 16px 18px 18px; }
+
+    .questions {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .q {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      align-items: center;
+    }
+
+    .q .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(32,227,178,0.14);
+      border: 1px solid rgba(32,227,178,0.25);
+      color: rgba(255,255,255,0.92);
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+
+    .q .txt { line-height: 1.25; color: rgba(255,255,255,0.90); }
+
+    .q .txt small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .qActions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .miniBtn {
+      padding: 9px 10px;
+      border-radius: 14px;
+      min-width: 44px;
+    }
+
+    .qActions .label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .timers { display: grid; gap: 14px; }
+    .timerGrid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .timer { display: grid; gap: 10px; }
+
+    .timeRow {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .time {
+      font-family: var(--mono);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .progress {
+      height: 10px;
+      width: 100%;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(32,227,178,0.95), rgba(255,176,32,0.95));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .controls.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 11px 12px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.18s ease, border-color 0.18s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button.primary {
+      background: rgba(32,227,178,0.14);
+      border-color: rgba(32,227,178,0.30);
+    }
+
+    button.danger {
+      background: rgba(255,59,98,0.14);
+      border-color: rgba(255,59,98,0.30);
+    }
+
+    button.warn {
+      background: rgba(255,176,32,0.16);
+      border-color: rgba(255,176,32,0.32);
+    }
+
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.26);
+      color: rgba(255,255,255,0.90);
+      padding: 11px 12px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(32,227,178,0.38);
+      box-shadow: 0 0 0 4px rgba(32,227,178,0.10);
+    }
+
+    .devLine {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .devName {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      font-size: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.16);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .hint {
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.3;
+      margin-top: 10px;
+    }
+
+    .kbdRow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .kbdRow span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 12px;
+      user-select: none;
+    }
+
+    .kbdRow kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.24);
+      color: rgba(255,255,255,0.86);
+    }
+
+    .blinkRed { animation: blinkRed 0.7s steps(2, end) infinite; }
+    .blinkOrange { animation: blinkOrange 0.9s steps(2, end) infinite; }
+
+    @keyframes blinkRed {
+      0% { filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+      50% { color: var(--danger); filter: drop-shadow(0 0 12px rgba(255,59,98,0.55)); }
+      100% { filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    }
+
+    @keyframes blinkOrange {
+      0% { filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+      50% { color: var(--warn); filter: drop-shadow(0 0 12px rgba(255,176,32,0.55)); }
+      100% { filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    }
+
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+
+    .piece {
+      position: absolute;
+      top: -10px;
+      width: 10px;
+      height: 16px;
+      border-radius: 3px;
+      opacity: 0.95;
+      transform: translateY(0) rotate(0deg);
+      animation: fall 1.3s linear forwards;
+    }
+
+    .emojiPiece {
+      width: auto;
+      height: auto;
+      background: transparent !important;
+      border-radius: 0;
+      font-size: 20px;
+      line-height: 1;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+      user-select: none;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(520deg); opacity: 1; }
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: rgba(255,255,255,0.46);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .srOnly {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      white-space: nowrap;
+    }
+
+    .sadFlash { animation: sadFlash 0.55s ease-in-out 1; }
+
+    @keyframes sadFlash {
+      0% { filter: none; }
+      30% { filter: hue-rotate(-18deg) saturate(1.3); }
+      60% { filter: hue-rotate(18deg) saturate(0.9); }
+      100% { filter: none; }
+    }
+
+    .sadShake { animation: sadShake 0.45s linear 1; }
+
+    @keyframes sadShake {
+      0% { transform: translateX(0); }
+      15% { transform: translateX(-10px); }
+      30% { transform: translateX(10px); }
+      45% { transform: translateX(-8px); }
+      60% { transform: translateX(8px); }
+      75% { transform: translateX(-5px); }
+      90% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Daily Meeting, mode fun</h1>
+        <p>
+          Objectif, synchroniser vite, remonter les risques tôt, garder le daily court.
+          Le reste se traite après avec les bonnes personnes.
+        </p>
+      </div>
+      <div class="badge" id="statusBadge" title="État du daily">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Prêt</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="cardHeader">
+          <h2>Questions du daily</h2>
+          <div class="pill" title="Raccourcis clavier">
+            <kbd>ESPACE</kbd> start pause
+            <kbd>N</kbd> dev suivant
+            <kbd>R</kbd> reset
+          </div>
+        </div>
+        <div class="cardBody">
+          <ol class="questions">
+            <li class="q">
+              <div class="num">1</div>
+              <div class="txt">Qu’ai-je fait depuis le dernier daily
+                <small>Concret, terminé ou avancé, pas de roman.</small>
+              </div>
+            </li>
+            <li class="q">
+              <div class="num">2</div>
+              <div class="txt">Que vais-je faire aujourd’hui
+                <small>Une phrase, mon focus du jour.</small>
+              </div>
+            </li>
+            <li class="q">
+              <div class="num">3</div>
+              <div class="txt">Ai-je un bloqueur ou un besoin d’aide
+                <small>Tech, dépendance, accès, décision, priorité.</small>
+              </div>
+            </li>
+            <li class="q">
+              <div class="num">4</div>
+              <div class="txt">Vois-je un risque de dépassement de temps ou de deadline
+                <small>Si oui, lequel, et pourquoi.</small>
+              </div>
+            </li>
+            <li class="q">
+              <div class="num">5</div>
+              <div class="txt">Y a t il un incident ou un système en panne pouvant impacter des clients
+                <small>Même si ce n’est pas confirmé.</small>
+              </div>
+            </li>
+                        <li class="q">
+              <div class="num">6</div>
+              <div class="txt">Ai je bien rempli ma timesheet d’hier
+                <small>Si non, je le fais après le daily.</small>
+                <div class="qActions" aria-label="Validation timesheet">
+                  <span class="label">Timesheet</span>
+                  <button class="primary miniBtn" id="btnOk" title="Timesheet OK" aria-label="Timesheet OK">
+                    <span aria-hidden="true">✅</span>
+                  </button>
+                  <button class="danger miniBtn" id="btnKo" title="Timesheet KO" aria-label="Timesheet KO">
+                    <span aria-hidden="true">❌</span>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ol>
+
+          <div class="hint">
+            Astuce, quand une alerte est mentionnée, notez la, puis sortez du daily et traitez la immédiatement après.
+          </div>
+        </div>
+      </section>
+
+      <aside class="timers">
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Timers</h2>
+            <div class="pill" title="Tempo">
+              Daily 15 min, dev par dev configurable
+            </div>
+          </div>
+          <div class="cardBody">
+            <div class="timerGrid">
+
+              <div class="timer" aria-label="Timer global">
+                <div class="timeRow">
+                  <div>
+                    <div class="sub">Timer global</div>
+                    <div class="time" id="globalTime">15:00</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="sub">Écoulé</div>
+                    <div class="time" style="font-size:24px" id="globalElapsed">00:00</div>
+                  </div>
+                </div>
+                <div class="progress" title="Progression du daily">
+                  <div class="bar" id="globalBar"></div>
+                </div>
+                <div class="controls three">
+                  <button class="primary" id="btnStartPause">Démarrer</button>
+                  <button class="warn" id="btnReset">Reset</button>
+                  <button class="danger" id="btnConfetti">Mode victoire</button>
+                </div>
+              </div>
+
+              <div class="timer" aria-label="Timer par dev">
+                <div class="devLine">
+                  <div class="devName">
+                    <span class="avatar" id="devAvatar">L</span>
+                    <span id="devName">Dev</span>
+                  </div>
+                  <div class="pill" title="Limite du temps par dev">
+                    Limite <span id="devLimitLabel">02:00</span>
+                  </div>
+                </div>
+
+                <div class="timeRow">
+                  <div>
+                    <div class="sub">Timer dev</div>
+                    <div class="time" id="devTime">02:00</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="sub">Écoulé</div>
+                    <div class="time" style="font-size:24px" id="devElapsed">00:00</div>
+                  </div>
+                </div>
+
+                <div class="progress" title="Progression du dev">
+                  <div class="bar" id="devBar"></div>
+                </div>
+
+                <div class="controls">
+                  <button class="warn" id="btnNext">Dev suivant</button>
+                  <button id="btnDevReset">Reset dev</button>
+                </div>
+
+                <div class="row">
+                  <div class="inputs">
+                    <label style="grid-column: 1 / -1;">
+                      Noms des devs
+                      <input id="devList" placeholder="Leia, Grogu, Naruto, Neo" value="Batman, MacGyver, Ulysse31, Albator" />
+                    </label>
+
+                    <label>
+                      Temps par dev
+                      <select id="devLimit">
+                        <option value="90">01:30</option>
+                        <option value="120" selected>02:00</option>
+                        <option value="150">02:30</option>
+                        <option value="180">03:00</option>
+                      </select>
+                    </label>
+
+                    <label>
+                      Daily max
+                      <select id="globalLimit">
+                        <option value="600">10:00</option>
+                        <option value="900" selected>15:00</option>
+                        <option value="1200">20:00</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div class="kbdRow">
+                    <span><kbd>ESPACE</kbd> start pause</span>
+                    <span><kbd>N</kbd> dev suivant</span>
+                    <span><kbd>R</kbd> reset</span>
+                  </div>
+
+                  <div class="hint">
+                    Le timer global clignote en rouge à la limite, le timer dev clignote en orange quand la limite dev est dépassée.
+                    Un son est joué à la fin de chaque timer.
+                  </div>
+
+                  <p class="srOnly" id="srAnnounce" aria-live="polite"></p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <div class="footer">
+          Daily fun timer, aucune donnée enregistrée, fonctionne hors ligne.
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Helpers
+      function clamp(n, min, max) {
+        if (n < min) return min;
+        if (n > max) return max;
+        return n;
+      }
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function formatMMSS(totalSeconds) {
+        const s = Math.max(0, Math.floor(totalSeconds));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return pad2(m) + ':' + pad2(r);
+      }
+
+      function initials(name) {
+        const parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '?';
+        if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+        return (parts[0].slice(0, 1) + parts[parts.length - 1].slice(0, 1)).toUpperCase();
+      }
+
+      function getEl(id) {
+        const node = document.getElementById(id);
+        if (!node) {
+          throw new Error('Missing DOM element: #' + id);
+        }
+        return node;
+      }
+
+      // State
+      const state = {
+        running: false,
+        globalLimitSec: 900,
+        devLimitSec: 120,
+        globalElapsedSec: 0,
+        devElapsedSec: 0,
+        devIndex: 0,
+        devs: ['Leia', 'Grogu', 'Naruto', 'Neo'],
+        globalBeeped: false,
+        devBeeped: false,
+        tickHandle: null,
+        lastTickMs: null
+      };
+
+      // Elements
+      const el = {
+        statusText: getEl('statusText'),
+        statusDot: getEl('statusDot'),
+        globalTime: getEl('globalTime'),
+        globalElapsed: getEl('globalElapsed'),
+        globalBar: getEl('globalBar'),
+        devTime: getEl('devTime'),
+        devElapsed: getEl('devElapsed'),
+        devBar: getEl('devBar'),
+        devName: getEl('devName'),
+        devAvatar: getEl('devAvatar'),
+        devLimitLabel: getEl('devLimitLabel'),
+        btnStartPause: getEl('btnStartPause'),
+        btnReset: getEl('btnReset'),
+        btnNext: getEl('btnNext'),
+        btnDevReset: getEl('btnDevReset'),
+        btnConfetti: getEl('btnConfetti'),
+        btnOk: getEl('btnOk'),
+        btnKo: getEl('btnKo'),
+        devList: getEl('devList'),
+        devLimit: getEl('devLimit'),
+        globalLimit: getEl('globalLimit'),
+        confetti: getEl('confetti'),
+        srAnnounce: getEl('srAnnounce')
+      };
+
+      function announce(msg) {
+        el.srAnnounce.textContent = msg;
+      }
+
+      function setBadge(mode) {
+        if (mode === 'ready') {
+          el.statusText.textContent = 'Prêt';
+          el.statusDot.style.background = 'var(--good)';
+        }
+        if (mode === 'running') {
+          el.statusText.textContent = 'En cours';
+          el.statusDot.style.background = 'var(--good)';
+        }
+        if (mode === 'paused') {
+          el.statusText.textContent = 'Pause';
+          el.statusDot.style.background = 'var(--warn)';
+        }
+        if (mode === 'overtime') {
+          el.statusText.textContent = 'Limite atteinte';
+          el.statusDot.style.background = 'var(--danger)';
+        }
+      }
+
+      function updateDevIdentity() {
+        const name = state.devs[state.devIndex] || ('Dev ' + (state.devIndex + 1));
+        el.devName.textContent = name;
+        el.devAvatar.textContent = initials(name);
+      }
+
+      function applyLimitsFromUI() {
+        const devSec = Number(el.devLimit.value);
+        const globSec = Number(el.globalLimit.value);
+
+        if (Number.isFinite(devSec)) state.devLimitSec = devSec;
+        if (Number.isFinite(globSec)) state.globalLimitSec = globSec;
+
+        el.devLimitLabel.textContent = formatMMSS(state.devLimitSec);
+      }
+
+      function applyDevListFromUI() {
+        const raw = el.devList.value || '';
+        const list = raw.split(',').map(s => s.trim()).filter(Boolean);
+        state.devs = list.length > 0 ? list : ['Dev'];
+        state.devIndex = clamp(state.devIndex, 0, state.devs.length - 1);
+        updateDevIdentity();
+      }
+
+      function resetAll() {
+        state.globalElapsedSec = 0;
+        state.devElapsedSec = 0;
+        state.devIndex = 0;
+        state.lastTickMs = null;
+        state.globalBeeped = false;
+        state.devBeeped = false;
+
+        updateDevIdentity();
+        render();
+        setBadge(state.running ? 'running' : 'ready');
+        el.globalTime.classList.remove('blinkRed');
+        el.devTime.classList.remove('blinkOrange');
+        announce('Timers réinitialisés');
+      }
+
+      function resetDevOnly() {
+        state.devElapsedSec = 0;
+        state.lastTickMs = null;
+        state.devBeeped = false;
+        el.devTime.classList.remove('blinkOrange');
+        render();
+        announce('Timer dev réinitialisé');
+      }
+
+      function nextDev(options) {
+        const opts = options || {};
+        const celebrate = opts.celebrate !== false;
+
+        state.devIndex = (state.devIndex + 1) % state.devs.length;
+        updateDevIdentity();
+        resetDevOnly();
+
+        if (celebrate) {
+          popConfetti(10);
+        }
+
+        announce('Dev suivant: ' + (state.devs[state.devIndex] || 'Dev'));
+      }
+
+      function start() {
+        if (state.running) return;
+        state.running = true;
+        el.btnStartPause.textContent = 'Pause';
+        setBadge('running');
+        state.lastTickMs = performance.now();
+        state.tickHandle = requestAnimationFrame(tick);
+        announce('Démarré');
+      }
+
+      function pause() {
+        if (!state.running) return;
+        state.running = false;
+        el.btnStartPause.textContent = 'Démarrer';
+        setBadge('paused');
+        if (state.tickHandle) cancelAnimationFrame(state.tickHandle);
+        state.tickHandle = null;
+        state.lastTickMs = null;
+        announce('En pause');
+      }
+
+      function toggleStartPause() {
+        if (state.running) {
+          pause();
+          return;
+        }
+        start();
+      }
+
+      function tick(nowMs) {
+        if (!state.running) return;
+
+        if (state.lastTickMs == null) state.lastTickMs = nowMs;
+        const delta = (nowMs - state.lastTickMs) / 1000;
+        state.lastTickMs = nowMs;
+
+        state.globalElapsedSec += delta;
+        state.devElapsedSec += delta;
+
+        render();
+        state.tickHandle = requestAnimationFrame(tick);
+      }
+
+      // Sound
+      function playBeep(freqHz, durationMs, type) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+
+        let ctx = playBeep._ctx;
+        if (!ctx) {
+          ctx = new AudioCtx();
+          playBeep._ctx = ctx;
+        }
+
+        // Resume context on first user gesture if needed
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type || 'sine';
+        osc.frequency.value = freqHz;
+
+        const now = ctx.currentTime;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + (durationMs / 1000));
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + (durationMs / 1000) + 0.02);
+      }
+
+      function playDevDoneSound() {
+        playBeep(880, 140, 'square');
+        window.setTimeout(() => { playBeep(660, 120, 'square'); }, 70);
+      }
+
+      function playGlobalDoneSound() {
+        playBeep(220, 240, 'sawtooth');
+        window.setTimeout(() => { playBeep(165, 240, 'sawtooth'); }, 90);
+      }
+
+      function playOkSound() {
+        playBeep(740, 90, 'sine');
+        window.setTimeout(() => { playBeep(988, 110, 'sine'); }, 60);
+      }
+
+      function playKoSound() {
+        playBeep(180, 180, 'triangle');
+        window.setTimeout(() => { playBeep(140, 180, 'triangle'); }, 80);
+      }
+
+      function render() {
+        const globalRemaining = state.globalLimitSec - state.globalElapsedSec;
+        const devRemaining = state.devLimitSec - state.devElapsedSec;
+
+        el.globalTime.textContent = formatMMSS(globalRemaining);
+        el.globalElapsed.textContent = formatMMSS(state.globalElapsedSec);
+
+        el.devTime.textContent = formatMMSS(devRemaining);
+        el.devElapsed.textContent = formatMMSS(state.devElapsedSec);
+
+        const globalPct = clamp((state.globalElapsedSec / state.globalLimitSec) * 100, 0, 100);
+        const devPct = clamp((state.devElapsedSec / state.devLimitSec) * 100, 0, 100);
+        el.globalBar.style.width = globalPct.toFixed(2) + '%';
+        el.devBar.style.width = devPct.toFixed(2) + '%';
+
+        const globalOver = state.globalElapsedSec >= state.globalLimitSec;
+        const devOver = state.devElapsedSec >= state.devLimitSec;
+
+        if (globalOver) {
+          el.globalTime.classList.add('blinkRed');
+          setBadge('overtime');
+          if (!state.globalBeeped) {
+            state.globalBeeped = true;
+            playGlobalDoneSound();
+            announce('Timer global terminé');
+          }
+        } else {
+          el.globalTime.classList.remove('blinkRed');
+          state.globalBeeped = false;
+          if (state.running) setBadge('running');
+          if (!state.running && state.globalElapsedSec === 0) setBadge('ready');
+        }
+
+        if (devOver) {
+          el.devTime.classList.add('blinkOrange');
+          if (!state.devBeeped) {
+            state.devBeeped = true;
+            playDevDoneSound();
+            announce('Temps du dev terminé');
+          }
+        } else {
+          el.devTime.classList.remove('blinkOrange');
+          state.devBeeped = false;
+        }
+      }
+
+      // Confetti
+      function triggerBadAnimation() {
+        // A quick "not cool" moment: flash + shake the main container
+        const target = document.querySelector('.wrap');
+        if (!target) return;
+
+        target.classList.remove('sadShake');
+        document.body.classList.remove('sadFlash');
+        // Force reflow
+        void target.offsetWidth;
+
+        document.body.classList.add('sadFlash');
+        target.classList.add('sadShake');
+
+        window.setTimeout(() => {
+          document.body.classList.remove('sadFlash');
+          target.classList.remove('sadShake');
+        }, 650);
+      }
+
+      function popConfetti(count) {
+        const rectW = window.innerWidth;
+        const colors = [
+          'rgba(32,227,178,0.95)',
+          'rgba(255,176,32,0.95)',
+          'rgba(255,59,98,0.95)',
+          'rgba(255,255,255,0.9)'
+        ];
+
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'piece';
+          p.style.left = Math.floor(Math.random() * rectW) + 'px';
+          p.style.animationDuration = (0.95 + Math.random() * 0.9).toFixed(2) + 's';
+          p.style.transform = 'translateY(0) rotate(' + Math.floor(Math.random() * 180) + 'deg)';
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          p.style.width = (8 + Math.floor(Math.random() * 8)) + 'px';
+          p.style.height = (10 + Math.floor(Math.random() * 16)) + 'px';
+          p.style.opacity = (0.75 + Math.random() * 0.25).toFixed(2);
+          el.confetti.appendChild(p);
+
+          window.setTimeout(() => {
+            p.remove();
+          }, 1800);
+        }
+      }
+
+      function popSadFaces(count) {
+        const rectW = window.innerWidth;
+        const faces = ['😢', '😞', '😔', '😭'];
+
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'piece emojiPiece';
+          p.textContent = faces[Math.floor(Math.random() * faces.length)];
+
+          p.style.left = Math.floor(Math.random() * rectW) + 'px';
+          p.style.animationDuration = (1.05 + Math.random() * 1.1).toFixed(2) + 's';
+          p.style.transform = 'translateY(0) rotate(' + Math.floor(Math.random() * 80 - 40) + 'deg)';
+          p.style.opacity = (0.70 + Math.random() * 0.30).toFixed(2);
+          p.style.top = (-18 - Math.floor(Math.random() * 18)) + 'px';
+          p.style.fontSize = (18 + Math.floor(Math.random() * 14)) + 'px';
+
+          el.confetti.appendChild(p);
+
+          window.setTimeout(() => {
+            p.remove();
+          }, 2200);
+        }
+      }
+
+      // Wire UI
+      el.btnStartPause.addEventListener('click', toggleStartPause);
+      el.btnReset.addEventListener('click', () => {
+        pause();
+        resetAll();
+      });
+
+      el.btnNext.addEventListener('click', nextDev);
+      el.btnDevReset.addEventListener('click', resetDevOnly);
+
+      el.btnConfetti.addEventListener('click', () => {
+        popConfetti(60);
+      });
+
+      el.btnOk.addEventListener('click', () => {
+        playOkSound();
+        popConfetti(45);
+        nextDev();
+      });
+
+      el.btnKo.addEventListener('click', () => {
+        playKoSound();
+        popSadFaces(22);
+        triggerBadAnimation();
+        nextDev({ celebrate: false });
+      });
+
+      el.devLimit.addEventListener('change', () => {
+        applyLimitsFromUI();
+        resetDevOnly();
+      });
+
+      el.globalLimit.addEventListener('change', () => {
+        applyLimitsFromUI();
+        resetAll();
+      });
+
+      el.devList.addEventListener('input', () => {
+        // Keep it reactive while typing
+        applyDevListFromUI();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.isContentEditable)) {
+          return;
+        }
+
+        if (e.code === 'Space') {
+          e.preventDefault();
+          toggleStartPause();
+          return;
+        }
+
+        if (e.key === 'n' || e.key === 'N') {
+          nextDev();
+          return;
+        }
+
+        if (e.key === 'r' || e.key === 'R') {
+          pause();
+          resetAll();
+          return;
+        }
+      });
+
+      // Simple self-checks
+      (function runSelfChecks() {
+        const requiredIds = [
+          'statusText','statusDot','globalTime','globalElapsed','globalBar','devTime','devElapsed','devBar',
+          'devName','devAvatar','devLimitLabel','btnStartPause','btnReset','btnNext','btnDevReset','btnConfetti',
+          'devList','devLimit','globalLimit','confetti','btnOk','btnKo'
+        ];
+
+        for (const id of requiredIds) {
+          const node = document.getElementById(id);
+          if (!node) {
+            console.error('Self-check failed: missing #' + id);
+          }
+        }
+
+        // Unit tests
+        console.assert(clamp(5, 0, 10) === 5, 'clamp within');
+        console.assert(clamp(-1, 0, 10) === 0, 'clamp low');
+        console.assert(clamp(99, 0, 10) === 10, 'clamp high');
+        console.assert(formatMMSS(0) === '00:00', 'formatMMSS(0)');
+        console.assert(formatMMSS(61) === '01:01', 'formatMMSS(61)');
+        console.assert(formatMMSS(600) === '10:00', 'formatMMSS(600)');
+        console.assert(initials('Leia') === 'L', 'initials single');
+        console.assert(initials('Luke Skywalker') === 'LS', 'initials multi');
+        console.assert(initials('  ') === '?', 'initials empty');
+
+        // Parsing tests
+        const parsed = 'Leia, Grogu, Naruto, Neo'.split(',').map(s => s.trim()).filter(Boolean);
+        console.assert(parsed.length === 4, 'dev list parse length');
+        console.assert(parsed[1] === 'Grogu', 'dev list parse item');
+
+        // Sanity tests
+        console.assert(typeof playKoSound === 'function', 'playKoSound exists');
+        console.assert(typeof playOkSound === 'function', 'playOkSound exists');
+        console.assert(typeof popSadFaces === 'function', 'popSadFaces exists');
+      })();
+
+      // Init
+      applyDevListFromUI();
+      applyLimitsFromUI();
+      resetAll();
+
+      // Fun: celebrate once when global is over and still running
+      let celebrated = false;
+      window.setInterval(() => {
+        const globalOver = state.globalElapsedSec >= state.globalLimitSec;
+        if (globalOver && state.running && !celebrated) {
+          popConfetti(35);
+          celebrated = true;
+        }
+        if (!globalOver) {
+          celebrated = false;
+        }
+      }, 600);
+    });
+  </script>
+</body>
+</html>
