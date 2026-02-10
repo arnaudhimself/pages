@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Cookie Scanner Dashboard</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f3f5f9;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        /* Styles globaux des cartes */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            background-color: white;
+            /* h-100 est géré par bootstrap classes */
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .text-muted-small {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Score Circulaire */
+        .score-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 180px;
+        }
+        .score-text {
+            position: absolute;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+        .score-val { font-size: 2rem; font-weight: 800; color: #333; line-height: 1; }
+        .score-total { font-size: 0.9rem; color: #999; }
+
+        /* Metrics Cards */
+        .metric-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            border: 1px solid #eee;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .metric-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .metric-value { font-size: 1.5rem; font-weight: 700; }
+        .metric-change { font-size: 0.8rem; font-weight: 600; margin-left: 5px; }
+        .text-success-soft { color: #2ecc71; }
+        .text-danger-soft { color: #e74c3c; }
+        
+        /* Brand Colors Backgrounds */
+        .bg-brand-blue-light { background-color: #e3f2fd; color: #2657F7; } /* Bleu Main Light */
+        .bg-brand-cyan-light { background-color: #e1f5fe; color: #1098F7; } /* Bleu Clair Light */
+        .bg-brand-purple-light { background-color: #f3e5f5; color: #681FFF; } /* Violet Light */
+        .bg-red-light { background-color: #ffebee; color: #e53935; } /* Red (Keep for issues) */
+        
+        /* Utility for sparklines */
+        .sparkline {
+            height: 30px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        /* Action List */
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .action-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .action-icon {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .pts-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        /* Table */
+        .custom-table th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+        }
+        .custom-table td {
+            font-size: 0.9rem;
+            vertical-align: middle;
+            color: #444;
+            padding: 12px 8px;
+        }
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .bg-sev-high { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .bg-sev-med { background-color: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; }
+
+        /* Publication List (New) */
+        .pub-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .pub-item:last-of-type { border-bottom: none; }
+        .pub-version { font-weight: 700; color: #2c3e50; font-size: 0.9rem; }
+        .pub-date { font-size: 0.8rem; color: #888; }
+        .status-badge-small {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .bg-status-deploy { background-color: #e3f2fd; color: #1565c0; } /* Ready to deploy */
+        .bg-status-live { background-color: #eeeeee; color: #616161; } /* Already deployed */
+
+        .apexcharts-legend-text { font-family: 'Roboto', sans-serif !important; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container-fluid py-4 px-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Realtime Cookie Scanner - Overview</h4>
+    </div>
+
+    <!-- ROW 1: Score + Metrics (Left) AND Next Best Actions (Right) -->
+    <div class="row g-4 mb-4">
+        <!-- LEFT PART -->
+        <div class="col-lg-8">
+            <div class="row g-4 h-100">
+                <!-- Score Card -->
+                <div class="col-md-4">
+                    <div class="card p-3 h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <div class="score-container">
+                                <div id="scoreChart"></div>
+                                <div class="score-text">
+                                    <div class="score-val">72</div>
+                                    <div class="score-total">/100</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted fw-bold small">Realtime Compliance Score</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Metrics Grid (2x2) -->
+                <div class="col-md-8">
+                    <div class="row g-3 h-100">
+                        <div class="col-sm-6" v-for="(metric, index) in metrics" :key="index">
+                            <div class="metric-card h-100">
+                                <div class="metric-icon" :class="metric.iconBg">
+                                    <i :class="metric.icon"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted-small fw-bold">{{ metric.label }}</div>
+                                    <div class="d-flex align-items-baseline mt-1">
+                                        <div class="metric-value">{{ metric.value }}</div>
+                                        <div class="metric-change" :class="metric.isPositive ? 'text-success-soft' : 'text-danger-soft'">
+                                            <i :class="metric.isPositive ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
+                                            {{ metric.change }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <svg class="sparkline" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                    <path :d="metric.path" fill="none" :stroke="metric.color" stroke-width="2" stroke-linecap="round"/>
+                                    <path :d="metric.fillPath" :fill="metric.fillColor" stroke="none" opacity="0.2"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PART: Next Best Actions -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Next Best Actions</h5>
+                    <div class="action-list">
+                        <div class="action-item" v-for="(action, i) in actions" :key="i">
+                            <div class="action-icon" :style="{ backgroundColor: action.bg, color: action.color }">
+                                <i :class="action.icon"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="fw-bold" style="font-size: 0.9rem;">{{ action.title }}</div>
+                                    <span class="pts-badge">{{ action.pts }}</span>
+                                </div>
+                                <div class="text-muted small mt-1" style="font-size: 0.75rem;">{{ action.desc }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END ROW 1 -->
+
+
+    <!-- ROW 2: Line Chart (Left) AND Donut (Right) -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-2">Cookies Detected Over Time (Last 7 Days)</h5>
+                    <div id="lineChart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <h5 class="card-title mb-2 align-self-start">Cookie Categorization</h5>
+                    <div id="donutChart" class="w-100 d-flex justify-content-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END ROW 2 -->
+
+
+    <!-- ROW 3: Table (Left) AND Last Publications (Right - CHANGED) -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Recent High-Priority Issues</h5>
+                    <div class="table-responsive">
+                        <table class="table custom-table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Issue</th>
+                                    <th>Cookie</th>
+                                    <th>Severity</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(issue, i) in issues" :key="i">
+                                    <td class="text-muted">{{ i + 1 }})</td>
+                                    <td>
+                                        <strong>{{ issue.title }}</strong>
+                                        <span class="text-muted ms-1 small">• {{ issue.subtitle }}</span>
+                                    </td>
+                                    <td class="fw-bold">{{ issue.cookie }}</td>
+                                    <td>
+                                        <span class="severity-badge" :class="issue.severity === 'High' ? 'bg-sev-high' : 'bg-sev-med'">
+                                            <i class="fa-solid fa-circle me-1" style="font-size:6px; vertical-align:middle;"></i>
+                                            {{ issue.severity }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">{{ issue.time }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-3">Last Notice Publications</h5>
+                    
+                    <!-- Publications List -->
+                    <div class="flex-grow-1">
+                        <div class="pub-item" v-for="(pub, i) in publications" :key="i">
+                            <div class="d-flex flex-column">
+                                <span class="pub-version">Version {{ pub.version }}</span>
+                                <span class="pub-date"><i class="fa-regular fa-clock me-1"></i>{{ pub.date }}</span>
+                            </div>
+                            <span class="status-badge-small" :class="pub.statusClass">{{ pub.statusLabel }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button class="btn btn-dark w-100 py-2" style="font-size: 0.9rem; font-weight: 500;">
+                            Cookie Notice Manager
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END ROW 3 -->
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                metrics: [
+                    { 
+                        // Brand Light Blue
+                        label: 'Pages Scanned', value: '842', change: '(+6%)', isPositive: true, 
+                        icon: 'fa-regular fa-file', iconBg: 'bg-brand-cyan-light', color: '#1098F7',
+                        fillColor: '#b3e5fc',
+                        path: 'M0 20 Q 25 25 50 10 T 100 15', fillPath: 'M0 20 Q 25 25 50 10 T 100 15 V 25 H 0 Z'
+                    },
+                    { 
+                        // Brand Purple
+                        label: 'Total Cookies', value: '152', change: '', isPositive: true, 
+                        icon: 'fa-solid fa-cookie-bite', iconBg: 'bg-brand-purple-light', color: '#681FFF',
+                        fillColor: '#d1c4e9',
+                        path: 'M0 20 Q 40 25 60 15 T 100 18', fillPath: 'M0 20 Q 40 25 60 15 T 100 18 V 25 H 0 Z'
+                    },
+                    { 
+                        // KEEP RED as requested
+                        label: 'Pages with Issues', value: '15%', change: '↗ (+2%)', isPositive: false, 
+                        icon: 'fa-solid fa-chart-line', iconBg: 'bg-red-light', color: '#ef5350',
+                        fillColor: '#ffcdd2',
+                        path: 'M0 22 L 20 18 L 40 20 L 60 10 L 80 15 L 100 5', fillPath: 'M0 22 L 20 18 L 40 20 L 60 10 L 80 15 L 100 5 V 25 H 0 Z'
+                    },
+                    { 
+                        // Brand Main Blue
+                        label: 'New Cookies (24h)', value: '18', change: '(+12%)', isPositive: true, 
+                        icon: 'fa-solid fa-globe', iconBg: 'bg-brand-blue-light', color: '#2657F7',
+                        fillColor: '#bbdefb',
+                        path: 'M0 22 Q 30 5 60 20 T 100 10', fillPath: 'M0 22 Q 30 5 60 20 T 100 10 V 25 H 0 Z'
+                    }
+                ],
+                actions: [
+                    { title: 'Fix pre-consent _ga cookie', desc: 'After refuse (95% of pages) - Serious violation', pts: '+12 pts', icon: 'fa-solid fa-bolt', bg: '#ffebee', color: '#d32f2f' },
+                    { title: 'Block marketing cookie _fbp', desc: 'Before consent (88%) - High CNIL risk', pts: '+8 pts', icon: 'fa-solid fa-triangle-exclamation', bg: '#fff3e0', color: '#f57c00' },
+                    { title: 'Verify and flag NID cookie', desc: 'After refuse (15%) + others before consent', pts: '+4 pts', icon: 'fa-solid fa-check', bg: '#e8f5e9', color: '#388e3c' }
+                ],
+                issues: [
+                    { title: 'Fix pre-consent _ga cookie', subtitle: 'After refuse', cookie: '_ga', severity: 'High', time: '2024-05-08 07:50:47' },
+                    { title: 'Block marketing cookie _fbp', subtitle: 'Atsp refuse', cookie: '_fbp', severity: 'High', time: '2024-05-08 07:56:08' },
+                    { title: 'Verify and flag NID', subtitle: 'others xeflore consent', cookie: 'NID', severity: 'Medium', time: '2024-05-08 07:56:32' }
+                ],
+                publications: [
+                    { version: '9.00', date: '05.09.2025 16:50', statusLabel: 'Draft', statusClass: 'bg-status-deploy' },
+                    { version: '8.00', date: '04.09.2025 10:44', statusLabel: 'Draft', statusClass: 'bg-status-deploy' },
+                    { version: '7.00', date: '02.09.2025 14:25', statusLabel: 'Live', statusClass: 'bg-status-live' }
+                ]
+            }
+        },
+        mounted() {
+            this.renderCharts();
+        },
+        methods: {
+            renderCharts() {
+                // 1. Score Chart - Brand Pink (Amaranth)
+                const scoreOptions = {
+                    series: [72],
+                    chart: { height: 180, type: 'radialBar' },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: { size: '65%' },
+                            dataLabels: { show: false },
+                            track: { background: '#eee' }
+                        }
+                    },
+                    colors: ['#ff9800'], 
+                    stroke: { lineCap: 'round' }
+                };
+                new ApexCharts(document.querySelector("#scoreChart"), scoreOptions).render();
+
+                // 2. Line Chart - Brand Blues (Main Blue & Light Blue)
+                const lineOptions = {
+                    series: [{
+                        name: 'Total',
+                        data: [35, 25, 45, 44, 40, 50, 32]
+                    }, {
+                        name: 'New',
+                        data: [10, 5, 12, 6, 8, 9, 5]
+                    }],
+                    chart: {
+                        height: 280,
+                        type: 'area',
+                        toolbar: { show: false },
+                        zoom: { enabled: false },
+                        fontFamily: 'Roboto, sans-serif'
+                    },
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth', width: 2 },
+                    fill: {
+                        type: 'gradient',
+                        gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] }
+                    },
+                    xaxis: {
+                        categories: ['1', '2', '3', '4', '5', '6', '7'],
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: { show: true, tickAmount: 4 },
+                    grid: { borderColor: '#f1f1f1' },
+                    colors: ['#7b1fa2', '#90caf9'], // Main Blue & Light Blue
+                    legend: { position: 'bottom', horizontalAlign: 'center' }
+                };
+                new ApexCharts(document.querySelector("#lineChart"), lineOptions).render();
+
+                // 3. Donut Chart - Full Brand Palette
+                const donutOptions = {
+                    series: [80, 10, 12, 19],
+                    labels: ['Essential', 'Analytics', 'Marketing', 'Uncategorized'],
+                    chart: { type: 'donut', height: 280, fontFamily: 'Roboto, sans-serif' },
+                    colors: ['#4285f4', '#7b1fa2', '#e91e63', '#90caf9'], // Main Blue, Purple, Pink, Light Blue
+                    plotOptions: {
+                        pie: { donut: { size: '65%' } }
+                    },
+                    dataLabels: { enabled: true },
+                    legend: { position: 'bottom', fontSize: '11px', itemMargin: { horizontal: 5, vertical: 0 } }
+                };
+                new ApexCharts(document.querySelector("#donutChart"), donutOptions).render();
+            }
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
