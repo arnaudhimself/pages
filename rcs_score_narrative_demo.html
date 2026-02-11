@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Démo Score de Conformité & Narrative Executive</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; background: #f9fafb; color: #1f2937; }
+    h1 { text-align: center; color: #111827; }
+    .controls { text-align: center; margin: 30px 0; }
+    button { padding: 12px 24px; font-size: 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 20px; }
+    button:hover { background: #2563eb; }
+    select { padding: 10px; font-size: 16px; border-radius: 8px; }
+    .result { margin-top: 40px; padding: 24px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .score-display { font-size: 48px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+    .score-green { color: #16a34a; }
+    .score-yellow { color: #f59e0b; }
+    .score-orange { color: #ea580c; }
+    .score-red { color: #dc2626; }
+    .narrative { font-size: 18px; line-height: 1.6; margin: 20px 0; padding: 16px; background: #f3f4f6; border-radius: 8px; min-height: 120px; }
+    .cursor { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .cookies-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .cookies-table th, .cookies-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .cookies-table th { background: #e5e7eb; }
+    .severity-high { color: #dc2626; font-weight: bold; }
+    .severity-medium { color: #f59e0b; font-weight: bold; }
+    .gain { color: #16a34a; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Démo Score de Conformité Cookies & Narrative Executive</h1>
+  <div class="controls">
+    <select id="language">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+    <button onclick="generateRandomIssues()">Generate random issues</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score-display">Cliquez sur le bouton pour générer un exemple</div>
+    <div class="narrative" id="narrative"></div>
+    <table class="cookies-table" id="cookiesTable">
+      <thead>
+        <tr>
+          <th>Cookie Name</th>
+          <th>Fréquence (%)</th>
+          <th>Type</th>
+          <th>Catégorie</th>
+          <th>Sévérité</th>
+          <th>Gain si corrigé</th>
+        </tr>
+      </thead>
+      <tbody id="cookiesBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // === Fonction generateExecutiveNarrative (version bilingue complète) ===
+    function generateExecutiveNarrative(score, violationsSummary = {}, language = 'fr') {
+      const {
+        beforeConsentCount = 0,
+        afterRefuseCount = 0,
+        marketingImpact = 0,
+        analyticsImpact = 0,
+        uncategorizedImpact = 0,
+        essentialImpact = 0,
+        highFrequencyIssues = 0,
+        topViolations = [],
+        potentialGain = 0
+      } = violationsSummary;
+
+      const phrases = language === 'en' ? {
+        introVariations: ['The score of', 'With a score of', 'Your current score of'],
+        levelPhrases: {
+          excellent: ['reflects excellent compliance', 'indicates exemplary cookie management', 'shows perfect compliance'],
+          good: ['reflects good but improvable compliance', 'indicates generally correct compliance', 'shows good compliance that can still progress'],
+          average: ['reflects average compliance that needs improvement', 'indicates acceptable compliance requiring adjustments', 'shows average compliance needing reinforcement'],
+          poor: ['reflects insufficient compliance', 'indicates significant non-compliance', 'shows problematic compliance']
+        },
+        impactIntro: ['It is mainly affected by', 'It is impacted by', 'The main factors reducing the score are', 'The score is penalized by'],
+        frequencyExplanation: [
+          'as it affects a large portion of the pages, significantly amplifying the impact',
+          'due to its presence on a large part of the site',
+          'because of its high frequency of appearance'
+        ],
+        categoryExplanation: {
+          Marketing: 'marketing|} cookies being more heavily penalized due to their advertising purpose (CNIL priority)',
+          Analytics: 'analytics cookies that are misconfigured or not anonymized',
+          Uncategorized: 'unidentified cookies, treated as potentially risky',
+          Essential: 'essential cookies misplaced (flag them as exempted to remove the penalty)'
+        },
+        adviceEnd: [
+          'Correcting these priority issues will allow you to gain',
+          'By addressing these violations, you can recover',
+          'Resolving these issues will earn you'
+        ],
+        perfectMessage: 'No violations detected: your site fully complies with consent rules. Keep it up!',
+        finalAdviceNoGain: 'Targeted corrections, taking into account the frequency and category of cookies, will allow you to quickly improve this score.',
+        gainSuffix: 'points, as the frequency and category of cookies directly influence the penalty (marketing cookies and high frequency penalized more heavily). You can quickly return to the green zone.'
+      } : {
+        introVariations: ['Le score de', 'Avec un score de', 'Votre score actuel de'],
+        levelPhrases: {
+          excellent: ['reflète une conformité excellente', 'indique une gestion exemplaire des cookies', 'témoigne d\'une conformité parfaite'],
+          good: ['reflète une bonne conformité qui peut encore progresser', 'indique une conformité globalement correcte', 'montre une bonne gestion mais perfectible'],
+          average: ['reflète une conformité moyenne qui doit être améliorée', 'indique une conformité acceptable mais à renforcer', 'montre une conformité moyenne nécessitant des ajustements'],
+          poor: ['reflète une conformité insuffisante', 'indique une non-conformité importante', 'témoigne d\'une conformité problématique']
+        },
+        impactIntro: ['Il est principalement affecté par', 'Il est impacté par', 'Les principaux facteurs qui réduisent le score sont', 'Le score est pénalisé par'],
+        frequencyExplanation: [
+          'car il touche une grande partie des pages, ce qui amplifie fortement l\'impact',
+          'en raison de sa présence sur une large partie du site',
+          'du fait de sa haute fréquence d\'apparition'
+        ],
+        categoryExplanation: {
+          Marketing: 'les cookies marketing étant pénalisés plus fortement en raison de leur finalité publicitaire (priorité CNIL)',
+          Analytics: 'des cookies analytics mal configurés ou non anonymisés',
+          Uncategorized: 'des cookies non identifiés, traités comme potentiellement risqués',
+          Essential: 'des cookies essentiels mal placés (à flaguer comme exemptés pour supprimer la pénalité)'
+        },
+        adviceEnd: [
+          'Corriger ces points prioritaires vous permettra de gagner',
+          'En agissant sur ces violations, vous pourrez récupérer',
+          'La résolution de ces problèmes vous fera gagner'
+        ],
+        perfectMessage: 'Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !',
+        finalAdviceNoGain: 'Des corrections ciblées, en tenant compte de la fréquence et de la catégorie des cookies, vous permettront d’améliorer rapidement ce score.',
+        gainSuffix: 'points, car la fréquence et la catégorie des cookies influencent directement la pénalité (cookies marketing et haute fréquence pénalisés plus fortement). Vous pourrez ainsi repasser rapidement en zone verte.'
+      };
+
+      function randomChoice(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      let levelKey = 'excellent';
+      if (score < 50) levelKey = 'poor';
+      else if (score < 70) levelKey = 'average';
+      else if (score < 90) levelKey = 'good';
+
+      let narrative = `${randomChoice(phrases.introVariations)} **${score}/100** ${randomChoice(phrases.levelPhrases[levelKey])}.\n\n`;
+
+      const hasViolations = beforeConsentCount > 0 || afterRefuseCount > 0 || marketingImpact > 0 || analyticsImpact > 0 || uncategorizedImpact > 0 || essentialImpact > 0;
+
+      if (!hasViolations && score === 100) {
+        narrative += phrases.perfectMessage;
+        return narrative;
+      }
+
+      narrative += `${randomChoice(phrases.impactIntro)} `;
+
+      const parts = [];
+
+      if (afterRefuseCount > 0) {
+        const example = topViolations.find(v => v.type === 'after');
+        let phrase = language === 'en' ? 'the persistence of cookies after an explicit refusal' : 'la persistance de cookies après un refus explicite';
+        if (example) {
+          phrase += ` (${example.name 
+|| (language === 'en' ? 'e.g. _ga' : 'ex. _ga')} à ${example.frequency}% des pages – ${language === 'en' ? 'serious violation' : 'violation grave'})`;
+          if (example.frequency > 70) {
+            phrase += `, ${randomChoice(phrases.frequencyExplanation)}`;
+          }
+        }
+        parts.push(phrase);
+      }
+
+      if (marketingImpact > 0) {
+        const example = topViolations.find(v => v.category === 'Marketing' || v.category?.toLowerCase().includes('marketing'));
+        let phrase = language === 'en' ? 'one or more marketing cookies installed before consent' : 'un ou plusieurs cookies marketing installés avant le consentement';
+        if (example) {
+          phrase = language === 'en' ? 
+            `a marketing cookie installed before consent (${example.name || 'e.g. _fbp'} at ${example.frequency}%)` :
+            `un cookie marketing installé avant le consentement (${example.name || 'ex. _fbp'} à ${example.frequency}%)`;
+          phrase += ` – ${phrases.categoryExplanation.Marketing}`;
+          if (example.frequency > 70) 
+            phrase += `, ${randomChoice(phrases.frequencyExplanation)}`;
+        }
+        parts.push(phrase);
+      }
+
+      if (analyticsImpact > 0) parts.push(phrases.categoryExplanation.Analytics);
+      if (uncategorizedImpact > 0) parts.push(phrases.categoryExplanation.Uncategorized);
+      if (essentialImpact > 0) parts.push(phrases.categoryExplanation.Essential);
+
+      if (parts.length === 1) {
+        narrative += `${parts[0]}.`;
+      } else if (parts.length === 2) {
+        narrative += `${parts[0]} ${language === 'en' ? 'and' : 'et'} ${parts[1]}.`;
+      } else {
+        narrative += `${parts.slice(0, -1).join(', ')} ${language === 'en' ? 'and' : 'et'} ${parts[parts.length - 1]}.`;
+      }
+
+      narrative += '\n\n';
+
+      if (potentialGain > 0) {
+        const gainEffective = Math.min(potentialGain, 100 - score);
+        narrative += `${randomChoice(phrases.adviceEnd)} jusqu’à **+${gainEffective} points**, ${phrases.gainSuffix}`;
+      } else {
+        narrative += phrases.finalAdviceNoGain;
+      }
+
+      return narrative;
+    }
+
+    // === Calcul du score ===
+    function calculateScore(violations) {
+      let pointsLost = 0;
+      violations.forEach(v => {
+        const freq = v.frequency / 100;
+        const baseRate = v.type === 'after' ? 0.15 : 0.10;
+        const categoryWeight = {
+          Marketing: 2,
+          Analytics: 0.8,
+          Uncategorized: 1.5,
+          Essential: 1
+        }[v.category] || 1;
+        pointsLost += freq * categoryWeight * baseRate * 100;
+      });
+      const score = Math.max(0, Math.round(100 - pointsLost));
+      const potentialGain = Math.round(pointsLost);
+      return { score, potentialGain };
+    }
+
+    // === Génération aléatoire ===
+    const cookieNames = ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'pixel_meta', 'analytics_custom', 'tracking_id'];
+    const categories = ['Marketing', 'Analytics', 'Uncategorized', 'Essential'];
+
+    // === Effet de frappe progressive (caractère par caractère – espaces parfaits, très rapide) ===
+    function typeNarrative(text) {
+      const element = document.getElementById('narrative');
+      element.innerHTML = '';
+      let i = 0;
+      const timer = setInterval(() => {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          element.scrollTop = element.scrollHeight; // auto-scroll si long
+        } else {
+          clearInterval(timer);
+          // Curseur clignotant à la fin
+          const cursor = document.createElement('span');
+          cursor.className = 'cursor';
+          cursor.textContent = '|';
+          element.appendChild(cursor);
+        }
+      }, 5); // 15ms par caractère – très rapide et fluide
+    }
+
+    function generateRandomIssues() {
+      const numViolations = Math.floor(Math.random() * 6);
+      const violations = [];
+      for (let i = 0; i < numViolations; i++) {
+        violations.push({
+          name: cookieNames[Math.floor(Math.random() * cookieNames.length)],
+          frequency: Math.floor(Math.random() * 101),
+          type: Math.random() > 0.5 ? 'before' : 'after',
+          category: categories[Math.floor(Math.random() * categories.length)]
+        });
+      }
+
+      const { score, potentialGain } = calculateScore(violations);
+
+      const summary = {
+        beforeConsentCount: violations.filter(v => v.type === 'before').length,
+        afterRefuseCount: violations.filter(v => v.type === 'after').length,
+        marketingImpact: violations.filter(v => v.category === 'Marketing').reduce((s, v) => s + (v.frequency / 100 * 2 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
+        analyticsImpact: violations.filter(v => v.category === 'Analytics').reduce((s, v) => s + (v.frequency / 100 * 0.8 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
+        uncategorizedImpact: violations.filter(v => v.category === 'Uncategorized').reduce((s, v) => s + (v.frequency / 100 * 1.5 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
+        essentialImpact: violations.filter(v => v.category === 'Essential').reduce((s, v) => s + (v.frequency / 100 * 1 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
+        highFrequencyIssues: violations.filter(v => v.frequency > 80).length,
+        topViolations: violations.sort((a, b) => b.frequency - a.frequency),
+        potentialGain
+      };
+
+      const language = document.getElementById('language').value;
+
+      // Couleur du score
+      let scoreClass = 'score-green';
+      if (score < 50) scoreClass = 'score-red';
+      else if (score < 70) scoreClass = 'score-orange';
+      else if (score < 90) scoreClass = 'score-yellow';
+
+      document.querySelector('.score-display').innerHTML = `<strong class="${scoreClass}">${score}/100</strong>`;
+
+      // Narrative avec effet de frappe caractère par caractère (espaces parfaits, très rapide)
+      const narrativeText = generateExecutiveNarrative(score, summary, language);
+      typeNarrative(narrativeText);
+
+      // Tableau
+      const tbody = document.getElementById('cookiesBody');
+      tbody.innerHTML = '';
+      if (violations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">Aucune violation détectée – score parfait !</td></tr>';
+      } else {
+        violations.forEach(v => {
+          const freq = v.frequency;
+          const baseRate = v.type === 'after' ? 0.15 : 0.10;
+          const weight = { Marketing: 2, Analytics: 0.8, Uncategorized: 1.5, Essential: 1 }[v.category] || 1;
+          const pointsLost = Math.round((freq / 100) * weight * baseRate * 100);
+          const gain = `+${pointsLost} points`;
+          const severity = freq > 80 || v.category === 'Marketing' || v.type === 'after' ? 'High' : 'Medium';
+          const typeText = v.type === 'before' ? (language === 'en' ? 'Before consent' : 'Avant consentement') : (language === 'en' ? 'After refuse all' : 'Après refuse all');
+          const row = `<tr>
+            <td>${v.name}</td>
+            <td>${freq}%</td>
+            <td>${typeText}</td>
+            <td>${v.category}</td>
+            <td class="severity-${severity.toLowerCase()}">${severity}</td>
+            <td class="gain">${gain}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      }
+    }
+
+    // Chargement initial
+    generateRandomIssues();
+  </script>
+</body>
+</html>
