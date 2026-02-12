@@ -27,6 +27,7 @@
     .severity-medium { color: #f59e0b; font-weight: bold; }
     .gain { color: #16a34a; font-weight: bold; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <h1>Démo Score de Conformité Cookies & Narrative Executive</h1>
@@ -231,21 +232,26 @@
     function typeNarrative(text) {
       const element = document.getElementById('narrative');
       element.innerHTML = '';
-      let i = 0;
-      const timer = setInterval(() => {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-          element.scrollTop = element.scrollHeight; // auto-scroll si long
-        } else {
-          clearInterval(timer);
-          // Curseur clignotant à la fin
-          const cursor = document.createElement('span');
-          cursor.className = 'cursor';
-          cursor.textContent = '|';
-          element.appendChild(cursor);
-        }
-      }, 5); // 15ms par caractère – très rapide et fluide
+      // Split en mots + espaces
+      const tokens = text.split(/(\s+|\S+)/g).filter(Boolean);
+      let delay = 0;
+      let currentText = '';
+      tokens.forEach(token => {
+        setTimeout(() => {
+          currentText += token;
+          // Rendre le Markdown à chaque étape
+          element.innerHTML = marked.parse(currentText);
+          element.scrollTop = element.scrollHeight;
+        }, delay);
+        delay += 5; // ms par token – rapide et naturel
+      });
+      // Curseur clignotant
+      setTimeout(() => {
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        cursor.textContent = '|';
+        element.appendChild(cursor);
+      }, delay + 400);
     }
 
     function generateRandomIssues() {
