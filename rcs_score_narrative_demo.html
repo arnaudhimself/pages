@@ -206,15 +206,15 @@
     function calculateScore(violations) {
       let pointsLost = 0;
       violations.forEach(v => {
-        const freq = v.frequency / 100;
+        const freq = v.frequency;
         const baseRate = v.type === 'after' ? 0.15 : 0.10;
         const categoryWeight = {
           Marketing: 2,
-          Analytics: 0.8,
+          Analytics: 1,
           Uncategorized: 1.5,
-          Essential: 1
+          Essential: 0.5
         }[v.category] || 1;
-        pointsLost += freq * categoryWeight * baseRate * 100;
+        pointsLost += freq * categoryWeight * baseRate;
       });
       const score = Math.max(0, Math.round(100 - pointsLost));
       const potentialGain = Math.round(pointsLost);
