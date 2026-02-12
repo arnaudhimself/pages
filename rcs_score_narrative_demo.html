@@ -75,10 +75,26 @@
       const phrases = language === 'en' ? {
         introVariations: ['The score of', 'Your compliancy score of', 'Your current score of'],
         levelPhrases: {
-          excellent: ['reflects nearly excellent compliance', 'indicates almost exemplary cookie management', 'shows close to perfect compliance'],
-          good: ['reflects good but improvable compliance', 'indicates generally correct compliance', 'shows good compliance that can still progress'],
-          average: ['reflects average compliance that needs improvement', 'indicates tolerable compliance requiring adjustments', 'shows average compliance needing reinforcement'],
-          poor: ['reflects insufficient compliance', 'indicates significant non-compliance', 'shows problematic compliance']
+          excellent: [
+            "indicates very strong compliance, but some findings may still require action",
+            "shows a strong level, without removing the risk in case of a regulatory audit",
+            "reflects solid compliance that should be maintained and secured to avoid any regression"
+          ],
+          good: [
+            "indicates partial compliance, with fixes to start quickly",
+            "shows an exposed level, actions are needed to reduce risk",
+            "reflects incomplete compliance that should be secured to avoid a formal notice"
+          ],
+          average: [
+            "indicates fragile compliance, with a real risk in case of a regulatory audit",
+            "shows significant gaps, to be addressed as a priority in the coming weeks",
+            "reflects a concerning situation, rapid remediation is recommended"
+          ],
+          poor: [
+            "indicates high non compliance, immediate action is recommended",
+            "reflects a critical level, with a significant risk of penalties or a formal notice",
+            "shows a high risk situation, to be fixed without delay"
+          ]
         },
         impactIntro: ['It is mainly affected by', 'It is impacted by', 'The main factors reducing the score are', 'The score is penalized by'],
         frequencyExplanation: [
@@ -103,10 +119,26 @@
       } : {
         introVariations: ['Le score de', 'Votre score de conformité de', 'Votre score actuel de'],
         levelPhrases: {
-          excellent: ['reflète une conformité très bonne', 'indique une gestion presque exemplaire des cookies', 'témoigne d\'une conformité pas loin d\'être parfaite'],
-          good: ['reflète une assez bonne conformité qui peut encore progresser', 'indique une conformité globalement correcte', 'montre une assez bonne gestion mais perfectible'],
-          average: ['reflète une conformité moyenne qui doit être améliorée', 'indique une conformité passable mais à renforcer', 'montre une conformité moyenne nécessitant des ajustements'],
-          poor: ['reflète une conformité insuffisante', 'indique une non-conformité importante', 'témoigne d\'une conformité problématique']
+          excellent: [
+              "indique une très bonne conformité, mais des écarts peuvent encore justifier une action",
+              "montre un bon niveau, sans exclure un risque en cas de contrôle",
+              "reflète une conformité solide, à maintenir et sécuriser pour éviter toute régression"
+            ],
+            good: [
+              "indique une conformité perfectible, avec des corrections à engager rapidement",
+              "montre un niveau encore exposé, des actions sont nécessaires pour réduire le risque",
+              "reflète une conformité incomplète, à sécuriser pour éviter une mise en demeure"
+            ],
+            average: [
+              "indique une conformité fragile, avec un risque réel en cas de contrôle",
+              "montre des écarts significatifs, à traiter en priorité dans les prochaines semaines",
+              "reflète une situation préoccupante, une correction rapide est recommandée"
+            ],
+            poor: [
+              "indique une non conformité élevée, action immédiate recommandée",
+              "reflète un niveau critique, avec un risque important de sanction ou mise en demeure",
+              "montre une situation à haut risque, à corriger sans délai"
+            ]
         },
         impactIntro: ['Il est principalement affecté par', 'Il est impacté par', 'Les principaux facteurs qui réduisent le score sont', 'Le score est pénalisé par'],
         frequencyExplanation: [
