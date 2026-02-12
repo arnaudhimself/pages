@@ -158,8 +158,8 @@
           'La résolution de ces problèmes vous fera gagner'
         ],
         perfectMessage: 'Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !',
-        finalAdviceNoGain: 'Des corrections ciblées, en tenant compte de la fréquence et de la catégorie des cookies, vous permettront d’améliorer rapidement ce score.',
-        gainSuffix: 'points, car la fréquence et la catégorie des cookies influencent directement la pénalité (cookies marketing et haute fréquence pénalisés plus fortement). Vous pourrez ainsi repasser rapidement en zone verte.'
+        finalAdviceNoGain: 'Des corrections ciblées, en tenant compte de la **fréquence** et de la **catégorie** des cookies, vous permettront d’améliorer rapidement ce score.',
+        gainSuffix: 'points, car la **fréquence** et la **catégorie** des cookies influencent directement la pénalité (cookies marketing et haute fréquence pénalisés plus fortement). Vous pourrez ainsi repasser rapidement en zone verte.'
       };
 
       function randomChoice(arr) {
@@ -186,10 +186,10 @@
 
       if (afterRefuseCount > 0) {
         const example = topViolations.find(v => v.type === 'after');
-        let phrase = language === 'en' ? 'the persistence of cookies after an explicit refusal' : 'la persistance de cookies après un refus explicite';
+        let phrase = language === 'en' ? 'the persistence of cookies **after an explicit refusal**' : 'la persistance de cookies **après un refus explicite**';
         if (example) {
-          phrase += ` (${example.name 
-|| (language === 'en' ? 'e.g. _ga' : 'ex. _ga')} à ${example.frequency}% des pages – ${language === 'en' ? 'serious violation' : 'violation grave'})`;
+          phrase += ` (ex: *${example.name 
+|| (language === 'en' ? 'e.g. _ga' : 'ex. _ga')}* à **${example.frequency}%** des pages – ${language === 'en' ? '**serious violation**' : '**violation grave**'})`;
           if (example.frequency > 70) {
             phrase += `, ${randomChoice(phrases.frequencyExplanation)}`;
           }
