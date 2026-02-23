@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Démo Score de Conformité & Narrative Executive</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; background: #f9fafb; color: #1f2937; }
+    h1 { text-align: center; color: #111827; }
+    .controls { text-align: center; margin: 30px 0; }
+    button { padding: 12px 24px; font-size: 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 20px; transition: background 0.2s;}
+    button:hover { background: #2563eb; }
+    select { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #d1d5db;}
+    
+    /* Layout simulation for the 3 cards */
+    .dashboard-layout { display: flex; gap: 20px; margin-top: 40px; }
+    .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    .card-left { flex: 0 0 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .card-center { flex: 1; }
+    .card-right { flex: 0 0 300px; }
+
+    .score-display { font-size: 56px; font-weight: bold; text-align: center; line-height: 1; }
+    .score-label { font-size: 14px; color: #6b7280; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-green { color: #16a34a; }
+    .score-yellow { color: #f59e0b; }
+    .score-orange { color: #ea580c; }
+    .score-red { color: #dc2626; }
+    
+    .card-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; margin-top: 0; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; }
+    
+    .narrative { font-size: 15px; line-height: 1.6; color: #374151; }
+    .narrative p { margin-top: 0; margin-bottom: 12px; }
+    .narrative ul { margin-top: 8px; margin-bottom: 16px; padding-left: 20px; }
+    .narrative li { margin-bottom: 6px; }
+
+    /* Blockquote style */
+    .narrative blockquote { 
+      background: #f3f4f6; 
+      border-radius: 8px; 
+      padding: 12px 16px; 
+      margin: 16px 0; 
+      font-size: 14px; 
+      color: #4b5563;
+      border-left: 4px solid #d1d5db;
+      font-style: normal;
+    }
+    .narrative blockquote p { margin: 0; }
+    
+    .nba-list { list-style: none; padding: 0; margin: 0; }
+    .nba-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .nba-item:last-child { border-bottom: none; }
+    .nba-details { display: flex; flex-direction: column; }
+    .nba-name { font-weight: 600; color: #111827; }
+    .nba-issue { color: #6b7280; font-size: 12px; margin-top: 2px; }
+    .nba-gain { color: #16a34a; font-weight: bold; background: #dcfce7; padding: 4px 8px; border-radius: 999px; font-size: 12px; }
+
+    /* =========================================
+       NOUVELLES CLASSES POUR L'ANIMATION LLM
+       ========================================= */
+    .llm-token {
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
+    }
+    .llm-token.visible {
+      opacity: 1;
+    }
+    
+    /* Curseur modernisé */
+    .cursor {
+      display: inline-block;
+      width: 6px;
+      height: 16px;
+      background-color: #3b82f6;
+      border-radius: 2px;
+      margin-left: 4px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <h1>Executive Summary Dashboard</h1>
+  <div class="controls">
+    <select id="language">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+    <button onclick="generateRandomIssues()">Simuler un scan</button>
+  </div>
+
+  <div class="dashboard-layout" id="result" style="display: none;">
+    <!-- LEFT CARD : SCORE -->
+    <div class="card card-left">
+      <div class="score-display" id="scoreValue"></div>
+      <div class="score-label">Score de conformité</div>
+    </div>
+
+    <!-- CENTER CARD : NARRATIVE -->
+    <div class="card card-center">
+      <h2 class="card-title" id="narrativeTitle">Synthèse de l'audit</h2>
+      <div class="narrative" id="narrative"></div>
+    </div>
+
+    <!-- RIGHT CARD : NEXT BEST ACTIONS -->
+    <div class="card card-right">
+      <h2 class="card-title" id="nbaTitle">Next Best Actions</h2>
+      <ul class="nba-list" id="nbaList"></ul>
+    </div>
+  </div>
+
+  <script>
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateExecutiveNarrative(score, summary, language = 'fr') {
+      const {
+        beforeConsentCount,
+        afterRefusalCount,
+        marketingCount,
+        essentialCount,
+        analyticsCount,
+        uncategorizedCount,
+        highFrequencyIssues,
+        lowFreqCount,
+        highFreqCount,
+        totalIssuesCount,
+        totalGain
+      } = summary;
+
+      const maxGain = Math.min(totalGain, 100 - score);
+
+      const phrases = language === 'en' ? {
+        perfect: [
+          "No violations detected: your site fully complies with consent rules. Keep it up!",
+          "Flawless compliance audit. Your setup is perfectly aligned with privacy guidelines.",
+          "Perfect score! No non-compliant tracking behaviors were found."
+        ],
+        levels: {
+          excellent: [
+            "This score indicates **very strong compliance**, but some findings may still require action.",
+            "This shows a **strong level**, without completely removing the risk in case of a regulatory audit.",
+            "This reflects **solid compliance** that should be maintained and secured to avoid any regression."
+          ],
+          good: [
+            "This score indicates **partial compliance**, with fixes that need to be started quickly.",
+            "This shows an **exposed level**; actions are needed to reduce risk.",
+            "This reflects **incomplete compliance** that should be secured to avoid a formal notice."
+          ],
+          average: [
+            "This score indicates **fragile compliance**, with a real risk in case of a regulatory audit.",
+            "This shows **significant gaps**, to be addressed as a priority in the coming weeks.",
+            "This reflects a **concerning situation**; rapid remediation is recommended."
+          ],
+          poor: [
+            "This score indicates **high non-compliance**; immediate action is recommended.",
+            "This reflects a **critical level**, with a significant risk of penalties or a formal notice.",
+            "This shows a **high risk situation**, to be fixed without delay."
+          ]
+        },
+        issueIntroSingular: [
+          "The main factor impacting your compliance is:",
+          "This result is primarily driven by the following issue:",
+          "Here is the main element negatively impacting your audit:"
+        ],
+        issueIntroPlural: [
+          "The main factors impacting your compliance are:",
+          "This result is primarily driven by the following issues:",
+          "Here are the main elements negatively impacting your audit:"
+        ],
+        behaviorBeforeSingular: [
+          "**Tracking before consent:** A cookie is being dropped before the user has made a choice.",
+          "**Premature tracking:** One tracker fires before any user interaction."
+        ],
+        behaviorBeforePlural: [
+          `**Tracking before consent:** ${beforeConsentCount} cookies are being dropped before the user has made a choice.`,
+          `**Premature tracking:** ${beforeConsentCount} trackers fire before any user interaction.`
+        ],
+        behaviorAfterSingular: [
+          "**Persistence after refusal:** A cookie continues to fire even after an explicit refusal. This is a severe violation.",
+          "**Ignored opt-out:** One tracker ignores the user's refusal, which authorities penalize heavily."
+        ],
+        behaviorAfterPlural: [
+          `**Persistence after refusal:** ${afterRefusalCount} cookies continue to fire even after an explicit refusal. This is considered a severe violation.`,
+          `**Ignored opt-out:** ${afterRefusalCount} trackers fail to respect the user's refusal, exposing you to high risks.`
+        ],
+        insightMarketingSingular: "a marketing cookie is penalized heavily due to its advertising purpose.",
+        insightMarketingPlural: `${marketingCount} marketing cookies are heavily penalized due to their advertising purpose.`,
+        insightEssentialSingular: "an essential cookie requires your manual validation to be marked as exempt.",
+        insightEssentialPlural: `${essentialCount} essential cookies require your manual validation to be marked as exempt and remove the penalty.`,
+        insightAnalyticsSingular: "an analytics cookie appears to be misconfigured.",
+        insightAnalyticsPlural: `${analyticsCount} analytics cookies appear to be misconfigured.`,
+        insightUncategorizedSingular: "an unidentified cookie is present and treated as potentially risky.",
+        insightUncategorizedPlural: `${uncategorizedCount} cookies are unidentified and treated as potentially risky.`,
+        frequencyWarning: [
+          "Some of these issues affect a large portion of your pages, significantly amplifying the penalty.",
+          "The high frequency of these trackers across your site heavily compounds the point loss."
+        ],
+        lowFrequencyMitigationSingular: [
+          "**Mitigating factor:** The penalty remains limited because this tracker only appears on a small proportion of your pages.",
+          "**Limited impact:** Your score remains high because this behavior is rare and only affects a small percentage of your site.",
+          "**Context:** Although this deviation is serious, its very low frequency strongly limits the overall point loss."
+        ],
+        lowFrequencyMitigationPlural: [
+          "**Mitigating factor:** The penalty remains limited because these trackers only appear on a small proportion of your pages.",
+          "**Limited impact:** Your score remains high because these behaviors are rare and only affect a small percentage of your site.",
+          "**Context:** Although these deviations are serious, their very low frequency strongly limits the overall point loss."
+        ],
+        lowSeverityMitigationSingular: [
+          "**Mitigating factor:** The penalty remains limited because the identified tracker belongs to a lower-risk category (e.g., essential).",
+          "**Context:** Although this tracker appears frequently, it is not used for advertising, which minimizes the deduction.",
+          "**Limited impact:** Your score remains high as this specific behavior carries a lower regulatory risk."
+        ],
+        lowSeverityMitigationPlural: [
+          "**Mitigating factor:** The penalty remains limited because the identified trackers belong to lower-risk categories (e.g., essential).",
+          "**Context:** Although these trackers appear frequently, they are not used for advertising, which minimizes the deduction.",
+          "**Limited impact:** Your score remains high as these specific behaviors carry a lower regulatory risk."
+        ],
+        mixedMitigationSingularLowFreq: [
+          "**Mitigating factors:** Your score remains high as these behaviors carry a lower regulatory risk, and one of the identified trackers has a very low frequency.",
+          "**Limited impact:** The penalty is minimized by the nature of these trackers, and one cookie only appears on a small portion of your site.",
+          "**Context:** These trackers are not for high-risk advertising, and one tracker has a very low frequency."
+        ],
+        mixedMitigationPluralLowFreq: [
+          `**Mitigating factors:** Your score remains high as these behaviors carry a lower regulatory risk, and ${lowFreqCount} of the trackers have a very low frequency.`,
+          `**Limited impact:** The penalty is minimized by the nature of these trackers, and ${lowFreqCount} of these cookies only appear on a small portion of your site.`,
+          `**Context:** These trackers are not for high-risk advertising, and ${lowFreqCount} trackers have a very low frequency.`
+        ],
+        conclusion: [
+          `Check **Next Best Actions** to prioritize corrections and recover up to **+${maxGain} points**.`,
+          `Use the **Next Best Actions** list to target fixes and reclaim up to **+${maxGain} points**.`,
+          `Following the **Next Best Actions** will help you gain up to **+${maxGain} points**.`
+        ]
+      } : {
+        perfect: [
+          "Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !",
+          "Audit parfait. Votre configuration est irréprochable au regard des directives de confidentialité.",
+          "Score maximal ! Aucun comportement de tracking non conforme n'a été relevé."
+        ],
+        levels: {
+          excellent: [
+            "Ce score indique une **très bonne conformité**, mais certains écarts peuvent encore justifier une action.",
+            "Ceci montre un **bon niveau**, sans exclure le risque en cas de contrôle réglementaire.",
+            "Ceci reflète une **conformité solide**, à maintenir et sécuriser pour éviter toute régression."
+          ],
+          good: [
+            "Ce score indique une **conformité perfectible**, avec des corrections à engager rapidement.",
+            "Ceci montre un **niveau exposé**, des actions sont nécessaires pour réduire le risque.",
+            "Ceci reflète une **conformité incomplète**, à sécuriser pour éviter une mise en demeure."
+          ],
+          average: [
+            "Ce score indique une **conformité fragile**, avec un risque réel en cas de contrôle de la CNIL.",
+            "Ceci montre des **écarts significatifs**, à traiter en priorité dans les prochaines semaines.",
+            "Ceci reflète une **situation préoccupante**, une correction rapide est recommandée."
+          ],
+          poor: [
+            "Ce score indique une **non-conformité élevée**, une action immédiate est recommandée.",
+            "Ceci reflète un **niveau critique**, avec un risque important de sanction ou mise en demeure.",
+            "Ceci montre une **situation à haut risque**, à corriger sans délai."
+          ]
+        },
+        issueIntroSingular: [
+          "Le principal facteur pénalisant votre audit est :",
+          "Ce résultat s'explique principalement par le point suivant :",
+          "Voici l'élément majeur qui dégrade votre note :"
+        ],
+        issueIntroPlural: [
+          "Les principaux facteurs pénalisant votre audit sont :",
+          "Ce résultat s'explique principalement par les points suivants :",
+          "Voici les éléments majeurs qui dégradent votre note :"
+        ],
+        behaviorBeforeSingular: [
+          "**Dépôt avant consentement :** Un traceur se déclenche avant même que l'utilisateur n'ait fait son choix.",
+          "**Action prématurée :** Un cookie est déposé avant toute interaction."
+        ],
+        behaviorBeforePlural: [
+          `**Dépôt avant consentement :** ${beforeConsentCount} traceurs se déclenchent avant même que l'utilisateur n'ait fait son choix.`,
+          `**Action prématurée :** ${beforeConsentCount} cookies sont déposés avant toute interaction.`
+        ],
+        behaviorAfterSingular: [
+          "**Persistance après refus :** Un traceur continue de s'exécuter malgré un refus explicite. C'est une violation grave.",
+          "**Non-respect du refus :** Un cookie ignore le choix de l'utilisateur, ce qui est fortement sanctionné."
+        ],
+        behaviorAfterPlural: [
+          `**Persistance après refus :** ${afterRefusalCount} traceurs continue de s'exécuter malgré un refus explicite. C'est une violation considérée comme grave.`,
+          `**Non-respect du refus :** ${afterRefusalCount} cookies ignorent le choix de l'utilisateur, un comportement à haut risque.`
+        ],
+        insightMarketingSingular: "un cookie marketing est très fortement pénalisé en raison de sa finalité publicitaire (priorité CNIL).",
+        insightMarketingPlural: `${marketingCount} cookies marketing sont très fortement pénalisés en raison de leur finalité publicitaire (priorité CNIL).`,
+        insightEssentialSingular: "un cookie essentiel listé nécessite que vous le confirmiez comme étant bien exempté pour annuler sa pénalité.",
+        insightEssentialPlural: `${essentialCount} cookies essentiels listés nécessitent que vous les confirmiez comme étant bien exemptés pour annuler leur pénalité.`,
+        insightAnalyticsSingular: "un cookie analytique semble mal configuré.",
+        insightAnalyticsPlural: `${analyticsCount} cookies analytiques semblent mal configurés.`,
+        insightUncategorizedSingular: "un cookie non identifié est présent et traité comme potentiellement à risque.",
+        insightUncategorizedPlural: `${uncategorizedCount} cookies non identifiés sont présents et traités comme potentiellement à risque.`,
+        frequencyWarning: [
+          "Certains de ces écarts touchent une très grande majorité de vos pages, ce qui amplifie fortement la pénalité.",
+          "La haute fréquence d'apparition de ces traceurs sur le site décuple la perte de points."
+        ],
+        lowFrequencyMitigationSingular: [
+          "**Facteur atténuant :** La pénalité reste limitée car ce traceur n'apparaît que sur une faible proportion de vos pages.",
+          "**Impact limité :** Votre score reste élevé car ce comportement est rare et ne touche qu'un faible pourcentage du site.",
+          "**À relativiser :** Bien que cet écart soit sérieux, sa très faible fréquence limite fortement la perte de points globale."
+        ],
+        lowFrequencyMitigationPlural: [
+          "**Facteur atténuant :** La pénalité reste limitée car ces traceurs n'apparaissent que sur une faible proportion de vos pages.",
+          "**Impact limité :** Votre score reste élevé car ces comportements sont rares et ne touchent qu'un faible pourcentage du site.",
+          "**À relativiser :** Bien que ces écarts soient sérieux, leur très faible fréquence limite fortement la perte de points globale."
+        ],
+        lowSeverityMitigationSingular: [
+          "**Facteur atténuant :** La pénalité reste limitée car le traceur identifié appartient à une catégorie à moindre risque (ex: essentiel).",
+          "**Contexte :** Bien que ce traceur soit fréquent, il n'a pas de finalité publicitaire, ce qui minimise la perte de points.",
+          "**Impact limité :** Votre score reste élevé car ce comportement spécifique présente un risque réglementaire réduit."
+        ],
+        lowSeverityMitigationPlural: [
+          "**Facteur atténuant :** La pénalité reste limitée car les traceurs identifiés appartiennent à des catégories à moindre risque (ex: essentiels).",
+          "**Contexte :** Bien que ces traceurs soient fréquents, ils n'ont pas de finalité publicitaire, ce qui minimise la perte de points.",
+          "**Impact limité :** Votre score reste élevé car ces comportements spécifiques présentent un risque réglementaire réduit."
+        ],
+        mixedMitigationSingularLowFreq: [
+          "**Facteurs atténuants :** Votre score reste élevé car ces comportements présentent un risque réglementaire réduit, et l'un des traceurs a une très faible fréquence.",
+          "**Impact limité :** La pénalité est minimisée par la nature de ces traceurs, d'autant qu'un des cookies n'apparaît que sur une petite partie du site.",
+          "**À relativiser :** Ces comportements n'ont pas de finalité publicitaire majeure, et l'un des traceurs a une fréquence d'apparition très faible."
+        ],
+        mixedMitigationPluralLowFreq: [
+          `**Facteurs atténuants :** Votre score reste élevé car ces comportements présentent un risque réduit, et ${lowFreqCount} des traceurs ont une très faible fréquence.`,
+          `**Impact limité :** La pénalité est minimisée par la nature des traceurs, d'autant que ${lowFreqCount} de ces cookies sont très peu fréquents.`,
+          `**À relativiser :** Ces comportements n'ont pas de finalité publicitaire majeure, et ${lowFreqCount} traceurs ont une fréquence très faible.`
+        ],
+        conclusion: [
+          `Consultez les **Next Best Actions** pour prioriser vos corrections et récupérer jusqu'à **+${maxGain} points**.`,
+          `Ciblez vos corrections via les **Next Best Actions** pour regagner jusqu'à **+${maxGain} points**.`,
+          `Suivez les **Next Best Actions** pour assainir la situation et récupérer jusqu'à **+${maxGain} points**.`
+        ]
+      };
+
+      if (score === 100) return randomChoice(phrases.perfect);
+
+      let levelKey = 'excellent';
+      if (score < 50) levelKey = 'poor';
+      else if (score < 70) levelKey = 'average';
+      else if (score < 90) levelKey = 'good';
+
+      let narrative = `${randomChoice(phrases.levels[levelKey])}\n\n`;
+      
+      let structuralIssuesCount = 0;
+      if (beforeConsentCount > 0) structuralIssuesCount++;
+      if (afterRefusalCount > 0) structuralIssuesCount++;
+
+      if (structuralIssuesCount === 1) {
+        narrative += `${randomChoice(phrases.issueIntroSingular)}\n`;
+      } else if (structuralIssuesCount > 1) {
+        narrative += `${randomChoice(phrases.issueIntroPlural)}\n`;
+      }
+
+      if (beforeConsentCount > 0) {
+        const beforeVariations = beforeConsentCount === 1 ? phrases.behaviorBeforeSingular : phrases.behaviorBeforePlural;
+        narrative += `- ${randomChoice(beforeVariations)}\n`;
+      }
+      if (afterRefusalCount > 0) {
+        const afterVariations = afterRefusalCount === 1 ? phrases.behaviorAfterSingular : phrases.behaviorAfterPlural;
+        narrative += `- ${randomChoice(afterVariations)}\n`;
+      }
+      
+      narrative += `\n`;
+
+      let insights = [];
+      if (marketingCount > 0) insights.push(marketingCount === 1 ? phrases.insightMarketingSingular : phrases.insightMarketingPlural);
+      if (essentialCount > 0) insights.push(essentialCount === 1 ? phrases.insightEssentialSingular : phrases.insightEssentialPlural);
+      if (analyticsCount > 0 && marketingCount === 0) insights.push(analyticsCount === 1 ? phrases.insightAnalyticsSingular : phrases.insightAnalyticsPlural);
+      if (uncategorizedCount > 0 && insights.length < 2) insights.push(uncategorizedCount === 1 ? phrases.insightUncategorizedSingular : phrases.insightUncategorizedPlural);
+
+      if (insights.length > 0) {
+        const insightIntro = language === 'en' ? "💡 **Good to know:** " : "💡 **À noter :** ";
+        const joinedInsights = insights.join(language === 'en' ? ' Also, ' : ' Par ailleurs, ');
+        const formattedInsights = joinedInsights.charAt(0).toUpperCase() + joinedInsights.slice(1);
+        
+        narrative += `> ${insightIntro}${formattedInsights}\n\n`;
+      }
+
+      if (score >= 90 && score < 100) {
+        const isSingular = totalIssuesCount === 1;
+        if (highFreqCount === 0) {
+          const mitigationPhrases = isSingular ? phrases.lowFrequencyMitigationSingular : phrases.lowFrequencyMitigationPlural;
+          narrative += `${randomChoice(mitigationPhrases)}\n\n`;
+        } else if (lowFreqCount === 0) {
+          const mitigationPhrases = isSingular ? phrases.lowSeverityMitigationSingular : phrases.lowSeverityMitigationPlural;
+          narrative += `${randomChoice(mitigationPhrases)}\n\n`;
+        } else {
+          const mitigationPhrases = lowFreqCount === 1 ? phrases.mixedMitigationSingularLowFreq : phrases.mixedMitigationPluralLowFreq;
+          narrative += `${randomChoice(mitigationPhrases)}\n\n`;
+        }
+      } else if (highFrequencyIssues > 0) {
+        narrative += `${randomChoice(phrases.frequencyWarning)}\n\n`;
+      }
+
+      if (maxGain > 0) {
+        narrative += `*${randomChoice(phrases.conclusion)}*`;
+      }
+
+      return narrative;
+    }
+
+    function calculateScoreAndPoints(violations) {
+      let totalPointsLost = 0;
+      const enrichedViolations = violations.map(v => {
+        const freq = v.frequency;
+        const baseRate = v.type === 'after' ? 0.15 : 0.10;
+        const categoryWeight = { Marketing: 2, Analytics: 1, Uncategorized: 1.5, Essential: 0.5 }[v.category] || 1;
+        const pointsLostRaw = freq * categoryWeight * baseRate;
+        const pointsLost = Math.round(pointsLostRaw);
+        totalPointsLost += pointsLostRaw;
+        return { ...v, pointsLost };
+      });
+      const score = Math.max(0, Math.round(100 - totalPointsLost));
+      return { score, enrichedViolations };
+    }
+
+    // Identifiant de génération pour gérer les clics rapides successifs
+    let currentGenerationId = 0;
+
+    /**
+     * NOUVELLE FONCTION D'ANIMATION (STREAMING LLM SIMULÉ)
+     */
+    async function typeNarrative(text) {
+      currentGenerationId++;
+      const genId = currentGenerationId;
+      
+      const element = document.getElementById('narrative');
+      element.innerHTML = ''; // On vide
+      
+      // 1. On parse tout le Markdown en une fois pour avoir une structure HTML parfaite
+      const rawHtml = marked.parse(text);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = rawHtml;
+
+      // 2. Création du curseur qui va se balader
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+
+      // Tableau pour regrouper les mots ("tokens") et les espaces
+      let tokenBatch = [];
+      let wordCountInBatch = 0;
+      
+      // Fonction pour révéler un lot de mots avec transition CSS
+      async function flushBatch() {
+        if (tokenBatch.length === 0) return;
+        
+        for (const item of tokenBatch) {
+          if (item.isSpace) {
+            // C'est un espace, on l'ajoute directement au bon endroit
+            item.target.appendChild(document.createTextNode(item.text));
+          } else {
+            // C'est un mot, on gère son apparition
+            item.target.appendChild(item.element);
+            item.target.appendChild(cursor); // Le curseur suit toujours le dernier mot
+            
+            // Force le recalcul du layout par le navigateur pour déclencher la transition CSS
+            void item.element.offsetWidth; 
+            item.element.classList.add('visible');
+          }
+        }
+        
+        tokenBatch = [];
+        wordCountInBatch = 0;
+        
+        // Délai aléatoire entre chaque bloc (simule le temps de calcul du LLM)
+        await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 50)); 
+      }
+
+      // 3. Fonction récursive qui copie l'arbre HTML et l'anime mot par mot
+      async function streamNode(source, target) {
+        if (genId !== currentGenerationId) return; // Annule si l'utilisateur a relancé
+
+        for (const child of Array.from(source.childNodes)) {
+          if (genId !== currentGenerationId) return;
+
+          if (child.nodeType === Node.TEXT_NODE) {
+            // Découpage intelligent : on sépare les mots et les blocs d'espaces
+            const words = child.textContent.match(/(\s+|\S+)/g) || [];
+            
+            for (const word of words) {
+              if (genId !== currentGenerationId) return;
+
+              if (/^\s+$/.test(word)) {
+                // C'est un espace, on l'ajoute à la file d'attente pour conserver l'ordre
+                tokenBatch.push({ isSpace: true, text: word, target });
+              } else {
+                // C'est un mot, on l'emballe dans un span pour l'animation
+                const span = document.createElement('span');
+                span.className = 'llm-token';
+                span.textContent = word;
+                tokenBatch.push({ isSpace: false, element: span, target });
+                wordCountInBatch++;
+                
+                // On affiche le lot si on a accumulé au moins 4 mots (entre 4 et 5 mots)
+                if (wordCountInBatch >= 4 + Math.floor(Math.random() * 2)) {
+                  await flushBatch();
+                }
+              }
+            }
+          } else if (child.nodeType === Node.ELEMENT_NODE) {
+            // C'est une balise HTML (p, ul, li, strong...). On la recrée vide.
+            const clone = child.cloneNode(false);
+            target.appendChild(clone);
+            // On plonge à l'intérieur pour l'animer
+            await streamNode(child, clone);
+          }
+        }
+      }
+
+      // Lance l'animation à partir de l'arbre parsé
+      await streamNode(tempDiv, element);
+      
+      if (genId === currentGenerationId) {
+        await flushBatch(); // Affiche les tout derniers mots/espaces s'il en reste
+        if (cursor.parentNode) {
+          cursor.parentNode.removeChild(cursor); // Retire le curseur à la toute fin
+        }
+      }
+    }
+
+    const cookieNames = ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'hotjar_id'];
+    const categories = ['Marketing', 'Analytics', 'Uncategorized', 'Essential'];
+
+    function generateRandomIssues() {
+      document.getElementById('result').style.display = 'flex';
+      const language = document.getElementById('language').value;
+      document.getElementById('narrativeTitle').innerText = language === 'en' ? 'Audit Summary' : 'Synthèse de l\'audit';
+      document.querySelector('.score-label').innerText = language === 'en' ? 'Compliance Score' : 'Score de conformité';
+
+      const numViolations = Math.floor(Math.random() * 5);
+      const violations = [];
+      for (let i = 0; i < numViolations; i++) {
+        violations.push({
+          name: cookieNames[Math.floor(Math.random() * cookieNames.length)],
+          frequency: Math.floor(Math.random() * 100) + 1,
+          type: Math.random() > 0.6 ? 'before' : 'after',
+          category: categories[Math.floor(Math.random() * categories.length)]
+        });
+      }
+
+      const { score, enrichedViolations } = calculateScoreAndPoints(violations);
+
+      const summary = {
+        beforeConsentCount: enrichedViolations.filter(v => v.type === 'before').length,
+        afterRefusalCount: enrichedViolations.filter(v => v.type === 'after').length,
+        marketingCount: enrichedViolations.filter(v => v.category === 'Marketing').length,
+        essentialCount: enrichedViolations.filter(v => v.category === 'Essential').length,
+        analyticsCount: enrichedViolations.filter(v => v.category === 'Analytics').length,
+        uncategorizedCount: enrichedViolations.filter(v => v.category === 'Uncategorized').length,
+        highFrequencyIssues: enrichedViolations.filter(v => v.frequency > 80).length,
+        maxFrequency: enrichedViolations.length > 0 ? Math.max(...enrichedViolations.map(v => v.frequency)) : 0,
+        lowFreqCount: enrichedViolations.filter(v => v.frequency < 30).length,
+        highFreqCount: enrichedViolations.filter(v => v.frequency >= 30).length,
+        totalIssuesCount: enrichedViolations.length,
+        topViolations: enrichedViolations.sort((a, b) => b.pointsLost - a.pointsLost),
+        totalGain: enrichedViolations.reduce((sum, v) => sum + v.pointsLost, 0)
+      };
+
+      let scoreClass = 'score-green';
+      if (score < 50) scoreClass = 'score-red';
+      else if (score < 70) scoreClass = 'score-orange';
+      else if (score < 90) scoreClass = 'score-yellow';
+      
+      const scoreEl = document.getElementById('scoreValue');
+      scoreEl.className = `score-display ${scoreClass}`;
+      scoreEl.innerText = score;
+
+      const narrativeText = generateExecutiveNarrative(score, summary, language);
+      typeNarrative(narrativeText);
+
+      const nbaList = document.getElementById('nbaList');
+      nbaList.innerHTML = '';
+      if (summary.topViolations.length === 0) {
+        nbaList.innerHTML = `<li class="nba-item" style="color:#6b7280; justify-content:center;">${language === 'en' ? 'No actions required.' : 'Aucune action requise.'}</li>`;
+      } else {
+        summary.topViolations.forEach(v => {
+          const issueText = v.type === 'before' 
+            ? (language === 'en' ? `Before consent (${v.category})` : `Avant consentement (${v.category})`) 
+            : (language === 'en' ? `After refusal (${v.category})` : `Après refus (${v.category})`);
+          const gainText = v.pointsLost > 0 ? `+${v.pointsLost} pts` : '~0 pts';
+          const li = document.createElement('li');
+          li.className = 'nba-item';
+          li.innerHTML = `<div class="nba-details"><span class="nba-name">${v.name}</span><span class="nba-issue">${issueText} - ${v.frequency}%</span></div><span class="nba-gain">${gainText}</span>`;
+          nbaList.appendChild(li);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
