@@ -197,23 +197,90 @@
         parts.push(phrase);
       }
 
+      // --- Marketing cookies dynamic handling (Plural/Singular) ---
       if (marketingImpact > 0) {
-        const example = topViolations.find(v => v.category === 'Marketing' || v.category?.toLowerCase().includes('marketing'));
-        let phrase = language === 'en' ? 'one or more marketing cookies installed before consent' : 'un ou plusieurs cookies marketing installés avant le consentement';
+        const marketingCookies = topViolations.filter(v => v.category === 'Marketing' || v.category?.toLowerCase().includes('marketing'));
+        const count = marketingCookies.length;
+        const example = marketingCookies[0]; // We still keep the worst offender as an example
+        
         if (example) {
-          phrase = language === 'en' ? 
-            `a marketing cookie installed **before consent** (*${example.name || 'e.g. _fbp'}* at **${example.frequency}%**)` :
-            `un cookie marketing installé **avant le consentement** (*${example.name || 'ex. _fbp'}* à **${example.frequency}%**)`;
+          const typeStrEn = example.type === 'before' ? 'before consent' : 'after an explicit refusal';
+          const typeStrFr = example.type === 'before' ? 'avant le consentement' : 'après un refus explicite';
+
+          let phrase = language === 'en' ? 
+            (count === 1 ? `a marketing cookie installed **${typeStrEn}** (*${example.name || 'e.g. _fbp'}* at **${example.frequency}%**)` : `${count} marketing cookies installed **${typeStrEn}** (e.g., *${example.name || '_fbp'}* at **${example.frequency}%**)`) :
+            (count === 1 ? `un cookie marketing installé **${typeStrFr}** (*${example.name || 'ex. _fbp'}* à **${example.frequency}%**)` : `${count} cookies marketing installés **${typeStrFr}** (ex: *${example.name || '_fbp'}* à **${example.frequency}%**)`);
+            
           phrase += ` – ${phrases.categoryExplanation.Marketing}`;
-          if (example.frequency > 70) 
+          
+          if (example.frequency > 70) {
             phrase += `, ${randomChoice(phrases.frequencyExplanation)}`;
+          }
+          parts.push(phrase);
         }
-        parts.push(phrase);
       }
 
-      if (analyticsImpact > 0) parts.push(phrases.categoryExplanation.Analytics);
-      if (uncategorizedImpact > 0) parts.push(phrases.categoryExplanation.Uncategorized);
-      if (essentialImpact > 0) parts.push(phrases.categoryExplanation.Essential);
+      // --- 1. Analytics cookies dynamic handling ---
+      if (analyticsImpact > 0) {
+        const analyticsCookies = topViolations.filter(v => v.category === 'Analytics' || v.category?.toLowerCase().includes('analytics'));
+        const count = analyticsCookies.length;
+        const example = analyticsCookies[0];
+
+        if (example) {
+          const typeStrEn = example.type === 'before' ? 'before consent' : 'after an explicit refusal';
+          const typeStrFr = example.type === 'before' ? 'avant le consentement' : 'après un refus explicite';
+          
+          let phrase = language === 'en' ? 
+            (count === 1 ? `an analytics cookie installed **${typeStrEn}** (*${example.name}* at **${example.frequency}%**)` : `${count} analytics cookies installed **${typeStrEn}** (e.g., *${example.name}* at **${example.frequency}%**)`) :
+            (count === 1 ? `un cookie analytics installé **${typeStrFr}** (*${example.name}* à **${example.frequency}%**)` : `${count} cookies analytics installés **${typeStrFr}** (ex: *${example.name}* à **${example.frequency}%**)`);
+            
+          // Handling plural/singular for adjectives
+          phrase += ` – ${language === 'en' ? 'misconfigured' : (count === 1 ? 'mal configuré' : 'mal configurés')}`;
+          parts.push(phrase);
+        } else {
+          parts.push(phrases.categoryExplanation.Analytics);
+        }
+      }
+      // --- 2. Uncategorized cookies dynamic handling ---
+      if (uncategorizedImpact > 0) {
+        const uncategorizedCookies = topViolations.filter(v => v.category === 'Uncategorized');
+        const count = uncategorizedCookies.length;
+        const example = uncategorizedCookies[0];
+
+        if (example) {
+          const typeStrEn = example.type === 'before' ? 'before consent' : 'after an explicit refusal';
+          const typeStrFr = example.type === 'before' ? 'avant le consentement' : 'après un refus explicite';
+          
+          let phrase = language === 'en' ? 
+            (count === 1 ? `an **unidentified cookie** installed **${typeStrEn}** (*${example.name}* at **${example.frequency}%**)` : `**${count} unidentified cookies** installed **${typeStrEn}** (e.g., *${example.name}* at **${example.frequency}%**)`) :
+            (count === 1 ? `un **cookie non identifié** installé **${typeStrFr}** (*${example.name}* à **${example.frequency}%**)` : `**${count} cookies non identifiés** installés **${typeStrFr}** (ex: *${example.name}* à **${example.frequency}%**)`);
+            
+          phrase += ` – ${language === 'en' ? 'treated as potentially risky' : (count === 1 ? 'traité comme potentiellement risqué' : 'traités comme potentiellement risqués')}`;
+          parts.push(phrase);
+        } else {
+          parts.push(phrases.categoryExplanation.Uncategorized);
+        }
+      }
+      // --- 3. Essential cookies dynamic handling ---
+      if (essentialImpact > 0) {
+        const essentialCookies = topViolations.filter(v => v.category === 'Essential');
+        const count = essentialCookies.length;
+        const example = essentialCookies[0];
+
+        if (example) {
+          const typeStrEn = example.type === 'before' ? 'before consent' : 'after an explicit refusal';
+          const typeStrFr = example.type === 'before' ? 'avant le consentement' : 'après un refus explicite';
+          
+          let phrase = language === 'en' ? 
+            (count === 1 ? `an essential cookie installed **${typeStrEn}** (*${example.name}* at **${example.frequency}%**)` : `${count} essential cookies installed **${typeStrEn}** (e.g., *${example.name}* at **${example.frequency}%**)`) :
+            (count === 1 ? `un cookie essentiel installé **${typeStrFr}** (*${example.name}* à **${example.frequency}%**)` : `${count} cookies essentiels installés **${typeStrFr}** (ex: *${example.name}* à **${example.frequency}%**)`);
+            
+          phrase += ` – ${language === 'en' ? 'that you must confirm as exempt' : (count === 1 ? 'que vous devez confirmer comme étant bien exempté' : 'que vous devez confirmer comme étant bien exemptés')}`;
+          parts.push(phrase);
+        } else {
+          parts.push(phrases.categoryExplanation.Essential);
+        }
+      }
 
       if (parts.length === 1) {
         narrative += `${parts[0]}.`;
