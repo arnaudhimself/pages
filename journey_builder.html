@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commanders Act - Journey Builder</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        :root {
+            --ca-primary: #0A65FF;
+            --ca-primary-hover: #084ED4;
+            --ca-dark: #1E293B;
+            --ca-gray: #64748B;
+            --ca-light: #F8FAFC;
+            --ca-border: #E2E8F0;
+            --tree-line-color: #CBD5E1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--ca-light);
+            color: var(--ca-dark);
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .topbar {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--ca-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 20;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .workspace {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+        }
+
+        .sidebar-left {
+            width: 300px;
+            background: white;
+            border-right: 1px solid var(--ca-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .sidebar-right {
+            width: 360px;
+            background: white;
+            border-left: 1px solid var(--ca-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-right.hidden {
+            transform: translateX(100%);
+            position: absolute;
+            right: 0;
+            height: 100%;
+        }
+
+        /* --- CANVAS & PAN/ZOOM --- */
+        .canvas-container {
+            flex-grow: 1;
+            position: relative;
+            background-color: #F1F5F9;
+            background-image: radial-gradient(var(--tree-line-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+            cursor: grab;
+            overflow: hidden;
+        }
+        .canvas-container.is-dragging {
+            cursor: grabbing;
+        }
+        .canvas-content {
+            transform-origin: 50% 0;
+            padding: 60px;
+            min-width: fit-content;
+            transition: transform 0.05s linear;
+        }
+
+        .canvas-controls {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid var(--ca-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 15;
+        }
+        .canvas-controls button {
+            background: none;
+            border: none;
+            padding: 10px;
+            color: var(--ca-gray);
+            cursor: pointer;
+            border-bottom: 1px solid var(--ca-border);
+        }
+        .canvas-controls button:last-child { border-bottom: none; }
+        .canvas-controls button:hover { color: var(--ca-primary); background: var(--ca-light); }
+
+        /* --- LEFT SIDEBAR ITEMS --- */
+        .node-template {
+            border: 1px solid var(--ca-border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            background: white;
+            user-select: none;
+        }
+        .node-template:active {
+            cursor: grabbing;
+        }
+        .node-template:hover {
+            border-color: var(--ca-primary);
+            box-shadow: 0 2px 4px rgba(10, 101, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        .node-icon-wrapper {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* --- VERTICAL TREE CSS (CORRIGÉ POUR ÉVITER LE DÉPASSEMENT DES LIGNES) --- */
+        .journey-tree {
+            display: flex;
+            justify-content: center;
+        }
+        .journey-tree ul {
+            padding-top: 32px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding-left: 0;
+            margin: 0;
+        }
+        .journey-tree ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid var(--tree-line-color);
+            width: 0;
+            height: 32px;
+            transform: translateX(-50%);
+        }
+        .journey-tree > ul { padding-top: 0; }
+        .journey-tree > ul::before { display: none; }
+
+        .journey-tree li {
+            list-style-type: none;
+            position: relative;
+            padding: 32px 16px 0 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Lignes horizontales parfaites */
+        .journey-tree li::before, .journey-tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 32px;
+            border-top: 2px solid var(--tree-line-color);
+            z-index: 1;
+        }
+        .journey-tree li::before {
+            left: 0;
+            border-right: 2px solid var(--tree-line-color);
+            border-top-right-radius: 8px;
+        }
+        .journey-tree li::after {
+            right: 0;
+            border-left: 2px solid var(--tree-line-color);
+            border-top-left-radius: 8px;
+        }
+        
+        /* Retirer les lignes qui dépassent sur les bords extérieurs */
+        .journey-tree li:first-child::before { border: 0 none; }
+        .journey-tree li:last-child::after { border: 0 none; }
+        
+        /* Nettoyage si un seul enfant (pas de branche horizontale) */
+        .journey-tree li:only-child::after, .journey-tree li:only-child::before {
+            display: none;
+        }
+        .journey-tree li:only-child { padding-top: 0; }
+
+        /* Branch Label */
+        .branch-label {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--ca-gray);
+            font-weight: 600;
+            border: 1px solid var(--tree-line-color);
+            z-index: 2;
+        }
+
+        /* --- NODE CARD --- */
+        .node-card {
+            width: 280px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 5;
+        }
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .node-card.selected {
+            border-color: var(--ca-primary);
+            box-shadow: 0 0 0 4px rgba(10, 101, 255, 0.15);
+        }
+        .node-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .node-header i { font-size: 16px; }
+        .node-body {
+            padding: 16px;
+            font-size: 13px;
+            color: var(--ca-gray);
+            border-top: 1px solid var(--ca-border);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .node-delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border: 1px solid var(--ca-border);
+            border-radius: 50%;
+            color: #EF4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+        .node-card:hover .node-delete-btn {
+            opacity: 1;
+        }
+        .node-delete-btn:hover {
+            background: #FEF2F2;
+            transform: scale(1.1);
+            color: #DC2626;
+        }
+        
+        .error-dot {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 14px;
+            height: 14px;
+            background-color: #EF4444;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Analytics Badge */
+        .analytics-badge {
+            position: absolute;
+            right: 16px;
+            bottom: -12px;
+            background: #10B981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 2px solid white;
+            z-index: 10;
+        }
+
+        /* Add Node Button */
+        .btn-add-node {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: 2px dashed var(--tree-line-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--ca-gray);
+            transition: all 0.2s;
+            position: relative;
+            z-index: 5;
+        }
+        .btn-add-node:hover, .btn-add-node.active {
+            border-color: var(--ca-primary);
+            color: var(--ca-primary);
+            background: #EFF6FF;
+            transform: scale(1.1);
+        }
+        
+        /* Animations de mise en avant des zones de drop */
+        @keyframes pulse-drop-zone {
+            0% { box-shadow: 0 0 0 0 rgba(10, 101, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(10, 101, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(10, 101, 255, 0); }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Drop Zones (UX Améliorée et Élargie) */
+        .drop-zone-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            padding: 8px 0;
+        }
+        
+        .drop-hit-area {
+            position: absolute;
+            top: -30px; left: -80px; right: -80px; bottom: -30px;
+            border-radius: 12px;
+            z-index: 10;
+            background-color: rgba(10, 101, 255, 0.04);
+            border: 2px dashed rgba(10, 101, 255, 0.3);
+        }
+
+        .drop-zone-wrapper.drag-over .drop-hit-area {
+            background-color: rgba(16, 185, 129, 0.15);
+            border-color: #10B981;
+        }
+
+        /* Quand on drag un élément : TRANSFORMATION TOTALE DU BOUTON + via VUE */
+        .is-active-drop .btn-add-node {
+            width: 180px !important;
+            height: 44px !important;
+            border-radius: 22px !important;
+            border: 2px dashed var(--ca-primary) !important;
+            background-color: #EFF6FF !important;
+            color: var(--ca-primary) !important;
+            transform: none !important;
+            animation: pulse-drop-zone 1.5s infinite !important;
+            box-shadow: 0 4px 12px rgba(10, 101, 255, 0.2) !important;
+        }
+
+        .is-active-drop.drag-over .btn-add-node {
+            border-color: #10B981 !important;
+            background-color: #10B981 !important;
+            color: white !important;
+            animation: none !important;
+            transform: scale(1.05) !important;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3) !important;
+            border-style: solid !important;
+        }
+
+        .drop-zone-wrapper .btn-add-node {
+            position: relative;
+            z-index: 2;
+            pointer-events: none; /* Le clic/hover est géré par la hit-area plus large */
+        }
+
+        .drop-zone-wrapper:hover .btn-add-node {
+            border-color: var(--ca-primary);
+            color: var(--ca-primary);
+            background: #EFF6FF;
+            transform: scale(1.2);
+        }
+
+        /* Helpers */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ca-gray);
+            margin-bottom: 12px;
+            padding: 0 16px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="app-container" :class="{'is-dragging-node': draggedNodeTemplate}">
+    
+    <!-- TOP NAVIGATION -->
+    <header class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2" style="font-weight: 800; font-size: 18px; color: var(--ca-dark);">
+                <i class="bi bi-hexagon-fill" style="color: var(--ca-primary); font-size: 24px;"></i>
+                Commanders Act
+            </div>
+            <div style="width: 1px; height: 24px; background: var(--ca-border); margin: 0 10px;"></div>
+            
+            <input type="text" v-model="journeyName" class="form-control form-control-sm border-0 shadow-none fw-bold" style="font-size: 16px; width: 250px;" placeholder="Nom du Journey">
+            
+            <span class="badge" :class="journeyStatus === 'active' ? 'bg-success' : 'bg-warning text-dark'">
+                {{ journeyStatus === 'active' ? 'Actif' : 'Brouillon' }}
+            </span>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="analyticsSwitch" v-model="showAnalytics">
+                <label class="form-check-label text-muted small" for="analyticsSwitch">Vue Performance</label>
+            </div>
+            <button class="btn btn-light btn-sm fw-medium border">Sauvegarder</button>
+            <button class="btn btn-sm fw-medium" :class="journeyStatus === 'active' ? 'btn-danger' : 'btn-primary'" @click="toggleStatus">
+                {{ journeyStatus === 'active' ? 'Arrêter' : 'Activer le Journey' }}
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="workspace">
+        
+        <!-- LEFT SIDEBAR : LIBRARY -->
+        <aside class="sidebar-left py-3">
+            <div class="px-3 mb-3">
+                <h6 class="fw-bold mb-1">Bibliothèque</h6>
+                <p class="text-muted small mb-0" style="font-size: 11px;">Glissez-déposez ou cliquez sur les +</p>
+            </div>
+
+            <div class="flex-grow-1 overflow-auto px-3">
+                <!-- Triggers -->
+                <div class="mb-4">
+                    <div class="section-title px-0">Déclencheurs</div>
+                    <div class="d-flex flex-column gap-2">
+                        <div v-for="node in nodeLibrary.triggers" :key="node.subType" 
+                             class="node-template shadow-sm"
+                             draggable="true" 
+                             @dragstart="onDragStart($event, node)"
+                             @dragend="onDragEnd">
+                            <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                <i :class="node.icon"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mb-4">
+                    <div class="section-title px-0">Actions & Dest.</div>
+                    <div class="d-flex flex-column gap-2">
+                        <div v-for="node in nodeLibrary.actions" :key="node.subType" 
+                             class="node-template shadow-sm"
+                             draggable="true" 
+                             @dragstart="onDragStart($event, node)"
+                             @dragend="onDragEnd">
+                            <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                <i :class="node.icon"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logic -->
+                <div class="mb-4">
+                    <div class="section-title px-0">Logique</div>
+                    <div class="d-flex flex-column gap-2">
+                        <div v-for="node in nodeLibrary.logic" :key="node.subType" 
+                             class="node-template shadow-sm"
+                             draggable="true" 
+                             @dragstart="onDragStart($event, node)"
+                             @dragend="onDragEnd">
+                            <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                <i :class="node.icon"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER CANVAS -->
+        <main class="canvas-container" :class="{'is-dragging': isDragging}" @mousedown="startPan" @click="clearSelection">
+            
+            <!-- BANNER D'INFORMATION DRAG & DROP -->
+            <div v-if="draggedNodeTemplate" class="position-absolute top-0 start-50 translate-middle-x mt-4" style="z-index: 50; pointer-events: none;">
+                <div class="bg-primary text-white px-4 py-2 rounded-pill shadow-lg d-flex align-items-center gap-2" style="font-size: 14px; animation: slideDown 0.3s ease;">
+                    <i class="bi bi-arrows-move"></i>
+                    <span class="fw-medium">Glissez vers l'une des zones en surbrillance</span>
+                </div>
+            </div>
+
+            <div class="canvas-content" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }">
+                <div class="journey-tree">
+                    <journey-node 
+                        v-if="journeyTree" 
+                        :node="journeyTree" 
+                        :selected-node-id="selectedNodeId"
+                        :adding-to-branch-id="addingToBranchId"
+                        :show-analytics="showAnalytics"
+                        :drag-over-branch-id="dragOverBranchId"
+                        :is-dragging-node="!!draggedNodeTemplate"
+                        @select="selectNode"
+                        @add="prepareAddNode"
+                        @delete="deleteNodeById"
+                        @dragover="handleDragOver"
+                        @dragleave="handleDragLeave"
+                        @drop="handleDrop"
+                    ></journey-node>
+                </div>
+            </div>
+            
+            <!-- Floating Zoom Controls -->
+            <div class="canvas-controls">
+                <button @click="zoomIn" title="Zoom +"><i class="bi bi-plus-lg"></i></button>
+                <button @click="resetZoom" title="Reset Zoom" style="font-size: 12px; font-weight: bold;">{{ Math.round(zoom * 100) }}%</button>
+                <button @click="zoomOut" title="Zoom -"><i class="bi bi-dash-lg"></i></button>
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR : PROPERTIES -->
+        <aside class="sidebar-right" :class="{ 'hidden': !selectedNode }">
+            <div v-if="selectedNode" class="d-flex flex-column h-100">
+                
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                    <h5 class="m-0 fs-6 fw-bold">Propriétés du nœud</h5>
+                    <button class="btn-close" @click="selectedNodeId = null"></button>
+                </div>
+
+                <div class="p-4 flex-grow-1 overflow-auto">
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="node-icon-wrapper shadow-sm" :style="{ backgroundColor: selectedNode.bg, color: selectedNode.text, width: '48px', height: '48px', fontSize: '24px' }">
+                            <i :class="selectedNode.icon"></i>
+                        </div>
+                        <div>
+                            <input type="text" v-model="selectedNode.title" class="form-control form-control-sm fw-bold border-0 px-0 shadow-none" style="font-size: 16px;">
+                            <div class="text-muted small">{{ selectedNode.type.toUpperCase() }}</div>
+                        </div>
+                    </div>
+
+                    <!-- TRIGGER: Segment -->
+                    <div v-if="selectedNode.subType === 'segment'">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Segment cible</label>
+                            <select class="form-select" v-model="selectedNode.config.segmentId">
+                                <option value="" disabled>Sélectionnez un segment</option>
+                                <option value="s1">Tous les acheteurs récents</option>
+                                <option value="s2">Abandonnistes Panier (24h)</option>
+                                <option value="s3">Nouveaux inscrits newsletter</option>
+                                <option value="s4">Clients VIP (>500€)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Fréquence d'évaluation</label>
+                            <select class="form-select">
+                                <option>En temps réel</option>
+                                <option>Quotidien (Batch)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ACTION: Email -->
+                    <div v-if="selectedNode.subType === 'email'">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Partenaire Email</label>
+                            <select class="form-select">
+                                <option>Sendinblue / Brevo</option>
+                                <option>Mailjet</option>
+                                <option>Salesforce Marketing Cloud</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Template d'email</label>
+                            <select class="form-select" v-model="selectedNode.config.templateId">
+                                <option value="" disabled>Choisir le template</option>
+                                <option value="t1">[Promo] Relance Panier</option>
+                                <option value="t2">Welcome Series - Email 1</option>
+                                <option value="t3">Newsletter Mensuelle</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Objet personnalisé (Optionnel)</label>
+                            <input type="text" class="form-control" v-model="selectedNode.config.subject" placeholder="Ex: {{firstname}}, votre panier vous attend">
+                        </div>
+                    </div>
+
+                    <!-- ACTION: On-site -->
+                    <div v-if="selectedNode.subType === 'onsite'">
+                        <div class="alert alert-info py-2" style="font-size: 12px;">
+                            Affichez une expérience personnalisée lors de la prochaine visite de l'utilisateur sur votre site.
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Campagne On-Site</label>
+                            <select class="form-select" v-model="selectedNode.config.campaignId">
+                                <option value="" disabled>Sélectionner la campagne</option>
+                                <option value="c1">Pop-up -10% Nouveaux</option>
+                                <option value="c2">Bannière Livraison Gratuite</option>
+                                <option value="c3">Recommandations Produits IA</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- ACTION: SMS -->
+                    <div v-if="selectedNode.subType === 'sms'">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Message SMS</label>
+                            <textarea class="form-control" rows="4" v-model="selectedNode.config.message" placeholder="Tapez votre message ici (max 160 char.)"></textarea>
+                            <div class="text-end small text-muted mt-1">{{ selectedNode.config.message?.length || 0 }} / 160</div>
+                        </div>
+                    </div>
+
+                    <!-- LOGIC: Wait -->
+                    <div v-if="selectedNode.subType === 'wait'">
+                        <label class="form-label small fw-semibold text-muted">Durée d'attente</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" v-model="selectedNode.config.duration" min="1">
+                            <select class="form-select" style="max-width: 120px;" v-model="selectedNode.config.unit">
+                                <option value="minutes">Minutes</option>
+                                <option value="heures">Heures</option>
+                                <option value="jours">Jours</option>
+                                <option value="semaines">Semaines</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- LOGIC: Condition -->
+                    <div v-if="selectedNode.subType === 'condition'">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Attribut / Règle</label>
+                            <select class="form-select mb-2" v-model="selectedNode.config.attribute">
+                                <option value="" disabled>Choisir un attribut</option>
+                                <option value="optin_email">Opt-in Email</option>
+                                <option value="lifetime_value">Lifetime Value (LTV)</option>
+                                <option value="last_purchase">Date dernier achat</option>
+                            </select>
+                            
+                            <div class="d-flex gap-2" v-if="selectedNode.config.attribute === 'lifetime_value'">
+                                <select class="form-select">
+                                    <option>Est supérieur à</option>
+                                    <option>Est inférieur à</option>
+                                </select>
+                                <input type="number" class="form-control" placeholder="Valeur" v-model="selectedNode.config.value">
+                            </div>
+                            <div v-else-if="selectedNode.config.attribute === 'optin_email'">
+                                <select class="form-select" v-model="selectedNode.config.value">
+                                    <option value="true">Est Vrai</option>
+                                    <option value="false">Est Faux</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOGIC: Split -->
+                    <div v-if="selectedNode.subType === 'split'">
+                        <label class="form-label small fw-semibold text-muted">Répartition Aléatoire</label>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="fw-bold" style="color: var(--ca-primary)">Voie A</div>
+                            <input type="range" class="form-range flex-grow-1" min="10" max="90" step="10" v-model="selectedNode.config.splitValue">
+                            <div class="fw-bold text-secondary">Voie B</div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ selectedNode.config.splitValue || 50 }}%</span>
+                            <span>{{ 100 - (selectedNode.config.splitValue || 50) }}%</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="p-3 border-top bg-light">
+                    <button class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" @click="deleteSelectedNode" v-if="selectedNode.id !== 'root'">
+                        <i class="bi bi-trash3"></i> Supprimer l'étape
+                    </button>
+                    <div v-else class="text-center small text-muted">Le déclencheur initial ne peut pas être supprimé.</div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- MODAL AJOUT DE NOEUD -->
+    <div v-if="addingToBranchId" class="modal-backdrop fade show" style="z-index: 1040;"></div>
+    <div v-if="addingToBranchId" class="modal fade show d-block" tabindex="-1" style="z-index: 1050;" @click.self="cancelAddNode">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold">Ajouter une étape</h5>
+                    <button type="button" class="btn-close shadow-none" @click="cancelAddNode"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="section-title px-0 mb-3">Actions & Destinations</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div v-for="node in nodeLibrary.actions" :key="node.subType" class="node-template" @click="addNodeToTree(node, addingToBranchId)">
+                                    <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                        <i :class="node.icon"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                        <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="section-title px-0 mb-3">Logique & Conditions</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div v-for="node in nodeLibrary.logic" :key="node.subType" class="node-template" @click="addNodeToTree(node, addingToBranchId)">
+                                    <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                        <i :class="node.icon"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                        <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="section-title px-0 mb-3">Déclencheurs (Attente)</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div v-for="node in nodeLibrary.triggers" :key="node.subType" class="node-template" @click="addNodeToTree(node, addingToBranchId)">
+                                    <div class="node-icon-wrapper" :style="{ backgroundColor: node.bg, color: node.text }">
+                                        <i :class="node.icon"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" style="font-size: 13px;">{{ node.title }}</div>
+                                        <div class="text-muted" style="font-size: 11px;">{{ node.desc }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COMPONENT VUE : Noeud Récursif -->
+<script type="text/x-template" id="journey-node-template">
+    <div class="node-wrapper d-flex flex-column align-items-center position-relative">
+        <div class="node-card" 
+             :class="{'selected': selectedNodeId === node.id}" 
+             @click.stop="$emit('select', node)">
+            
+            <button class="node-delete-btn" v-if="node.id !== 'root'" @click.stop="$emit('delete', node.id)" title="Supprimer l'étape">
+                <i class="bi bi-trash3-fill"></i>
+            </button>
+
+            <div v-if="hasError" class="error-dot" title="Configuration requise"></div>
+
+            <div class="node-header" :style="{ backgroundColor: node.bg, color: node.text }">
+                <i :class="node.icon"></i>
+                <span>{{ node.title }}</span>
+            </div>
+            <div class="node-body position-relative">
+                <div v-if="node.subType === 'segment'" class="fw-medium">
+                    {{ node.config.segmentId ? 'Cible : Segment sélectionné' : 'Sélectionner un segment cible' }}
+                </div>
+                <div v-else-if="node.subType === 'email'" class="fw-medium">
+                    {{ node.config.templateId ? 'Template : ' + node.config.templateId : 'Configurer l\'email' }}
+                    <div class="small text-muted text-truncate mt-1" v-if="node.config.subject">"{{ node.config.subject }}"</div>
+                </div>
+                <div v-else-if="node.subType === 'sms'" class="fw-medium">
+                    {{ node.config.message ? 'Message défini' : 'Rédiger le SMS' }}
+                </div>
+                <div v-else-if="node.subType === 'onsite'" class="fw-medium">
+                    {{ node.config.campaignId ? 'Campagne liée' : 'Choisir la campagne On-site' }}
+                </div>
+                <div v-else-if="node.subType === 'wait'" class="fw-medium">
+                    Attendre {{ node.config.duration || 'X' }} {{ node.config.unit || 'jours' }}
+                </div>
+                <div v-else-if="node.subType === 'condition'" class="fw-medium">
+                    Si {{ node.config.attribute || 'condition' }} {{ node.config.value ? '= ' + node.config.value : '' }}
+                </div>
+                <div v-else-if="node.subType === 'split'" class="fw-medium">
+                    Répartition {{ node.config.splitValue || 50 }}/{{ 100 - (node.config.splitValue || 50) }}
+                </div>
+                <div v-else class="text-muted fst-italic">Configurer cette étape</div>
+
+                <div v-if="showAnalytics" class="analytics-badge">
+                    <i class="bi bi-people-fill me-1"></i> {{ mockStats }}
+                </div>
+            </div>
+        </div>
+
+        <ul v-if="node.branches && node.branches.length > 0">
+            <li v-for="branch in node.branches" :key="branch.id">
+                <div class="branch-label" v-if="branch.label">{{ branch.label }}</div>
+                
+                <journey-node 
+                    v-if="branch.childNode" 
+                    :node="branch.childNode" 
+                    :selected-node-id="selectedNodeId"
+                    :adding-to-branch-id="addingToBranchId"
+                    :show-analytics="showAnalytics"
+                    :drag-over-branch-id="dragOverBranchId"
+                    :is-dragging-node="isDraggingNode"
+                    @select="$emit('select', $event)" 
+                    @add="$emit('add', $event)"
+                    @delete="$emit('delete', $event)"
+                    @dragover="$emit('dragover', $event)"
+                    @dragleave="$emit('dragleave', $event)"
+                    @drop="$emit('drop', $event)">
+                </journey-node>
+                
+                <div v-else class="drop-zone-wrapper" 
+                     :class="{'drag-over': dragOverBranchId === branch.id, 'is-active-drop': isDraggingNode}"
+                     title="Ajouter une étape"
+                     @click.stop="$emit('add', branch.id)"
+                     @dragover.prevent="$emit('dragover', branch.id)"
+                     @dragleave.prevent="$emit('dragleave', branch.id)"
+                     @drop.prevent="$emit('drop', branch.id)">
+                    
+                    <div class="drop-hit-area" v-if="isDraggingNode"></div>
+                    
+                    <div class="btn-add-node" :class="{'active': addingToBranchId === branch.id}">
+                        <template v-if="!isDraggingNode">
+                            <i class="bi bi-plus-lg"></i>
+                        </template>
+                        <template v-else>
+                            <i class="bi bi-arrow-down-circle-fill" v-if="dragOverBranchId !== branch.id"></i>
+                            <i class="bi bi-check-circle-fill" v-else></i>
+                            <span class="ms-2 fw-semibold" style="font-size: 13px;">
+                                {{ dragOverBranchId === branch.id ? 'Relâcher !' : 'Déposer ici' }}
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script>
+    const { createApp } = Vue;
+
+    const NODE_LIBRARY = {
+        triggers: [
+            { type: 'trigger', subType: 'segment', title: 'Entrée Segment', desc: 'Quand un utilisateur entre ou sort', icon: 'bi-person-lines-fill', bg: '#F5F3FF', text: '#7C3AED' },
+            { type: 'trigger', subType: 'event', title: 'Événement Custom', desc: 'Basé sur un tag ou achat', icon: 'bi-lightning-charge-fill', bg: '#F5F3FF', text: '#7C3AED' }
+        ],
+        actions: [
+            { type: 'action', subType: 'email', title: 'Envoyer un Email', desc: 'Via Sendinblue, Mailjet...', icon: 'bi-envelope-paper-fill', bg: '#EFF6FF', text: '#2563EB' },
+            { type: 'action', subType: 'sms', title: 'Envoyer un SMS', desc: 'Via Twilio ou CM.com', icon: 'bi-chat-text-fill', bg: '#ECFEFF', text: '#0891B2' },
+            { type: 'action', subType: 'onsite', title: 'Personnalisation On-site', desc: 'Modifier l\'expérience web', icon: 'bi-window-sidebar', bg: '#F0FDF4', text: '#16A34A' },
+            { type: 'action', subType: 'webhook', title: 'Webhook', desc: 'Appeler une API externe', icon: 'bi-hdd-network-fill', bg: '#F8FAFC', text: '#475569' }
+        ],
+        logic: [
+            { type: 'logic', subType: 'wait', title: 'Délai d\'attente', desc: 'Mettre le flux en pause', icon: 'bi-clock-fill', bg: '#FFF7ED', text: '#EA580C' },
+            { type: 'logic', subType: 'condition', title: 'Condition (If/Else)', desc: 'Vérifier un attribut', icon: 'bi-diagram-2-fill', bg: '#FEF2F2', text: '#DC2626', branches: 2 },
+            { type: 'logic', subType: 'split', title: 'Split A/B', desc: 'Répartir l\'audience', icon: 'bi-arrows-split', bg: '#FEFCE8', text: '#CA8A04', branches: 2 }
+        ]
+    };
+
+    const INITIAL_TREE = {
+        id: 'root',
+        type: 'trigger',
+        subType: 'segment',
+        title: 'Entrée Segment',
+        icon: 'bi-person-lines-fill',
+        bg: '#F5F3FF',
+        text: '#7C3AED',
+        config: { segmentId: 's2' },
+        branches: [
+            { id: 'b_root_1', label: '', childNode: null }
+        ]
+    };
+
+    const JourneyNodeComponent = {
+        name: 'JourneyNode',
+        template: '#journey-node-template',
+        emits: ['select', 'add', 'delete', 'dragover', 'dragleave', 'drop'],
+        props: {
+            node: Object,
+            selectedNodeId: String,
+            addingToBranchId: String,
+            showAnalytics: Boolean,
+            dragOverBranchId: String,
+            isDraggingNode: Boolean
+        },
+        computed: {
+            hasError() {
+                if (this.node.subType === 'segment' && !this.node.config.segmentId) return true;
+                if (this.node.subType === 'email' && !this.node.config.templateId) return true;
+                if (this.node.subType === 'wait' && !this.node.config.duration) return true;
+                return false;
+            },
+            mockStats() {
+                const num = Math.floor(Math.random() * 5000) + 500;
+                return new Intl.NumberFormat('fr-FR').format(num);
+            }
+        }
+    };
+
+    const app = createApp({
+        data() {
+            return {
+                journeyName: "Relance Panier VIP",
+                journeyStatus: "draft",
+                showAnalytics: false,
+                
+                // Canvas state
+                zoom: 1,
+                panX: 0,
+                panY: 0,
+                isDragging: false,
+                startX: 0,
+                startY: 0,
+
+                // Builder state
+                journeyTree: JSON.parse(JSON.stringify(INITIAL_TREE)),
+                nodeLibrary: NODE_LIBRARY,
+                selectedNodeId: 'root',
+                addingToBranchId: null,
+                
+                // Drag & Drop
+                draggedNodeTemplate: null,
+                dragOverBranchId: null
+            };
+        },
+        computed: {
+            selectedNode() {
+                if (!this.selectedNodeId) return null;
+                return this.findNodeById(this.journeyTree, this.selectedNodeId);
+            }
+        },
+        methods: {
+            findNodeById(node, id) {
+                if (node.id === id) return node;
+                if (!node.branches) return null;
+                for (let branch of node.branches) {
+                    if (branch.childNode) {
+                        let found = this.findNodeById(branch.childNode, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            },
+            
+            findBranchById(node, branchId) {
+                if (!node.branches) return null;
+                for (let branch of node.branches) {
+                    if (branch.id === branchId) return branch;
+                    if (branch.childNode) {
+                        let found = this.findBranchById(branch.childNode, branchId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            },
+
+            findParentNodeOfNode(node, childNodeId) {
+                if (!node.branches) return null;
+                for (let branch of node.branches) {
+                    if (branch.childNode && branch.childNode.id === childNodeId) return node;
+                    if (branch.childNode) {
+                        let found = this.findParentNodeOfNode(branch.childNode, childNodeId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            },
+
+            selectNode(node) {
+                this.selectedNodeId = node.id;
+                this.addingToBranchId = null;
+            },
+            
+            clearSelection() {
+                this.selectedNodeId = null;
+            },
+
+            prepareAddNode(branchId) {
+                this.addingToBranchId = branchId;
+                this.selectedNodeId = null;
+            },
+
+            cancelAddNode() {
+                this.addingToBranchId = null;
+            },
+
+            // --- DRAG AND DROP ---
+            onDragStart(e, template) {
+                if(e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('text/plain', template.subType);
+                }
+                
+                // CRUCIAL : Le setTimeout est indispensable. Il permet au navigateur 
+                // de figer l'image "fantôme" de l'élément que l'on commence à glisser 
+                // *avant* que Vue.js ne modifie l'interface. Sans ça, Chrome bloque l'affichage.
+                setTimeout(() => {
+                    this.draggedNodeTemplate = template;
+                }, 20);
+            },
+            
+            onDragEnd() {
+                this.draggedNodeTemplate = null;
+                this.dragOverBranchId = null;
+            },
+
+            handleDragOver(branchId) {
+                this.dragOverBranchId = branchId;
+            },
+
+            handleDragLeave(branchId) {
+                if (this.dragOverBranchId === branchId) {
+                    this.dragOverBranchId = null;
+                }
+            },
+
+            handleDrop(branchId) {
+                if (this.draggedNodeTemplate) {
+                    this.addNodeToTree(this.draggedNodeTemplate, branchId);
+                }
+                this.dragOverBranchId = null;
+                this.draggedNodeTemplate = null;
+            },
+
+            addNodeToTree(template, branchId) {
+                let targetBranch = this.findBranchById(this.journeyTree, branchId);
+                if (!targetBranch) return;
+
+                let newNode = {
+                    id: 'node_' + Math.random().toString(36).substr(2, 9),
+                    type: template.type,
+                    subType: template.subType,
+                    title: template.title,
+                    icon: template.icon,
+                    bg: template.bg,
+                    text: template.text,
+                    config: {}, 
+                    branches: []
+                };
+
+                if (newNode.subType === 'split') newNode.config.splitValue = 50;
+                if (newNode.subType === 'wait') { newNode.config.duration = 1; newNode.config.unit = 'jours'; }
+
+                const branchCount = template.branches || 1;
+                for (let i = 0; i < branchCount; i++) {
+                    let label = '';
+                    if (template.subType === 'split') label = i === 0 ? 'Voie A' : 'Voie B';
+                    if (template.subType === 'condition') label = i === 0 ? 'Oui' : 'Non';
+                    
+                    newNode.branches.push({
+                        id: 'branch_' + Math.random().toString(36).substr(2, 9),
+                        label: label,
+                        childNode: null
+                    });
+                }
+
+                targetBranch.childNode = newNode;
+                this.addingToBranchId = null;
+                this.selectedNodeId = newNode.id;
+            },
+
+            deleteNodeById(nodeId) {
+                if (!nodeId || nodeId === 'root') return;
+                
+                let parentNode = this.findParentNodeOfNode(this.journeyTree, nodeId);
+                if (parentNode) {
+                    for (let branch of parentNode.branches) {
+                        if (branch.childNode && branch.childNode.id === nodeId) {
+                            branch.childNode = null; 
+                            if (this.selectedNodeId === nodeId) this.selectedNodeId = null;
+                            return;
+                        }
+                    }
+                }
+            },
+
+            deleteSelectedNode() {
+                this.deleteNodeById(this.selectedNodeId);
+            },
+
+            toggleStatus() {
+                this.journeyStatus = this.journeyStatus === 'active' ? 'draft' : 'active';
+                if (this.journeyStatus === 'active') {
+                    this.showAnalytics = true;
+                }
+            },
+
+            // --- CORRECTION DU BUG CANVAS (Déplacement Robuste) ---
+            startPan(e) {
+                if (e.target.closest('.node-card') || e.target.closest('.btn-add-node') || e.target.closest('.canvas-controls') || e.target.closest('.node-delete-btn')) {
+                    return;
+                }
+                
+                this.isDragging = true;
+                this.startX = e.clientX - this.panX;
+                this.startY = e.clientY - this.panY;
+                
+                // On attache l'écouteur au niveau de la fenêtre globale pour gérer les déplacements rapides et les sorties d'écran
+                window.addEventListener('mousemove', this.pan);
+                window.addEventListener('mouseup', this.endPan);
+            },
+            pan(e) {
+                if (!this.isDragging) return;
+                this.panX = e.clientX - this.startX;
+                this.panY = e.clientY - this.startY;
+            },
+            endPan() {
+                this.isDragging = false;
+                window.removeEventListener('mousemove', this.pan);
+                window.removeEventListener('mouseup', this.endPan);
+            },
+            zoomIn() { this.zoom = Math.min(this.zoom + 0.1, 1.5); },
+            zoomOut() { this.zoom = Math.max(this.zoom - 0.1, 0.5); },
+            resetZoom() { 
+                this.zoom = 1; 
+                this.panX = 0; 
+                this.panY = 0; 
+            }
+        },
+        mounted() {
+            // Sécurité additionnelle au démontage du composant
+            window.removeEventListener('mousemove', this.pan);
+            window.removeEventListener('mouseup', this.endPan);
+        }
+    });
+
+    app.component('journey-node', JourneyNodeComponent);
+    app.mount('#app');
+</script>
+
+</body>
+</html>
