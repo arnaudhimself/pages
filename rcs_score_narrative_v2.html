@@ -8,9 +8,9 @@
     body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; background: #f9fafb; color: #1f2937; }
     h1 { text-align: center; color: #111827; }
     .controls { text-align: center; margin: 30px 0; }
-    button { padding: 12px 24px; font-size: 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 20px; transition: background 0.2s;}
+    button { padding: 12px 24px; font-size: 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-left: 20px; }
     button:hover { background: #2563eb; }
-    select { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #d1d5db;}
+    select { padding: 10px; font-size: 16px; border-radius: 8px; }
     
     /* Layout simulation for the 3 cards */
     .dashboard-layout { display: flex; gap: 20px; margin-top: 40px; }
@@ -34,7 +34,7 @@
     .narrative ul { margin-top: 8px; margin-bottom: 16px; padding-left: 20px; }
     .narrative li { margin-bottom: 6px; }
 
-    /* Blockquote style */
+    /* Blockquote style to replace the manual "Insight" div */
     .narrative blockquote { 
       background: #f3f4f6; 
       border-radius: 8px; 
@@ -55,32 +55,8 @@
     .nba-issue { color: #6b7280; font-size: 12px; margin-top: 2px; }
     .nba-gain { color: #16a34a; font-weight: bold; background: #dcfce7; padding: 4px 8px; border-radius: 999px; font-size: 12px; }
 
-    /* =========================================
-       NOUVELLES CLASSES POUR L'ANIMATION LLM
-       ========================================= */
-    .llm-token {
-      opacity: 0;
-      transition: opacity 0.2s ease-out;
-    }
-    .llm-token.visible {
-      opacity: 1;
-    }
-    
-    /* Curseur modernisé */
-    .cursor {
-      display: inline-block;
-      width: 6px;
-      height: 16px;
-      background-color: #3b82f6;
-      border-radius: 2px;
-      margin-left: 4px;
-      vertical-align: text-bottom;
-      animation: blink 1s step-end infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
+    .cursor { animation: blink 1s step-end infinite; display: inline-block; width: 2px; height: 1.2em; background-color: #3b82f6; margin-left: 2px; vertical-align: middle; }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -115,6 +91,16 @@
   </div>
 
   <script>
+    /**
+     * ============================================================================
+     * FOR THE FUTURE DEVELOPER : DATA ARCHITECTURE FOR THE 3 CARDS
+     * ============================================================================
+     * * 1. LEFT CARD: Needs `score`
+     * * 2. CENTER CARD: Needs `generateExecutiveNarrative(score, summary, language)`
+     * * 3. RIGHT CARD: Needs `summary.topViolations`
+     * ============================================================================
+     */
+
     function randomChoice(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
@@ -381,6 +367,7 @@
         const joinedInsights = insights.join(language === 'en' ? ' Also, ' : ' Par ailleurs, ');
         const formattedInsights = joinedInsights.charAt(0).toUpperCase() + joinedInsights.slice(1);
         
+        // Use standard Markdown blockquote. Styles will handle the gray block look.
         narrative += `> ${insightIntro}${formattedInsights}\n\n`;
       }
 
@@ -422,108 +409,27 @@
       return { score, enrichedViolations };
     }
 
-    // Identifiant de génération pour gérer les clics rapides successifs
-    let currentGenerationId = 0;
-
-    /**
-     * NOUVELLE FONCTION D'ANIMATION (STREAMING LLM SIMULÉ)
-     */
-    async function typeNarrative(text) {
-      currentGenerationId++;
-      const genId = currentGenerationId;
-      
+    function typeNarrative(text) {
       const element = document.getElementById('narrative');
-      element.innerHTML = ''; // On vide
+      element.innerHTML = '';
+      const tokens = text.split(/(\s+|\n|\S+)/g).filter(Boolean);
+      let delay = 0;
+      let currentText = '';
       
-      // 1. On parse tout le Markdown en une fois pour avoir une structure HTML parfaite
-      const rawHtml = marked.parse(text);
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = rawHtml;
-
-      // 2. Création du curseur qui va se balader
-      const cursor = document.createElement('span');
-      cursor.className = 'cursor';
-
-      // Tableau pour regrouper les mots ("tokens") et les espaces
-      let tokenBatch = [];
-      let wordCountInBatch = 0;
-      
-      // Fonction pour révéler un lot de mots avec transition CSS
-      async function flushBatch() {
-        if (tokenBatch.length === 0) return;
-        
-        for (const item of tokenBatch) {
-          if (item.isSpace) {
-            // C'est un espace, on l'ajoute directement au bon endroit
-            item.target.appendChild(document.createTextNode(item.text));
-          } else {
-            // C'est un mot, on gère son apparition
-            item.target.appendChild(item.element);
-            item.target.appendChild(cursor); // Le curseur suit toujours le dernier mot
-            
-            // Force le recalcul du layout par le navigateur pour déclencher la transition CSS
-            void item.element.offsetWidth; 
-            item.element.classList.add('visible');
+      tokens.forEach((token, index) => {
+        setTimeout(() => {
+          currentText += token;
+          element.innerHTML = marked.parse(currentText);
+          
+          // Add cursor if not at the end
+          if (index < tokens.length - 1) {
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            element.querySelector('p:last-child, blockquote:last-child p:last-child')?.appendChild(cursor);
           }
-        }
-        
-        tokenBatch = [];
-        wordCountInBatch = 0;
-        
-        // Délai aléatoire entre chaque bloc (simule le temps de calcul du LLM)
-        await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 50)); 
-      }
-
-      // 3. Fonction récursive qui copie l'arbre HTML et l'anime mot par mot
-      async function streamNode(source, target) {
-        if (genId !== currentGenerationId) return; // Annule si l'utilisateur a relancé
-
-        for (const child of Array.from(source.childNodes)) {
-          if (genId !== currentGenerationId) return;
-
-          if (child.nodeType === Node.TEXT_NODE) {
-            // Découpage intelligent : on sépare les mots et les blocs d'espaces
-            const words = child.textContent.match(/(\s+|\S+)/g) || [];
-            
-            for (const word of words) {
-              if (genId !== currentGenerationId) return;
-
-              if (/^\s+$/.test(word)) {
-                // C'est un espace, on l'ajoute à la file d'attente pour conserver l'ordre
-                tokenBatch.push({ isSpace: true, text: word, target });
-              } else {
-                // C'est un mot, on l'emballe dans un span pour l'animation
-                const span = document.createElement('span');
-                span.className = 'llm-token';
-                span.textContent = word;
-                tokenBatch.push({ isSpace: false, element: span, target });
-                wordCountInBatch++;
-                
-                // On affiche le lot si on a accumulé au moins 4 mots (entre 4 et 5 mots)
-                if (wordCountInBatch >= 4 + Math.floor(Math.random() * 2)) {
-                  await flushBatch();
-                }
-              }
-            }
-          } else if (child.nodeType === Node.ELEMENT_NODE) {
-            // C'est une balise HTML (p, ul, li, strong...). On la recrée vide.
-            const clone = child.cloneNode(false);
-            target.appendChild(clone);
-            // On plonge à l'intérieur pour l'animer
-            await streamNode(child, clone);
-          }
-        }
-      }
-
-      // Lance l'animation à partir de l'arbre parsé
-      await streamNode(tempDiv, element);
-      
-      if (genId === currentGenerationId) {
-        await flushBatch(); // Affiche les tout derniers mots/espaces s'il en reste
-        if (cursor.parentNode) {
-          cursor.parentNode.removeChild(cursor); // Retire le curseur à la toute fin
-        }
-      }
+        }, delay);
+        delay += 5;
+      });
     }
 
     const cookieNames = ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'hotjar_id'];
