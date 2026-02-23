@@ -335,7 +335,7 @@
         violations.forEach(v => {
           const freq = v.frequency;
           const baseRate = v.type === 'after' ? 0.15 : 0.10;
-          const weight = { Marketing: 2, Analytics: 0.8, Uncategorized: 1.5, Essential: 1 }[v.category] || 1;
+          const weight = { Marketing: 2, Analytics: 1, Uncategorized: 1.5, Essential: 0.5 }[v.category] || 1;
           const pointsLost = Math.round((freq / 100) * weight * baseRate * 100);
           const gain = `+${pointsLost} points`;
           const severity = freq > 80 || v.category === 'Marketing' || v.type === 'after' ? 'High' : 'Medium';
