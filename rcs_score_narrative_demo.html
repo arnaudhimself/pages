@@ -304,7 +304,7 @@
         beforeConsentCount: violations.filter(v => v.type === 'before').length,
         afterRefuseCount: violations.filter(v => v.type === 'after').length,
         marketingImpact: violations.filter(v => v.category === 'Marketing').reduce((s, v) => s + (v.frequency / 100 * 2 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
-        analyticsImpact: violations.filter(v => v.category === 'Analytics').reduce((s, v) => s + (v.frequency / 100 * 0.8 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
+        analyticsImpact: violations.filter(v => v.category === 'Analytics').reduce((s, v) => s + (v.frequency / 100 * 1 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
         uncategorizedImpact: violations.filter(v => v.category === 'Uncategorized').reduce((s, v) => s + (v.frequency / 100 * 1.5 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
         essentialImpact: violations.filter(v => v.category === 'Essential').reduce((s, v) => s + (v.frequency / 100 * 0.5 * (v.type === 'after' ? 0.15 : 0.10) * 100), 0),
         highFrequencyIssues: violations.filter(v => v.frequency > 80).length,
