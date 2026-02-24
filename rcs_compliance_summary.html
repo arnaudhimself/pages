@@ -14,6 +14,10 @@
     <!-- Google Fonts: Inter & Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
+    <!-- 
+      @DEV: CSS Variables & Global Styles
+      Move these into your global stylesheet (e.g., assets/scss/main.scss)
+    -->
     <style>
         :root {
             --bg-body: #f3f5f8;
@@ -47,7 +51,7 @@
             letter-spacing: -0.01em;
         }
 
-        /* --- Score Donut --- */
+        /* --- Score Donut Component Styles --- */
         .score-wrapper {
             position: relative;
             width: 160px;
@@ -77,7 +81,7 @@
             margin-top: -5px;
         }
 
-        /* --- Narrative Card Styling --- */
+        /* --- Narrative Component Styles --- */
         .narrative {
             font-size: 0.85rem;
             line-height: 1.6;
@@ -88,7 +92,6 @@
         .narrative li { margin-bottom: 6px; }
         .narrative strong { color: #1e293b; font-weight: 700; }
         
-        /* Modern insight blockquote styling */
         .narrative blockquote { 
             background: #f8fafc; 
             border-radius: 8px; 
@@ -101,7 +104,6 @@
         }
         .narrative blockquote p { margin: 0; }
         
-        /* Typing effect cursor */
         .cursor {
             animation: blink 1s step-end infinite;
             display: inline-block;
@@ -113,7 +115,7 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* --- Next Best Actions List --- */
+        /* --- Action List Component Styles --- */
         .action-item {
             padding: 10px 8px;
             margin: 0 -8px;
@@ -122,12 +124,9 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
-        .action-item:hover {
-            background-color: #f8fafc;
-        }
-        .action-item:last-child {
-            border-bottom: none;
-        }
+        .action-item:hover { background-color: #f8fafc; }
+        .action-item:last-child { border-bottom: none; }
+        
         .action-icon-wrapper {
             width: 42px;
             height: 42px;
@@ -140,7 +139,6 @@
             font-size: 1.1rem;
         }
         
-        /* Soft pastel colors */
         .bg-icon-danger { background-color: #fef2f2; color: #ef4444; }
         .bg-icon-warning { background-color: #fffbeb; color: #f59e0b; }
         .bg-icon-success { background-color: #f0fdf4; color: #10b981; }
@@ -157,11 +155,8 @@
         .gain-badge-warning { color: #d97706; background: #fffbeb; }
         .gain-badge-neutral { color: #64748b; background: #f1f5f9; }
 
-        /* --- Stats Cards (Kpis) --- */
-        .card-stat {
-            border-top: 4px solid transparent;
-            padding: 1.5rem;
-        }
+        /* --- KPI Cards Component Styles --- */
+        .card-stat { border-top: 4px solid transparent; padding: 1.5rem; }
         .border-warning { border-top-color: #fbbf24 !important; }
         .border-danger { border-top-color: #ef4444 !important; }
         .border-dark { border-top-color: #334155 !important; }
@@ -174,12 +169,7 @@
             margin-top: 5px;
             letter-spacing: -1px;
         }
-        .kpi-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #475569;
-        }
-
+        .kpi-label { font-size: 0.9rem; font-weight: 600; color: #475569; }
         .stat-icon-circle {
             width: 56px;
             height: 56px;
@@ -190,10 +180,8 @@
             font-size: 1.4rem;
         }
 
-        /* --- Table Styling --- */
-        .table {
-            --bs-table-bg: transparent;
-        }
+        /* --- Data Table Component Styles --- */
+        .table { --bs-table-bg: transparent; }
         .table thead th {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -209,9 +197,7 @@
             font-weight: 500;
             border-bottom: 1px solid #f1f5f9;
         }
-        .table tr:last-child td {
-            border-bottom: none;
-        }
+        .table tr:last-child td { border-bottom: none; }
         
         .badge-severity {
             padding: 6px 12px;
@@ -226,50 +212,7 @@
         .severity-medium { background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
         .severity-low { background-color: #f0fdf4; color: #059669; border: 1px solid #a7f3d0; }
 
-        /* --- Custom Tooltip --- */
-        .custom-tooltip {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            cursor: help;
-        }
-        .custom-tooltip .tooltip-text {
-            visibility: hidden;
-            width: 240px;
-            background-color: #111;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px 12px;
-            position: absolute;
-            z-index: 10;
-            bottom: 150%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.75rem;
-            font-weight: 500;
-            line-height: 1.4;
-            pointer-events: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .custom-tooltip .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #111 transparent transparent transparent;
-        }
-        .custom-tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* --- Category Badges --- */
+        /* --- Utilities & Badges --- */
         .badge-category {
             padding: 4px 10px;
             border-radius: 6px;
@@ -284,13 +227,11 @@
         .cat-marketing { background-color: #fc00a6; }
         .cat-uncategorized { background-color: #64748b; }
 
-        /* --- Category Text Colors (Icons) --- */
         .text-cat-analytics { color: #7c12ff; }
         .text-cat-essential { color: #2808be; }
         .text-cat-marketing { color: #fc00a6; }
         .text-cat-uncategorized { color: #64748b; }
 
-        /* --- Type Badges --- */
         .badge-type {
             padding: 2px 6px;
             border-radius: 4px;
@@ -299,27 +240,16 @@
             display: inline-block;
             text-align: center;
         }
-        .badge-before {
-            background-color: #fbbf24;
-            color: #451a03; /* Dark text for contrast on yellow */
-        }
-        .badge-after {
-            background-color: #ef4444;
-            color: white;
-        }
+        .badge-before { background-color: #fbbf24; color: #451a03; }
+        .badge-after { background-color: #ef4444; color: white; }
 
-        /* --- Header Controls --- */
-        .form-switch .form-check-input {
-            width: 3.2em;
-            height: 1.6em;
-            cursor: pointer;
-        }
+        /* --- Header / UI Controls --- */
         .form-select-custom {
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #475569;
-            padding-left: 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #334155;
+            padding-left: 0.75rem;
         }
         .btn-simulate {
             background-color: #3b82f6;
@@ -330,49 +260,162 @@
             border: none;
             transition: background-color 0.2s;
         }
-        .btn-simulate:hover {
-            background-color: #2563eb;
-        }
+        .btn-simulate:hover { background-color: #2563eb; }
+        .btn-simulate:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        .breadcrumb-title {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
+        .breadcrumb-title { font-size: 1.25rem; color: var(--text-secondary); }
+        .breadcrumb-active { color: var(--text-primary); font-weight: 700; }
+
+        /* Custom Toggle Switch */
+        .custom-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-        .breadcrumb-active {
-            color: var(--text-primary);
-            font-weight: 700;
+        .custom-switch-label {
+            color: #334155;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
         }
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 28px;
+            margin: 0;
+        }
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .custom-switch-track {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #94a3b8; /* Tailwind slate-400 */
+            border-radius: 34px;
+            transition: 0.3s;
+        }
+        .custom-switch-track:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .custom-switch input:checked + .custom-switch-track {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+        }
+        .custom-switch input:checked + .custom-switch-track:before {
+            transform: translateX(32px);
+        }
+        .custom-switch-text {
+            position: absolute;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: 0.3s;
+            user-select: none;
+        }
+        .custom-switch-text.on { left: 10px; opacity: 0; }
+        .custom-switch-text.off { right: 8px; opacity: 1; }
+        .custom-switch input:checked ~ .custom-switch-text.on { opacity: 1; }
+        .custom-switch input:checked ~ .custom-switch-text.off { opacity: 0; }
+
+        /* Custom Tooltip */
+        .custom-tooltip { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        .custom-tooltip .tooltip-text {
+            visibility: hidden; width: 240px; background-color: #111; color: #fff; text-align: center;
+            border-radius: 6px; padding: 10px 12px; position: absolute; z-index: 10; bottom: 150%;
+            left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s;
+            font-size: 0.75rem; font-weight: 500; line-height: 1.4; pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .custom-tooltip .tooltip-text::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid; border-color: #111 transparent transparent transparent;
+        }
+        .custom-tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
 
 <div id="app" class="container-fluid p-4 p-lg-5">
     
-    <!-- Header: Single Line Breadcrumb & Controls -->
+    <!-- 
+      =============================================================
+      [COMPONENT: PageHeader]
+      Contains breadcrumbs, language selector, and main actions.
+      =============================================================
+    -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
         <div>
             <div class="breadcrumb-title">
-                Realtime Cookie Scanner <span class="mx-2">/</span> <span class="breadcrumb-active">{{ language === 'en' ? 'Compliance Summary' : 'Synthèse de conformité' }}</span>
+                Realtime Cookie Scanner <span class="mx-2">/</span> 
+                <!-- @DEV: We now use t() to fetch translations just like vue-i18n -->
+                <span class="breadcrumb-active">{{ t('header.title') }}</span>
             </div>
         </div>
-        <div class="d-flex align-items-center gap-3">
+        
+        <!-- Controls Right Area -->
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            
+            <!-- 1. Simulate Scan Button -->
+            <button @click="loadDashboardData" :disabled="isLoading" class="btn-simulate shadow-sm d-flex align-items-center gap-2">
+                <i class="fas fa-rotate" :class="{ 'fa-spin': isLoading }"></i> 
+                {{ isLoading ? t('header.scanning') : t('header.simulate') }}
+            </button>
+
+            <!-- 2. Language Dropdown -->
             <select v-model="language" @change="reRenderNarrative" class="form-select form-select-sm form-select-custom shadow-none" style="width: auto;">
                 <option value="fr">Français</option>
                 <option value="en">English</option>
             </select>
-            <div class="form-check form-switch d-flex align-items-center gap-2 m-0 border-start ps-3 border-secondary-subtle">
-                <label class="form-check-label fw-bold text-secondary small text-uppercase" for="cookiesRares">Rare cookies</label>
-                <input class="form-check-input shadow-none" type="checkbox" role="switch" id="cookiesRares">
+            
+            <!-- Divider -->
+            <div class="d-none d-md-block border-start border-secondary-subtle" style="height: 30px;"></div>
+
+            <!-- 3. Rare cookies custom switch -->
+            <div class="custom-switch-wrapper">
+                <label class="custom-switch-label" for="cookiesRares">{{ t('header.rareCookies') }}</label>
+                <label class="custom-switch">
+                    <input type="checkbox" id="cookiesRares" v-model="rareCookiesEnabled">
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text on">On</span>
+                    <span class="custom-switch-text off">Off</span>
+                </label>
             </div>
-            <button @click="simulateScan" class="btn-simulate shadow-sm d-flex align-items-center gap-2">
-                <i class="fas fa-rotate"></i> {{ language === 'en' ? 'Simulate Scan' : 'Simuler un scan' }}
-            </button>
+
+            <!-- 4. Website Selection Dropdown -->
+            <select v-model="selectedWebsite" class="form-select form-select-sm form-select-custom shadow-none" style="width: auto; min-width: 140px;">
+                <option value="all">{{ t('header.allSites') }}</option>
+                <!-- Simulation data -->
+                <option value="site1">example.com</option>
+                <option value="site2">mysite.fr</option>
+            </select>
+            
         </div>
     </div>
 
-    <!-- Row 1: Main Insights -->
+    <!-- 
+      =============================================================
+      [COMPONENT: DashboardTopRow]
+      Contains the Score, the AI Narrative, and Top Actions.
+      =============================================================
+    -->
     <div class="row g-4 mb-4">
-        <!-- Score -->
+        
+        <!-- [SUB-COMPONENT: ComplianceScoreCard] -->
         <div class="col-lg-3 col-md-12">
             <div class="card h-100 p-4 d-flex flex-column align-items-center justify-content-center text-center">
                 <div class="score-wrapper mb-3">
@@ -384,40 +427,38 @@
                 </div>
                 <div class="d-flex align-items-center gap-2 mt-2">
                     <span class="badge rounded-circle p-1" :style="{ backgroundColor: getScoreColor(score), width: '8px', height: '8px' }"> </span>
-                    <span class="fw-bold text-secondary small">{{ language === 'en' ? 'Cookie Compliance Score' : 'Score de Conformité' }}</span>
+                    <span class="fw-bold text-secondary small">{{ t('score.title') }}</span>
                     <div class="custom-tooltip">
                         <i class="far fa-circle-question text-secondary opacity-90"></i>
-                        <span class="tooltip-text">{{ language === 'en' ? 'Score = 100 - (Frequency × Category Weight × Severity). Marketing cookies penalize more heavily.' : 'Score = 100 - (Fréquence × Poids Catégorie × Sévérité). Les cookies marketing pénalisent plus lourdement.' }}</span>
+                        <span class="tooltip-text">{{ t('score.tooltip') }}</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Narrative -->
+        <!-- [SUB-COMPONENT: ExecutiveNarrativeCard] -->
         <div class="col-lg-5 col-md-12">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">{{ language === 'en' ? 'Executive Narrative' : 'Synthèse Exécutive' }}</h6>
+                    <h6 class="mb-0">{{ t('narrative.title') }}</h6>
                 </div>
-                <!-- Narrative container injected by JS -->
-                <div class="narrative flex-grow-1" ref="narrativeContainer">
-                    <!-- Typing text goes here -->
-                </div>
+                <!-- Narrative text is injected here programmatically to simulate AI typing -->
+                <div class="narrative flex-grow-1" ref="narrativeContainer"></div>
             </div>
         </div>
 
-        <!-- Next Actions -->
+        <!-- [SUB-COMPONENT: PriorityActionsCard] -->
         <div class="col-lg-4 col-md-12">
             <div class="card h-100 p-4">
-                <h6 class="mb-4">Next Best Actions</h6>
+                <h6 class="mb-4">{{ t('actions.title') }}</h6>
                 <div class="d-flex flex-column gap-3">
                     
                     <div v-if="topActions.length === 0" class="text-center text-secondary py-4 fw-bold">
                         <i class="fas fa-check-circle text-success fs-1 mb-2"></i>
-                        <p class="mb-0">{{ language === 'en' ? 'No priority actions required. Excellent!' : 'Aucune action prioritaire requise. Excellent !' }}</p>
+                        <p class="mb-0">{{ t('actions.none') }}</p>
                     </div>
 
-                    <!-- Action Loop -->
+                    <!-- Action Items Loop -->
                     <div v-for="(action, index) in topActions" :key="index" class="d-flex align-items-center action-item">
                         <div class="action-icon-wrapper" :class="getActionIconWrapperClass(action)">
                             <i :class="getActionIcon(action)"></i>
@@ -428,7 +469,7 @@
                                 <i :class="[getCategoryBoxicon(action.category), getTextCategoryClass(action.category)]" class="fs-5 ms-1"></i>
                             </div>
                             <div class="text-secondary small mt-1 d-flex align-items-center gap-2">
-                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ language === 'en' ? 'frequency' : 'fréquence' }}</span>
+                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ t('actions.freq') }}</span>
                                 <span class="badge-type" :class="getTypeBadgeClass(action.type)">
                                     {{ getTypeLabel(action.type) }}
                                 </span>
@@ -447,15 +488,22 @@
         </div>
     </div>
 
-    <!-- Row 2: Stats Grid & Chart (Static/Placeholder visuals for context) -->
+    <!-- 
+      =============================================================
+      [COMPONENT: DashboardMiddleRow]
+      Contains the KPI Grid and the Analytics Bar Chart.
+      =============================================================
+    -->
     <div class="row g-4 mb-4">
+        
+        <!-- [SUB-COMPONENT: KpiGrid] -->
         <div class="col-xl-6">
             <div class="row g-4 h-100">
                 <div class="col-sm-6">
                     <div class="card card-stat border-warning h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Cookies before consent' : 'Cookies avant consentement' }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.before') }}</div>
                                 <div class="kpi-value">{{ kpis.beforeConsent }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fffbeb; color: #f59e0b;">
@@ -468,7 +516,7 @@
                     <div class="card card-stat border-danger h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Cookies after refuse all' : 'Cookies après refus' }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.after') }}</div>
                                 <div class="kpi-value">{{ kpis.afterRefuse }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fef2f2; color: #ef4444;">
@@ -481,7 +529,7 @@
                     <div class="card card-stat border-dark h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'High frequency issues' : 'Problèmes fréquents' }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.highFreq') }}</div>
                                 <div class="kpi-value">{{ kpis.highFrequency }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f1f5f9; color: #334155;">
@@ -494,7 +542,7 @@
                     <div class="card card-stat border-secondary h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Total cookies scanned' : 'Total cookies scannés' }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.total') }}</div>
                                 <div class="kpi-value">{{ kpis.total }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f8fafc; color: #64748b;">
@@ -506,11 +554,11 @@
             </div>
         </div>
 
-        <!-- Bar Chart -->
+        <!-- [SUB-COMPONENT: AnalyticsBarChart] -->
         <div class="col-xl-6">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ language === 'en' ? 'Cookies by consent status and category' : 'Cookies par statut de consentement et catégorie' }}</h6>
+                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ t('charts.barTitle') }}</h6>
                 </div>
                 <div style="height: 250px; width: 100%;">
                     <canvas id="barChart"></canvas>
@@ -519,27 +567,32 @@
         </div>
     </div>
 
-    <!-- Row 3: Table -->
+    <!-- 
+      =============================================================
+      [COMPONENT: ViolationsTable]
+      Displays the detailed list of detected cookie violations.
+      =============================================================
+    -->
     <div class="row">
         <div class="col-12">
             <div class="card p-4">
-                <h6 class="mb-4">Top Violations</h6>
+                <h6 class="mb-4">{{ t('table.title') }}</h6>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
-                                <th>{{ language === 'en' ? 'Cookie name' : 'Nom du cookie' }}</th>
-                                <th>{{ language === 'en' ? 'Category' : 'Catégorie' }}</th>
-                                <th>{{ language === 'en' ? 'Frequency' : 'Fréquence' }}</th>
-                                <th>{{ language === 'en' ? 'Type' : 'Type' }}</th>
-                                <th>{{ language === 'en' ? 'Severity' : 'Sévérité' }}</th>
-                                <th class="text-end">{{ language === 'en' ? 'Potential gain' : 'Gain potentiel' }}</th>
+                                <th>{{ t('table.name') }}</th>
+                                <th>{{ t('table.category') }}</th>
+                                <th>{{ t('table.frequency') }}</th>
+                                <th>{{ t('table.type') }}</th>
+                                <th>{{ t('table.severity') }}</th>
+                                <th class="text-end">{{ t('table.gain') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="violations.length === 0">
-                                <td colspan="7" class="text-center text-secondary py-3">{{ language === 'en' ? 'No violations detected.' : 'Aucune violation détectée.' }}</td>
+                                <td colspan="7" class="text-center text-secondary py-3">{{ t('table.empty') }}</td>
                             </tr>
                             <tr v-for="(violation, index) in violations" :key="index">
                                 <td class="fw-bold text-secondary">{{ index + 1 }})</td>
@@ -550,7 +603,7 @@
                                     </span>
                                 </td>
                                 <td class="fw-bold text-dark">{{ violation.frequency }}%</td>
-                                <td>{{ violation.type === 'before' ? (language === 'en' ? 'Before consent' : 'Avant consentement') : (language === 'en' ? 'After refuse' : 'Après refus') }}</td>
+                                <td>{{ getTypeLabel(violation.type) }}</td>
                                 <td>
                                     <div class="badge-severity" :class="getSeverityBadgeClass(violation)">
                                         <i class="fas fa-fire" v-if="violation.pointsLost >= 10"></i>
@@ -576,235 +629,374 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <script>
-    const { createApp, markRaw } = Vue;
+    /**
+     * =========================================================================
+     * I18N DICTIONARY 
+     * @DEV: Copy these objects directly into your en.json and fr.json files!
+     * We use a simulated t() function below so the template looks exactly
+     * like it would using vue-i18n.
+     * =========================================================================
+     */
+    const i18nMessages = {
+        en: {
+            header: {
+                title: 'Compliance Summary',
+                rareCookies: 'Rare cookies',
+                allSites: 'All sites',
+                simulate: 'Simulate Scan',
+                scanning: 'Scanning...'
+            },
+            score: {
+                title: 'Cookie Compliance Score',
+                tooltip: 'Score = 100 - (Frequency × Category Weight × Severity). Marketing cookies penalize more heavily.'
+            },
+            narrative: {
+                title: 'Executive Narrative'
+            },
+            actions: {
+                title: 'Next Best Actions',
+                none: 'No priority actions required. Excellent!',
+                freq: 'frequency'
+            },
+            kpis: {
+                before: 'Cookies before consent',
+                after: 'Cookies after refuse all',
+                highFreq: 'High frequency issues',
+                total: 'Total cookies scanned'
+            },
+            charts: {
+                barTitle: 'Cookies by consent status and category',
+                barLegendBefore: 'Before consent',
+                barLegendAfterConsent: 'After consent',
+                barLegendAfterRefuse: 'After refuse all'
+            },
+            table: {
+                title: 'Top Violations',
+                name: 'Cookie name',
+                category: 'Category',
+                frequency: 'Frequency',
+                type: 'Type',
+                severity: 'Severity',
+                gain: 'Potential gain',
+                empty: 'No violations detected.'
+            },
+            types: {
+                before: 'Before consent',
+                after: 'After refuse'
+            },
+            severities: {
+                high: 'High',
+                medium: 'Medium',
+                low: 'Low'
+            },
+            verbs: {
+                address: 'Address cookie',
+                categorize: 'Categorize cookie',
+                verify: 'Verify cookie',
+                exempt: 'Check and exempt cookie'
+            },
+            narrativePhrases: {
+                perfect: ["No violations detected: your site fully complies with consent rules. Keep it up!", "Flawless compliance audit. Your setup is perfectly aligned with privacy guidelines."],
+                levels: {
+                    excellent: ["This score indicates **very strong compliance**, but some findings may still require action"],
+                    good: ["This score indicates **partial compliance**, with fixes that need to be started quickly"],
+                    average: ["This score indicates **fragile compliance**, with a real risk in case of a regulatory audit"],
+                    poor: ["This score indicates **high non-compliance**; immediate action is recommended"]
+                },
+                issueIntroSingular: ", mainly due to one critical factor:\n",
+                issueIntroPlural: ", mainly due to the following factors:\n",
+                behaviorBeforeSingular: "**Tracking before consent:** A cookie is set before the user has made a choice.",
+                behaviorBeforePlural: "**Tracking before consent:** {count} cookies are set before any user interaction.",
+                behaviorAfterSingular: "**Persistence after refusal:** A cookie continues to be set even after an explicit refusal. This is a severe violation.",
+                behaviorAfterPlural: "**Persistence after refusal:** {count} cookies fail to respect the user's refusal, exposing you to high risks.",
+                insightMarketingSingular: "A marketing cookie is penalized heavily due to its advertising purpose.",
+                insightMarketingPlural: "{count} marketing cookies are heavily penalized due to their advertising purpose.",
+                insightEssentialSingular: "An essential cookie requires your manual validation to be marked as exempt.",
+                insightEssentialPlural: "{count} essential cookies require validation to remove the penalty.",
+                insightAnalyticsSingular: "An analytics cookie appears to be misconfigured.",
+                insightAnalyticsPlural: "{count} analytics cookies appear to be misconfigured.",
+                insightUncategorizedSingular: "An uncategorized cookie is treated as potentially risky.",
+                insightUncategorizedPlural: "{count} cookies are uncategorized and treated as risky.",
+                frequencyWarning: "Some of these issues affect a large portion of your pages, significantly amplifying the penalty.",
+                lowFrequencyMitigation: "Your score remains relatively high because these issues only affect a small portion of your site.",
+                insightIntro: "💡 **Insight:** ",
+                insightJoiner: " Also, "
+            }
+        },
+        fr: {
+            header: {
+                title: 'Synthèse de conformité',
+                rareCookies: 'Cookies rares',
+                allSites: 'Tous les sites',
+                simulate: 'Simuler un scan',
+                scanning: 'Scan en cours...'
+            },
+            score: {
+                title: 'Score de Conformité',
+                tooltip: 'Score = 100 - (Fréquence × Poids Catégorie × Sévérité). Les cookies marketing pénalisent plus lourdement.'
+            },
+            narrative: {
+                title: 'Synthèse Exécutive'
+            },
+            actions: {
+                title: 'Actions Prioritaires',
+                none: 'Aucune action prioritaire requise. Excellent !',
+                freq: 'fréquence'
+            },
+            kpis: {
+                before: 'Cookies avant consentement',
+                after: 'Cookies après refus',
+                highFreq: 'Problèmes fréquents',
+                total: 'Total cookies scannés'
+            },
+            charts: {
+                barTitle: 'Cookies par statut de consentement et catégorie',
+                barLegendBefore: 'Avant consentement',
+                barLegendAfterConsent: 'Après consentement',
+                barLegendAfterRefuse: 'Après refus'
+            },
+            table: {
+                title: 'Top Violations',
+                name: 'Nom du cookie',
+                category: 'Catégorie',
+                frequency: 'Fréquence',
+                type: 'Type',
+                severity: 'Sévérité',
+                gain: 'Gain potentiel',
+                empty: 'Aucune violation détectée.'
+            },
+            types: {
+                before: 'Avant consentement',
+                after: 'Après refus'
+            },
+            severities: {
+                high: 'Haute',
+                medium: 'Moyenne',
+                low: 'Faible'
+            },
+            verbs: {
+                address: 'Traiter le cookie',
+                categorize: 'Catégoriser le cookie',
+                verify: 'Vérifier le cookie',
+                exempt: 'Vérifier et exempter le cookie'
+            },
+            narrativePhrases: {
+                perfect: ["Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !", "Audit parfait. Votre configuration est irréprochable."],
+                levels: {
+                    excellent: ["Ce score indique une **très bonne conformité**, mais certains écarts justifient une action"],
+                    good: ["Ce score indique une **conformité perfectible**, avec des corrections à engager rapidement"],
+                    average: ["Ce score indique une **conformité fragile**, avec un risque réel en cas de contrôle CNIL"],
+                    poor: ["Ce score indique une **non-conformité élevée**, une action immédiate est recommandée"]
+                },
+                issueIntroSingular: ", principalement en raison d'un facteur critique :\n",
+                issueIntroPlural: ", principalement en raison des facteurs suivants :\n",
+                behaviorBeforeSingular: "**Dépôt avant consentement :** Un cookie est posé avant que l'utilisateur n'ait fait son choix.",
+                behaviorBeforePlural: "**Action prématurée :** {count} cookies sont posés avant toute interaction.",
+                behaviorAfterSingular: "**Persistance après refus :** Un cookie continue d'être écrit malgré un refus explicite. Violation grave.",
+                behaviorAfterPlural: "**Non-respect du refus :** {count} cookies ignorent le choix de l'utilisateur.",
+                insightMarketingSingular: "Un cookie marketing est très fortement pénalisé en raison de sa finalité publicitaire.",
+                insightMarketingPlural: "{count} cookies marketing sont très fortement pénalisés (priorité CNIL).",
+                insightEssentialSingular: "Un cookie essentiel listé nécessite d'être marqué comme exempté.",
+                insightEssentialPlural: "{count} cookies essentiels nécessitent d'être confirmés comme exemptés.",
+                insightAnalyticsSingular: "Un cookie analytique semble mal configuré.",
+                insightAnalyticsPlural: "{count} cookies analytiques semblent mal configurés.",
+                insightUncategorizedSingular: "Un cookie non catégorisé est traité comme potentiellement à risque.",
+                insightUncategorizedPlural: "{count} cookies non catégorisés sont traités comme à risque.",
+                frequencyWarning: "La haute fréquence d'apparition de ces traceurs sur le site décuple la perte de points.",
+                lowFrequencyMitigation: "Votre score reste relativement élevé car ces écarts ne touchent qu'une faible proportion de votre site.",
+                insightIntro: "💡 **À noter :** ",
+                insightJoiner: " Par ailleurs, "
+            }
+        }
+    };
+
+    /**
+     * =========================================================================
+     * MOCK API SERVICE
+     * =========================================================================
+     */
+    const MockApiService = {
+        async fetchScanResults() {
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const cookieNamesList = ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'hotjar_id', 'li_sugr', 'YSC'];
+            const categoriesList = ['Marketing', 'Analytics', 'Uncategorized', 'Essential'];
+            
+            const numViolations = Math.random() > 0.9 ? 0 : Math.floor(Math.random() * 5) + 1;
+            const rawViolations = [];
+
+            for (let i = 0; i < numViolations; i++) {
+                rawViolations.push({
+                    name: cookieNamesList[Math.floor(Math.random() * cookieNamesList.length)],
+                    frequency: Math.floor(Math.random() * 100) + 1,
+                    type: Math.random() > 0.6 ? 'before' : 'after',
+                    category: categoriesList[Math.floor(Math.random() * categoriesList.length)]
+                });
+            }
+
+            return {
+                baseTotalScanned: 152 + Math.floor(Math.random() * 50),
+                violations: rawViolations
+            };
+        }
+    };
+
+
+    /**
+     * =========================================================================
+     * MAIN VUE APPLICATION
+     * =========================================================================
+     */
+    const { createApp, ref, reactive, computed, onMounted, markRaw } = Vue;
 
     createApp({
-        data() {
-            return {
-                language: 'en',
-                score: 100,
-                violations: [],
-                kpis: {
-                    beforeConsent: 0,
-                    afterRefuse: 0,
-                    highFrequency: 0,
-                    total: 152 // Static base for demo purposes
-                },
-                scoreChartInstance: null,
-                barChartInstance: null,
-                cookieNamesList: ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'hotjar_id', 'li_sugr', 'YSC'],
-                categoriesList: ['Marketing', 'Analytics', 'Uncategorized', 'Essential'],
-                currentNarrativeText: ''
-            }
-        },
-        computed: {
-            topActions() {
-                // Return up to top 3 violations sorted by points lost
-                return [...this.violations].sort((a, b) => b.pointsLost - a.pointsLost).slice(0, 3);
-            }
-        },
-        methods: {
-            // --- Helper logic for UI rendering ---
-            getScoreColor(score) {
-                if (score < 50) return '#ef4444'; // Red
-                if (score < 70) return '#f97316'; // Orange
-                if (score < 90) return '#fbbf24'; // Yellow
-                return '#10b981'; // Green
-            },
-            getActionIconWrapperClass(action) {
-                if (action.pointsLost >= 10) return 'bg-icon-danger';
-                if (action.pointsLost >= 5) return 'bg-icon-warning';
-                return 'bg-icon-info';
-            },
-            getActionIcon(action) {
-                if (action.pointsLost >= 10) return 'fas fa-bolt';
-                if (action.pointsLost >= 5) return 'fas fa-exclamation-triangle';
-                return 'fas fa-cog';
-            },
-            getGainBadgeClass(action) {
-                if (action.pointsLost >= 10) return 'gain-badge-success'; // Big gain is good
-                if (action.pointsLost >= 5) return 'gain-badge-warning';
-                return 'gain-badge-neutral';
-            },
-            getActionVerb(action) {
-                let actionVerb = this.language === 'en' ? 'Address cookie' : 'Traiter le cookie';
-                if (action.category === 'Uncategorized') {
-                    actionVerb = this.language === 'en' ? 'Categorize cookie' : 'Catégoriser le cookie';
-                } else if (action.category === 'Analytics') {
-                    actionVerb = this.language === 'en' ? 'Verify cookie' : 'Vérifier le cookie';
-                } else if (action.category === 'Essential') {
-                    actionVerb = this.language === 'en' ? 'Check and exempt cookie' : 'Vérifier et exempter le cookie';
-                }
-                return actionVerb;
-            },
-            getTypeBadgeClass(type) {
-                return type === 'before' ? 'badge-before' : 'badge-after';
-            },
-            getTypeLabel(type) {
-                return type === 'before' 
-                    ? (this.language === 'en' ? 'Before consent' : 'Avant consentement')
-                    : (this.language === 'en' ? 'After refuse' : 'Après refus');
-            },
-            getSeverityBadgeClass(violation) {
-                if (violation.pointsLost >= 10) return 'severity-high';
-                if (violation.pointsLost >= 5) return 'severity-medium';
-                return 'severity-low';
-            },
-            getSeverityLabel(violation) {
-                if (violation.pointsLost >= 10) return this.language === 'en' ? 'High' : 'Haute';
-                if (violation.pointsLost >= 5) return this.language === 'en' ? 'Medium' : 'Moyenne';
-                return this.language === 'en' ? 'Low' : 'Faible';
-            },
-            getCategoryBadgeClass(category) {
-                const map = {
-                    'Analytics': 'cat-analytics',
-                    'Essential': 'cat-essential',
-                    'Marketing': 'cat-marketing',
-                    'Uncategorized': 'cat-uncategorized'
-                };
-                return map[category] || 'cat-uncategorized';
-            },
-            getCategoryBoxicon(category) {
-                const map = {
-                    'Analytics': 'bx bx-line-chart',
-                    'Essential': 'bx bx-shield',
-                    'Marketing': 'bx bx-target-lock',
-                    'Uncategorized': 'bx bx-tag'
-                };
-                return map[category] || 'bx bx-tag';
-            },
-            getTextCategoryClass(category) {
-                const map = {
-                    'Analytics': 'text-cat-analytics',
-                    'Essential': 'text-cat-essential',
-                    'Marketing': 'text-cat-marketing',
-                    'Uncategorized': 'text-cat-uncategorized'
-                };
-                return map[category] || 'text-cat-uncategorized';
-            },
+        setup() {
+            // --- 1. STATE ---
+            const language = ref('fr'); // Set FR as default to match your image and locale context
+            const isLoading = ref(false);
+            const score = ref(100);
+            const violations = ref([]);
+            
+            // New UI controls state
+            const rareCookiesEnabled = ref(false);
+            const selectedWebsite = ref('all');
+            
+            const kpis = reactive({ beforeConsent: 0, afterRefuse: 0, highFrequency: 0, total: 0 });
 
-            // --- Generation Logic (Ported from narrative demo) ---
-            calculateScoreAndPoints(rawViolations) {
+            const narrativeContainer = ref(null);
+            let currentNarrativeSummary = null;
+            let scoreChartInstance = null;
+            let barChartInstance = null;
+
+            // --- 2. I18N SIMULATION FUNCTION ---
+            // @DEV: Replace all usages of this `t()` with your vue-i18n `$t()` inside your components.
+            const t = (key, params = {}) => {
+                const keys = key.split('.');
+                let val = i18nMessages[language.value];
+                for (const k of keys) {
+                    if (!val) return key;
+                    val = val[k];
+                }
+                if (!val) return key;
+                
+                // Replace parameters (e.g. {count})
+                if (typeof val === 'string') {
+                    return val.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? params[k] : `{${k}}`);
+                }
+                return val; // Returns arrays/objects directly if requested
+            };
+
+            // --- 3. COMPUTED PROPERTIES ---
+            const topActions = computed(() => {
+                return [...violations.value].sort((a, b) => b.pointsLost - a.pointsLost).slice(0, 3);
+            });
+
+            // --- 4. BUSINESS LOGIC METHODS ---
+            const calculateScoreAndPoints = (rawViolations) => {
                 let totalPointsLost = 0;
                 const enrichedViolations = rawViolations.map(v => {
                     const freq = v.frequency;
                     const baseRate = v.type === 'after' ? 0.15 : 0.10;
                     const categoryWeight = { Marketing: 2, Analytics: 1, Uncategorized: 1.5, Essential: 0.5 }[v.category] || 1;
+                    
                     const pointsLostRaw = freq * categoryWeight * baseRate;
                     const pointsLost = Math.round(pointsLostRaw);
+                    
                     totalPointsLost += pointsLostRaw;
                     return { ...v, pointsLost };
                 });
-                const score = Math.max(0, Math.round(100 - totalPointsLost));
-                return { score, enrichedViolations };
-            },
+                
+                const finalScore = Math.max(0, Math.round(100 - totalPointsLost));
+                return { finalScore, enrichedViolations };
+            };
 
-            generateExecutiveNarrative(score, summary) {
-                const lang = this.language;
-                const {
-                    beforeConsentCount, afterRefusalCount, marketingCount, essentialCount,
-                    analyticsCount, uncategorizedCount, highFrequencyIssues, lowFreqCount,
-                    highFreqCount, totalIssuesCount, totalGain
-                } = summary;
+            const loadDashboardData = async () => {
+                isLoading.value = true;
+                
+                try {
+                    const response = await MockApiService.fetchScanResults();
+                    
+                    const { finalScore, enrichedViolations } = calculateScoreAndPoints(response.violations);
+                    score.value = finalScore;
+                    violations.value = enrichedViolations.sort((a, b) => b.pointsLost - a.pointsLost);
+                    
+                    const summary = {
+                        beforeConsentCount: violations.value.filter(v => v.type === 'before').length,
+                        afterRefusalCount: violations.value.filter(v => v.type === 'after').length,
+                        marketingCount: violations.value.filter(v => v.category === 'Marketing').length,
+                        essentialCount: violations.value.filter(v => v.category === 'Essential').length,
+                        analyticsCount: violations.value.filter(v => v.category === 'Analytics').length,
+                        uncategorizedCount: violations.value.filter(v => v.category === 'Uncategorized').length,
+                        highFrequencyIssues: violations.value.filter(v => v.frequency > 50).length,
+                        totalGain: violations.value.reduce((sum, v) => sum + v.pointsLost, 0)
+                    };
+                    currentNarrativeSummary = summary;
 
-                const maxGain = Math.min(totalGain, 100 - score);
+                    kpis.beforeConsent = summary.beforeConsentCount;
+                    kpis.afterRefuse = summary.afterRefusalCount;
+                    kpis.highFrequency = summary.highFrequencyIssues;
+                    kpis.total = response.baseTotalScanned;
 
-                const phrases = lang === 'en' ? {
-                    perfect: ["No violations detected: your site fully complies with consent rules. Keep it up!", "Flawless compliance audit. Your setup is perfectly aligned with privacy guidelines."],
-                    levels: {
-                        excellent: ["This score indicates **very strong compliance**, but some findings may still require action"],
-                        good: ["This score indicates **partial compliance**, with fixes that need to be started quickly"],
-                        average: ["This score indicates **fragile compliance**, with a real risk in case of a regulatory audit"],
-                        poor: ["This score indicates **high non-compliance**; immediate action is recommended"]
-                    },
-                    issueIntroSingular: ", mainly due to one critical factor:\n",
-                    issueIntroPlural: ", mainly due to the following factors:\n",
-                    behaviorBeforeSingular: "**Tracking before consent:** A cookie is set before the user has made a choice.",
-                    behaviorBeforePlural: `**Tracking before consent:** ${beforeConsentCount} cookies are set before any user interaction.`,
-                    behaviorAfterSingular: "**Persistence after refusal:** A cookie continues to be set even after an explicit refusal. This is a severe violation.",
-                    behaviorAfterPlural: `**Persistence after refusal:** ${afterRefusalCount} cookies fail to respect the user's refusal, exposing you to high risks.`,
-                    insightMarketingSingular: "A marketing cookie is penalized heavily due to its advertising purpose.",
-                    insightMarketingPlural: `${marketingCount} marketing cookies are heavily penalized due to their advertising purpose.`,
-                    insightEssentialSingular: "An essential cookie requires your manual validation to be marked as exempt.",
-                    insightEssentialPlural: `${essentialCount} essential cookies require validation to remove the penalty.`,
-                    insightAnalyticsSingular: "An analytics cookie appears to be misconfigured.",
-                    insightAnalyticsPlural: `${analyticsCount} analytics cookies appear to be misconfigured.`,
-                    insightUncategorizedSingular: "An uncategorized cookie is treated as potentially risky.",
-                    insightUncategorizedPlural: `${uncategorizedCount} cookies are uncategorized and treated as risky.`,
-                    frequencyWarning: "Some of these issues affect a large portion of your pages, significantly amplifying the penalty.",
-                    lowFrequencyMitigation: "Your score remains relatively high because these issues only affect a small portion of your site."
-                } : {
-                    perfect: ["Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !", "Audit parfait. Votre configuration est irréprochable."],
-                    levels: {
-                        excellent: ["Ce score indique une **très bonne conformité**, mais certains écarts justifient une action"],
-                        good: ["Ce score indique une **conformité perfectible**, avec des corrections à engager rapidement"],
-                        average: ["Ce score indique une **conformité fragile**, avec un risque réel en cas de contrôle CNIL"],
-                        poor: ["Ce score indique une **non-conformité élevée**, une action immédiate est recommandée"]
-                    },
-                    issueIntroSingular: ", principalement en raison d'un facteur critique :\n",
-                    issueIntroPlural: ", principalement en raison des facteurs suivants :\n",
-                    behaviorBeforeSingular: "**Dépôt avant consentement :** Un cookie est posé avant que l'utilisateur n'ait fait son choix.",
-                    behaviorBeforePlural: `**Action prématurée :** ${beforeConsentCount} cookies sont posés avant toute interaction.`,
-                    behaviorAfterSingular: "**Persistance après refus :** Un cookie continue d'être écrit malgré un refus explicite. Violation grave.",
-                    behaviorAfterPlural: `**Non-respect du refus :** ${afterRefusalCount} cookies ignorent le choix de l'utilisateur.`,
-                    insightMarketingSingular: "Un cookie marketing est très fortement pénalisé en raison de sa finalité publicitaire.",
-                    insightMarketingPlural: `${marketingCount} cookies marketing sont très fortement pénalisés (priorité CNIL).`,
-                    insightEssentialSingular: "Un cookie essentiel listé nécessite d'être marqué comme exempté.",
-                    insightEssentialPlural: `${essentialCount} cookies essentiels nécessitent d'être confirmés comme exemptés.`,
-                    insightAnalyticsSingular: "Un cookie analytique semble mal configuré.",
-                    insightAnalyticsPlural: `${analyticsCount} cookies analytiques semblent mal configurés.`,
-                    insightUncategorizedSingular: "Un cookie non catégorisé est traité comme potentiellement à risque.",
-                    insightUncategorizedPlural: `${uncategorizedCount} cookies non catégorisés sont traités comme à risque.`,
-                    frequencyWarning: "La haute fréquence d'apparition de ces traceurs sur le site décuple la perte de points.",
-                    lowFrequencyMitigation: "Votre score reste relativement élevé car ces écarts ne touchent qu'une faible proportion de votre site."
-                };
+                    updateCharts();
+                    const narrativeText = generateExecutiveNarrative(score.value, summary);
+                    typeNarrative(narrativeText);
 
-                if (score === 100) return phrases.perfect[Math.floor(Math.random() * phrases.perfect.length)];
+                } catch (error) {
+                    console.error("Failed to load scan results:", error);
+                } finally {
+                    isLoading.value = false;
+                }
+            };
+
+            // --- 5. NARRATIVE GENERATION LOGIC ---
+            const generateExecutiveNarrative = (currentScore, summary) => {
+                const { beforeConsentCount, afterRefusalCount, marketingCount, essentialCount, analyticsCount, uncategorizedCount, highFrequencyIssues } = summary;
+
+                // Fetching the correct narrative phrases block based on current language
+                const phrases = t('narrativePhrases');
+
+                if (currentScore === 100) return phrases.perfect[Math.floor(Math.random() * phrases.perfect.length)];
 
                 let levelKey = 'excellent';
-                if (score < 50) levelKey = 'poor';
-                else if (score < 70) levelKey = 'average';
-                else if (score < 90) levelKey = 'good';
+                if (currentScore < 50) levelKey = 'poor';
+                else if (currentScore < 70) levelKey = 'average';
+                else if (currentScore < 90) levelKey = 'good';
 
                 let narrative = `${phrases.levels[levelKey][0]}`;
-                
                 let structuralIssuesCount = (beforeConsentCount > 0 ? 1 : 0) + (afterRefusalCount > 0 ? 1 : 0);
 
                 if (structuralIssuesCount === 1) narrative += `${phrases.issueIntroSingular}\n`;
                 else if (structuralIssuesCount > 1) narrative += `${phrases.issueIntroPlural}\n`;
                 else narrative += `.\n\n`;
 
-                if (beforeConsentCount > 0) narrative += `- ${beforeConsentCount === 1 ? phrases.behaviorBeforeSingular : phrases.behaviorBeforePlural}\n`;
-                if (afterRefusalCount > 0) narrative += `- ${afterRefusalCount === 1 ? phrases.behaviorAfterSingular : phrases.behaviorAfterPlural}\n`;
-                
+                if (beforeConsentCount > 0) narrative += `- ${beforeConsentCount === 1 ? phrases.behaviorBeforeSingular : t('narrativePhrases.behaviorBeforePlural', {count: beforeConsentCount})}\n`;
+                if (afterRefusalCount > 0) narrative += `- ${afterRefusalCount === 1 ? phrases.behaviorAfterSingular : t('narrativePhrases.behaviorAfterPlural', {count: afterRefusalCount})}\n`;
                 narrative += `\n`;
 
                 let insights = [];
-                if (marketingCount > 0) insights.push(marketingCount === 1 ? phrases.insightMarketingSingular : phrases.insightMarketingPlural);
-                if (essentialCount > 0) insights.push(essentialCount === 1 ? phrases.insightEssentialSingular : phrases.insightEssentialPlural);
-                if (analyticsCount > 0 && marketingCount === 0) insights.push(analyticsCount === 1 ? phrases.insightAnalyticsSingular : phrases.insightAnalyticsPlural);
-                if (uncategorizedCount > 0 && insights.length < 2) insights.push(uncategorizedCount === 1 ? phrases.insightUncategorizedSingular : phrases.insightUncategorizedPlural);
+                if (marketingCount > 0) insights.push(marketingCount === 1 ? phrases.insightMarketingSingular : t('narrativePhrases.insightMarketingPlural', {count: marketingCount}));
+                if (essentialCount > 0) insights.push(essentialCount === 1 ? phrases.insightEssentialSingular : t('narrativePhrases.insightEssentialPlural', {count: essentialCount}));
+                if (analyticsCount > 0 && marketingCount === 0) insights.push(analyticsCount === 1 ? phrases.insightAnalyticsSingular : t('narrativePhrases.insightAnalyticsPlural', {count: analyticsCount}));
+                if (uncategorizedCount > 0 && insights.length < 2) insights.push(uncategorizedCount === 1 ? phrases.insightUncategorizedSingular : t('narrativePhrases.insightUncategorizedPlural', {count: uncategorizedCount}));
 
                 if (insights.length > 0) {
-                    const insightIntro = lang === 'en' ? "💡 **Insight:** " : "💡 **À noter :** ";
-                    const joinedInsights = insights.join(lang === 'en' ? ' Also, ' : ' Par ailleurs, ');
-                    narrative += `> ${insightIntro}${joinedInsights}\n\n`;
+                    const joinedInsights = insights.join(phrases.insightJoiner);
+                    narrative += `> ${phrases.insightIntro}${joinedInsights}\n\n`;
                 }
 
-                if (highFrequencyIssues > 0 && score < 90) {
+                if (highFrequencyIssues > 0 && currentScore < 90) {
                     narrative += `${phrases.frequencyWarning}\n\n`;
-                } else if (score >= 80 && score < 100 && highFrequencyIssues === 0) {
+                } else if (currentScore >= 80 && currentScore < 100 && highFrequencyIssues === 0) {
                     narrative += `${phrases.lowFrequencyMitigation}\n\n`;
                 }
 
                 return narrative;
-            },
+            };
 
-            typeNarrative(text) {
-                const element = this.$refs.narrativeContainer;
-                if (!element) return;
+            const typeNarrative = (text) => {
+                if (!narrativeContainer.value) return;
                 
-                element.innerHTML = '';
+                narrativeContainer.value.innerHTML = '';
                 const tokens = text.split(/(\s+|\n|\S+)/g).filter(Boolean);
                 let delay = 0;
                 let currentText = '';
@@ -812,165 +1004,116 @@
                 tokens.forEach((token, index) => {
                     setTimeout(() => {
                         currentText += token;
-                        element.innerHTML = marked.parse(currentText);
+                        narrativeContainer.value.innerHTML = marked.parse(currentText);
                         
-                        // Add blinker cursor
                         if (index < tokens.length - 1) {
                             const cursor = document.createElement('span');
                             cursor.className = 'cursor';
-                            const target = element.querySelector('p:last-child, blockquote:last-child p:last-child');
-                            if(target) target.appendChild(cursor);
-                            else element.appendChild(cursor);
+                            const target = narrativeContainer.value.querySelector('p:last-child, blockquote:last-child p:last-child');
+                            if (target) target.appendChild(cursor);
+                            else narrativeContainer.value.appendChild(cursor);
                         }
                     }, delay);
-                    delay += 5; // Typing speed
+                    delay += 5;
                 });
-            },
+            };
 
-            reRenderNarrative() {
-                // If language changes, just regenerate and retype without changing data
-                if (this.currentNarrativeSummary) {
-                    const text = this.generateExecutiveNarrative(this.score, this.currentNarrativeSummary);
-                    this.typeNarrative(text);
+            const reRenderNarrative = () => {
+                if (currentNarrativeSummary) {
+                    const text = generateExecutiveNarrative(score.value, currentNarrativeSummary);
+                    typeNarrative(text);
                 }
-            },
+                // @DEV: Re-render charts to update labels language
+                updateCharts(); 
+            };
 
-            simulateScan() {
-                // Generate 1 to 5 random violations
-                const numViolations = Math.floor(Math.random() * 5) + 1; // At least 1 for the demo to be interesting, or change to 0-5
-                const rawViolations = [];
-                
-                // Sometimes force a perfect score for testing (10% chance)
-                if (Math.random() > 0.9) {
-                    // 0 violations
-                } else {
-                    for (let i = 0; i < numViolations; i++) {
-                        rawViolations.push({
-                            name: this.cookieNamesList[Math.floor(Math.random() * this.cookieNamesList.length)],
-                            frequency: Math.floor(Math.random() * 100) + 1,
-                            type: Math.random() > 0.6 ? 'before' : 'after',
-                            category: this.categoriesList[Math.floor(Math.random() * this.categoriesList.length)]
-                        });
-                    }
+            // --- 6. UI FORMATTING HELPERS ---
+            const getScoreColor = (s) => {
+                if (s < 50) return '#ef4444';
+                if (s < 70) return '#f97316';
+                if (s < 90) return '#fbbf24';
+                return '#10b981';
+            };
+
+            const getActionIconWrapperClass = (action) => action.pointsLost >= 10 ? 'bg-icon-danger' : (action.pointsLost >= 5 ? 'bg-icon-warning' : 'bg-icon-info');
+            const getActionIcon = (action) => action.pointsLost >= 10 ? 'fas fa-bolt' : (action.pointsLost >= 5 ? 'fas fa-exclamation-triangle' : 'fas fa-cog');
+            const getGainBadgeClass = (action) => action.pointsLost >= 10 ? 'gain-badge-success' : (action.pointsLost >= 5 ? 'gain-badge-warning' : 'gain-badge-neutral');
+            
+            const getActionVerb = (action) => {
+                if (action.category === 'Uncategorized') return t('verbs.categorize');
+                if (action.category === 'Analytics') return t('verbs.verify');
+                if (action.category === 'Essential') return t('verbs.exempt');
+                return t('verbs.address');
+            };
+
+            const getTypeBadgeClass = (type) => type === 'before' ? 'badge-before' : 'badge-after';
+            const getTypeLabel = (type) => type === 'before' ? t('types.before') : t('types.after');
+            
+            const getSeverityBadgeClass = (v) => v.pointsLost >= 10 ? 'severity-high' : (v.pointsLost >= 5 ? 'severity-medium' : 'severity-low');
+            const getSeverityLabel = (v) => v.pointsLost >= 10 ? t('severities.high') : (v.pointsLost >= 5 ? t('severities.medium') : t('severities.low'));
+            
+            const getCategoryBadgeClass = (c) => ({ 'Analytics': 'cat-analytics', 'Essential': 'cat-essential', 'Marketing': 'cat-marketing', 'Uncategorized': 'cat-uncategorized' }[c] || 'cat-uncategorized');
+            const getCategoryBoxicon = (c) => ({ 'Analytics': 'bx bx-line-chart', 'Essential': 'bx bx-shield', 'Marketing': 'bx bx-target-lock', 'Uncategorized': 'bx bx-tag' }[c] || 'bx bx-tag');
+            const getTextCategoryClass = (c) => ({ 'Analytics': 'text-cat-analytics', 'Essential': 'text-cat-essential', 'Marketing': 'text-cat-marketing', 'Uncategorized': 'text-cat-uncategorized' }[c] || 'text-cat-uncategorized');
+
+            // --- 7. CHART.JS MANAGEMENT ---
+            const updateCharts = () => {
+                if (scoreChartInstance) {
+                    scoreChartInstance.data.datasets[0].data = [score.value, 100 - score.value];
+                    scoreChartInstance.data.datasets[0].backgroundColor = [getScoreColor(score.value), '#f1f5f9'];
+                    scoreChartInstance.update();
                 }
-
-                // Calculate Impact
-                const { score, enrichedViolations } = this.calculateScoreAndPoints(rawViolations);
-                
-                // Update State
-                this.score = score;
-                this.violations = enrichedViolations.sort((a, b) => b.pointsLost - a.pointsLost);
-                
-                // Build Summary for Narrative
-                const summary = {
-                    beforeConsentCount: this.violations.filter(v => v.type === 'before').length,
-                    afterRefusalCount: this.violations.filter(v => v.type === 'after').length,
-                    marketingCount: this.violations.filter(v => v.category === 'Marketing').length,
-                    essentialCount: this.violations.filter(v => v.category === 'Essential').length,
-                    analyticsCount: this.violations.filter(v => v.category === 'Analytics').length,
-                    uncategorizedCount: this.violations.filter(v => v.category === 'Uncategorized').length,
-                    highFrequencyIssues: this.violations.filter(v => v.frequency > 50).length,
-                    totalGain: this.violations.reduce((sum, v) => sum + v.pointsLost, 0)
-                };
-                this.currentNarrativeSummary = summary; // store for language switch
-
-                // Update KPIs
-                this.kpis.beforeConsent = summary.beforeConsentCount;
-                this.kpis.afterRefuse = summary.afterRefusalCount;
-                this.kpis.highFrequency = summary.highFrequencyIssues;
-                this.kpis.total = 152 + Math.floor(Math.random() * 50); // slight variance
-
-                // Trigger UI updates
-                this.updateCharts();
-                const text = this.generateExecutiveNarrative(score, summary);
-                this.typeNarrative(text);
-            },
-
-            updateCharts() {
-                // Update Donut
-                if (this.scoreChartInstance) {
-                    this.scoreChartInstance.data.datasets[0].data = [this.score, 100 - this.score];
-                    this.scoreChartInstance.data.datasets[0].backgroundColor = [this.getScoreColor(this.score), '#f1f5f9'];
-                    this.scoreChartInstance.update();
-                }
-
-                // Update Bar Chart (Mocking slightly dynamic data for visual effect)
-                if (this.barChartInstance) {
+                if (barChartInstance) {
+                    // Update chart translation labels on language change
+                    barChartInstance.data.datasets[0].label = t('charts.barLegendBefore');
+                    barChartInstance.data.datasets[1].label = t('charts.barLegendAfterConsent');
+                    barChartInstance.data.datasets[2].label = t('charts.barLegendAfterRefuse');
+                    
                     const variance = () => Math.floor(Math.random() * 10) - 5;
-                    this.barChartInstance.data.datasets[0].data = [6+variance(), 6+variance(), 6+variance(), 20+variance()]; // before
-                    this.barChartInstance.data.datasets[2].data = [0, 6+variance(), 0, 0]; // after refuse
-                    this.barChartInstance.update();
+                    barChartInstance.data.datasets[0].data = [6+variance(), 6+variance(), 6+variance(), 20+variance()]; 
+                    barChartInstance.data.datasets[2].data = [0, 6+variance(), 0, 0]; 
+                    barChartInstance.update();
                 }
-            },
+            };
 
-            initCharts() {
+            const initCharts = () => {
                 Chart.defaults.font.family = "'Roboto', sans-serif";
                 Chart.defaults.color = '#64748b';
 
-                // --- Chart 1: Donut ---
                 const ctxScore = document.getElementById('scoreChart').getContext('2d');
-                this.scoreChartInstance = markRaw(new Chart(ctxScore, {
+                scoreChartInstance = markRaw(new Chart(ctxScore, {
                     type: 'doughnut',
                     data: {
                         labels: ['Score', 'Remainder'],
                         datasets: [{
-                            data: [this.score, 100 - this.score],
-                            backgroundColor: [this.getScoreColor(this.score), '#f1f5f9'],
+                            data: [score.value, 100 - score.value],
+                            backgroundColor: [getScoreColor(score.value), '#f1f5f9'],
                             borderWidth: 0,
                             hoverOffset: 0
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '78%',
+                        responsive: true, maintainAspectRatio: false, cutout: '78%',
                         plugins: { legend: { display: false }, tooltip: { enabled: false } },
                         animation: { animateScale: true, animateRotate: true }
                     }
                 }));
 
-                // --- Chart 2: Bar Chart ---
                 const ctxBar = document.getElementById('barChart').getContext('2d');
-                this.barChartInstance = markRaw(new Chart(ctxBar, {
+                barChartInstance = markRaw(new Chart(ctxBar, {
                     type: 'bar',
                     data: {
                         labels: ['Essential', 'Analytics', 'Marketing', 'Uncategorized'],
                         datasets: [
-                            {
-                                label: 'Before consent',
-                                data: [6, 6, 6, 20],
-                                backgroundColor: '#fbbf24',
-                                borderRadius: 4,
-                                barThickness: 20,
-                                categoryPercentage: 0.7
-                            },
-                            {
-                                label: 'After consent',
-                                data: [5, 7, 15, 48],
-                                backgroundColor: '#67e8f9',
-                                borderRadius: 4,
-                                barThickness: 20,
-                                categoryPercentage: 0.7
-                            },
-                            {
-                                label: 'After refuse all',
-                                data: [0, 6, 0, 0],
-                                backgroundColor: '#ef4444',
-                                borderRadius: 4,
-                                barThickness: 20,
-                                categoryPercentage: 0.7
-                            }
+                            { label: t('charts.barLegendBefore'), data: [6, 6, 6, 20], backgroundColor: '#fbbf24', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
+                            { label: t('charts.barLegendAfterConsent'), data: [5, 7, 15, 48], backgroundColor: '#67e8f9', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
+                            { label: t('charts.barLegendAfterRefuse'), data: [0, 6, 0, 0], backgroundColor: '#ef4444', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 }
                         ]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: 'bottom',
-                                align: 'center',
-                                labels: { usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: 11, weight: 500 } }
-                            }
+                            legend: { position: 'bottom', align: 'center', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: 11, weight: 500 } } }
                         },
                         scales: {
                             y: { beginAtZero: true, max: 50, border: { display: false }, grid: { color: '#f1f5f9', drawBorder: false }, ticks: { padding: 10 } },
@@ -978,14 +1121,24 @@
                         }
                     }
                 }));
-            }
-        },
-        mounted() {
-            this.initCharts();
-            // Launch first simulation on load
-            setTimeout(() => {
-                this.simulateScan();
-            }, 500);
+            };
+
+            // --- 8. LIFECYCLE HOOKS ---
+            onMounted(() => {
+                initCharts();
+                loadDashboardData();
+            });
+
+            // Expose properties to the template
+            return {
+                language, isLoading, score, violations, kpis, topActions, narrativeContainer,
+                rareCookiesEnabled, selectedWebsite, // Expose new UI states
+                t, // Exposing our simulated vue-i18n translation method
+                loadDashboardData, reRenderNarrative,
+                getScoreColor, getActionIconWrapperClass, getActionIcon, getGainBadgeClass,
+                getActionVerb, getTypeBadgeClass, getTypeLabel, getSeverityBadgeClass,
+                getSeverityLabel, getCategoryBadgeClass, getCategoryBoxicon, getTextCategoryClass
+            };
         }
     }).mount('#app');
 </script>
