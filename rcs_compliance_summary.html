@@ -297,7 +297,8 @@
         <div>
             <div class="breadcrumb-title">
                 Realtime Cookie Scanner <span class="mx-2">/</span> 
-                <span class="breadcrumb-active">{{ language === 'en' ? 'Compliance Summary' : 'Synthèse de conformité' }}</span>
+                <!-- @DEV: Using standard $t() global plugin format -->
+                <span class="breadcrumb-active">{{ $t('header.title') }}</span>
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -307,14 +308,13 @@
             </select>
             
             <div class="form-check form-switch d-flex align-items-center gap-2 m-0 border-start ps-3 border-secondary-subtle">
-                <label class="form-check-label fw-bold text-secondary small text-uppercase" for="cookiesRares">Rare cookies</label>
+                <label class="form-check-label fw-bold text-secondary small text-uppercase" for="cookiesRares">{{ $t('header.rareCookies') }}</label>
                 <input class="form-check-input shadow-none" type="checkbox" role="switch" id="cookiesRares">
             </div>
 
-            <!-- @DEV: The loading state helps UX during actual API calls -->
             <button @click="loadDashboardData" :disabled="isLoading" class="btn-simulate shadow-sm d-flex align-items-center gap-2">
                 <i class="fas fa-rotate" :class="{ 'fa-spin': isLoading }"></i> 
-                {{ language === 'en' ? (isLoading ? 'Scanning...' : 'Simulate Scan') : (isLoading ? 'Scan en cours...' : 'Simuler un scan') }}
+                {{ isLoading ? $t('header.scanning') : $t('header.simulate') }}
             </button>
         </div>
     </div>
@@ -339,10 +339,10 @@
                 </div>
                 <div class="d-flex align-items-center gap-2 mt-2">
                     <span class="badge rounded-circle p-1" :style="{ backgroundColor: getScoreColor(score), width: '8px', height: '8px' }"> </span>
-                    <span class="fw-bold text-secondary small">{{ language === 'en' ? 'Cookie Compliance Score' : 'Score de Conformité' }}</span>
+                    <span class="fw-bold text-secondary small">{{ $t('score.title') }}</span>
                     <div class="custom-tooltip">
                         <i class="far fa-circle-question text-secondary opacity-90"></i>
-                        <span class="tooltip-text">{{ language === 'en' ? 'Score = 100 - (Frequency × Category Weight × Severity). Marketing cookies penalize more heavily.' : 'Score = 100 - (Fréquence × Poids Catégorie × Sévérité). Les cookies marketing pénalisent plus lourdement.' }}</span>
+                        <span class="tooltip-text">{{ $t('score.tooltip') }}</span>
                     </div>
                 </div>
             </div>
@@ -352,7 +352,7 @@
         <div class="col-lg-5 col-md-12">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">{{ language === 'en' ? 'Executive Narrative' : 'Synthèse Exécutive' }}</h6>
+                    <h6 class="mb-0">{{ $t('narrative.title') }}</h6>
                 </div>
                 <!-- Narrative text is injected here programmatically to simulate AI typing -->
                 <div class="narrative flex-grow-1" ref="narrativeContainer"></div>
@@ -362,12 +362,12 @@
         <!-- [SUB-COMPONENT: PriorityActionsCard] -->
         <div class="col-lg-4 col-md-12">
             <div class="card h-100 p-4">
-                <h6 class="mb-4">Next Best Actions</h6>
+                <h6 class="mb-4">{{ $t('actions.title') }}</h6>
                 <div class="d-flex flex-column gap-3">
                     
                     <div v-if="topActions.length === 0" class="text-center text-secondary py-4 fw-bold">
                         <i class="fas fa-check-circle text-success fs-1 mb-2"></i>
-                        <p class="mb-0">{{ language === 'en' ? 'No priority actions required. Excellent!' : 'Aucune action prioritaire requise. Excellent !' }}</p>
+                        <p class="mb-0">{{ $t('actions.none') }}</p>
                     </div>
 
                     <!-- Action Items Loop -->
@@ -381,7 +381,7 @@
                                 <i :class="[getCategoryBoxicon(action.category), getTextCategoryClass(action.category)]" class="fs-5 ms-1"></i>
                             </div>
                             <div class="text-secondary small mt-1 d-flex align-items-center gap-2">
-                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ language === 'en' ? 'frequency' : 'fréquence' }}</span>
+                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ $t('actions.freq') }}</span>
                                 <span class="badge-type" :class="getTypeBadgeClass(action.type)">
                                     {{ getTypeLabel(action.type) }}
                                 </span>
@@ -415,7 +415,7 @@
                     <div class="card card-stat border-warning h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Cookies before consent' : 'Cookies avant consentement' }}</div>
+                                <div class="kpi-label mb-2">{{ $t('kpis.before') }}</div>
                                 <div class="kpi-value">{{ kpis.beforeConsent }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fffbeb; color: #f59e0b;">
@@ -428,7 +428,7 @@
                     <div class="card card-stat border-danger h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Cookies after refuse all' : 'Cookies après refus' }}</div>
+                                <div class="kpi-label mb-2">{{ $t('kpis.after') }}</div>
                                 <div class="kpi-value">{{ kpis.afterRefuse }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fef2f2; color: #ef4444;">
@@ -441,7 +441,7 @@
                     <div class="card card-stat border-dark h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'High frequency issues' : 'Problèmes fréquents' }}</div>
+                                <div class="kpi-label mb-2">{{ $t('kpis.highFreq') }}</div>
                                 <div class="kpi-value">{{ kpis.highFrequency }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f1f5f9; color: #334155;">
@@ -454,7 +454,7 @@
                     <div class="card card-stat border-secondary h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ language === 'en' ? 'Total cookies scanned' : 'Total cookies scannés' }}</div>
+                                <div class="kpi-label mb-2">{{ $t('kpis.total') }}</div>
                                 <div class="kpi-value">{{ kpis.total }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f8fafc; color: #64748b;">
@@ -470,7 +470,7 @@
         <div class="col-xl-6">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ language === 'en' ? 'Cookies by consent status and category' : 'Cookies par statut de consentement et catégorie' }}</h6>
+                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ $t('charts.barTitle') }}</h6>
                 </div>
                 <div style="height: 250px; width: 100%;">
                     <canvas id="barChart"></canvas>
@@ -488,23 +488,23 @@
     <div class="row">
         <div class="col-12">
             <div class="card p-4">
-                <h6 class="mb-4">Top Violations</h6>
+                <h6 class="mb-4">{{ $t('table.title') }}</h6>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
-                                <th>{{ language === 'en' ? 'Cookie name' : 'Nom du cookie' }}</th>
-                                <th>{{ language === 'en' ? 'Category' : 'Catégorie' }}</th>
-                                <th>{{ language === 'en' ? 'Frequency' : 'Fréquence' }}</th>
-                                <th>{{ language === 'en' ? 'Type' : 'Type' }}</th>
-                                <th>{{ language === 'en' ? 'Severity' : 'Sévérité' }}</th>
-                                <th class="text-end">{{ language === 'en' ? 'Potential gain' : 'Gain potentiel' }}</th>
+                                <th>{{ $t('table.name') }}</th>
+                                <th>{{ $t('table.category') }}</th>
+                                <th>{{ $t('table.frequency') }}</th>
+                                <th>{{ $t('table.type') }}</th>
+                                <th>{{ $t('table.severity') }}</th>
+                                <th class="text-end">{{ $t('table.gain') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="violations.length === 0">
-                                <td colspan="7" class="text-center text-secondary py-3">{{ language === 'en' ? 'No violations detected.' : 'Aucune violation détectée.' }}</td>
+                                <td colspan="7" class="text-center text-secondary py-3">{{ $t('table.empty') }}</td>
                             </tr>
                             <tr v-for="(violation, index) in violations" :key="index">
                                 <td class="fw-bold text-secondary">{{ index + 1 }})</td>
@@ -515,7 +515,7 @@
                                     </span>
                                 </td>
                                 <td class="fw-bold text-dark">{{ violation.frequency }}%</td>
-                                <td>{{ violation.type === 'before' ? (language === 'en' ? 'Before consent' : 'Avant consentement') : (language === 'en' ? 'After refuse' : 'Après refus') }}</td>
+                                <td>{{ getTypeLabel(violation.type) }}</td>
                                 <td>
                                     <div class="badge-severity" :class="getSeverityBadgeClass(violation)">
                                         <i class="fas fa-fire" v-if="violation.pointsLost >= 10"></i>
@@ -543,21 +543,193 @@
 <script>
     /**
      * =========================================================================
+     * I18N DICTIONARY 
+     * @DEV: Copy these objects directly into your en.json and fr.json files!
+     * =========================================================================
+     */
+    const i18nMessages = {
+        en: {
+            header: {
+                title: 'Compliance Summary',
+                rareCookies: 'Rare cookies',
+                simulate: 'Simulate Scan',
+                scanning: 'Scanning...'
+            },
+            score: {
+                title: 'Cookie Compliance Score',
+                tooltip: 'Score = 100 - (Frequency × Category Weight × Severity). Marketing cookies penalize more heavily.'
+            },
+            narrative: {
+                title: 'Executive Narrative'
+            },
+            actions: {
+                title: 'Next Best Actions',
+                none: 'No priority actions required. Excellent!',
+                freq: 'frequency'
+            },
+            kpis: {
+                before: 'Cookies before consent',
+                after: 'Cookies after refuse all',
+                highFreq: 'High frequency issues',
+                total: 'Total cookies scanned'
+            },
+            charts: {
+                barTitle: 'Cookies by consent status and category',
+                barLegendBefore: 'Before consent',
+                barLegendAfterConsent: 'After consent',
+                barLegendAfterRefuse: 'After refuse all'
+            },
+            table: {
+                title: 'Top Violations',
+                name: 'Cookie name',
+                category: 'Category',
+                frequency: 'Frequency',
+                type: 'Type',
+                severity: 'Severity',
+                gain: 'Potential gain',
+                empty: 'No violations detected.'
+            },
+            types: {
+                before: 'Before consent',
+                after: 'After refuse'
+            },
+            severities: {
+                high: 'High',
+                medium: 'Medium',
+                low: 'Low'
+            },
+            verbs: {
+                address: 'Address cookie',
+                categorize: 'Categorize cookie',
+                verify: 'Verify cookie',
+                exempt: 'Check and exempt cookie'
+            },
+            narrativePhrases: {
+                perfect: ["No violations detected: your site fully complies with consent rules. Keep it up!", "Flawless compliance audit. Your setup is perfectly aligned with privacy guidelines."],
+                levels: {
+                    excellent: ["This score indicates **very strong compliance**, but some findings may still require action"],
+                    good: ["This score indicates **partial compliance**, with fixes that need to be started quickly"],
+                    average: ["This score indicates **fragile compliance**, with a real risk in case of a regulatory audit"],
+                    poor: ["This score indicates **high non-compliance**; immediate action is recommended"]
+                },
+                issueIntroSingular: ", mainly due to one critical factor:\n",
+                issueIntroPlural: ", mainly due to the following factors:\n",
+                behaviorBeforeSingular: "**Tracking before consent:** A cookie is set before the user has made a choice.",
+                behaviorBeforePlural: "**Tracking before consent:** {count} cookies are set before any user interaction.",
+                behaviorAfterSingular: "**Persistence after refusal:** A cookie continues to be set even after an explicit refusal. This is a severe violation.",
+                behaviorAfterPlural: "**Persistence after refusal:** {count} cookies fail to respect the user's refusal, exposing you to high risks.",
+                insightMarketingSingular: "A marketing cookie is penalized heavily due to its advertising purpose.",
+                insightMarketingPlural: "{count} marketing cookies are heavily penalized due to their advertising purpose.",
+                insightEssentialSingular: "An essential cookie requires your manual validation to be marked as exempt.",
+                insightEssentialPlural: "{count} essential cookies require validation to remove the penalty.",
+                insightAnalyticsSingular: "An analytics cookie appears to be misconfigured.",
+                insightAnalyticsPlural: "{count} analytics cookies appear to be misconfigured.",
+                insightUncategorizedSingular: "An uncategorized cookie is treated as potentially risky.",
+                insightUncategorizedPlural: "{count} cookies are uncategorized and treated as risky.",
+                frequencyWarning: "Some of these issues affect a large portion of your pages, significantly amplifying the penalty.",
+                lowFrequencyMitigation: "Your score remains relatively high because these issues only affect a small portion of your site.",
+                insightIntro: "💡 **Insight:** ",
+                insightJoiner: " Also, "
+            }
+        },
+        fr: {
+            header: {
+                title: 'Synthèse de conformité',
+                rareCookies: 'Cookies rares',
+                simulate: 'Simuler un scan',
+                scanning: 'Scan en cours...'
+            },
+            score: {
+                title: 'Score de Conformité',
+                tooltip: 'Score = 100 - (Fréquence × Poids Catégorie × Sévérité). Les cookies marketing pénalisent plus lourdement.'
+            },
+            narrative: {
+                title: 'Synthèse Exécutive'
+            },
+            actions: {
+                title: 'Actions Prioritaires',
+                none: 'Aucune action prioritaire requise. Excellent !',
+                freq: 'fréquence'
+            },
+            kpis: {
+                before: 'Cookies avant consentement',
+                after: 'Cookies après refus',
+                highFreq: 'Problèmes fréquents',
+                total: 'Total cookies scannés'
+            },
+            charts: {
+                barTitle: 'Cookies par statut de consentement et catégorie',
+                barLegendBefore: 'Avant consentement',
+                barLegendAfterConsent: 'Après consentement',
+                barLegendAfterRefuse: 'Après refus'
+            },
+            table: {
+                title: 'Top Violations',
+                name: 'Nom du cookie',
+                category: 'Catégorie',
+                frequency: 'Fréquence',
+                type: 'Type',
+                severity: 'Sévérité',
+                gain: 'Gain potentiel',
+                empty: 'Aucune violation détectée.'
+            },
+            types: {
+                before: 'Avant consentement',
+                after: 'Après refus'
+            },
+            severities: {
+                high: 'Haute',
+                medium: 'Moyenne',
+                low: 'Faible'
+            },
+            verbs: {
+                address: 'Traiter le cookie',
+                categorize: 'Catégoriser le cookie',
+                verify: 'Vérifier le cookie',
+                exempt: 'Vérifier et exempter le cookie'
+            },
+            narrativePhrases: {
+                perfect: ["Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !", "Audit parfait. Votre configuration est irréprochable."],
+                levels: {
+                    excellent: ["Ce score indique une **très bonne conformité**, mais certains écarts justifient une action"],
+                    good: ["Ce score indique une **conformité perfectible**, avec des corrections à engager rapidement"],
+                    average: ["Ce score indique une **conformité fragile**, avec un risque réel en cas de contrôle CNIL"],
+                    poor: ["Ce score indique une **non-conformité élevée**, une action immédiate est recommandée"]
+                },
+                issueIntroSingular: ", principalement en raison d'un facteur critique :\n",
+                issueIntroPlural: ", principalement en raison des facteurs suivants :\n",
+                behaviorBeforeSingular: "**Dépôt avant consentement :** Un cookie est posé avant que l'utilisateur n'ait fait son choix.",
+                behaviorBeforePlural: "**Action prématurée :** {count} cookies sont posés avant toute interaction.",
+                behaviorAfterSingular: "**Persistance après refus :** Un cookie continue d'être écrit malgré un refus explicite. Violation grave.",
+                behaviorAfterPlural: "**Non-respect du refus :** {count} cookies ignorent le choix de l'utilisateur.",
+                insightMarketingSingular: "Un cookie marketing est très fortement pénalisé en raison de sa finalité publicitaire.",
+                insightMarketingPlural: "{count} cookies marketing sont très fortement pénalisés (priorité CNIL).",
+                insightEssentialSingular: "Un cookie essentiel listé nécessite d'être marqué comme exempté.",
+                insightEssentialPlural: "{count} cookies essentiels nécessitent d'être confirmés comme exemptés.",
+                insightAnalyticsSingular: "Un cookie analytique semble mal configuré.",
+                insightAnalyticsPlural: "{count} cookies analytiques semblent mal configurés.",
+                insightUncategorizedSingular: "Un cookie non catégorisé est traité comme potentiellement à risque.",
+                insightUncategorizedPlural: "{count} cookies non catégorisés sont traités comme à risque.",
+                frequencyWarning: "La haute fréquence d'apparition de ces traceurs sur le site décuple la perte de points.",
+                lowFrequencyMitigation: "Votre score reste relativement élevé car ces écarts ne touchent qu'une faible proportion de votre site.",
+                insightIntro: "💡 **À noter :** ",
+                insightJoiner: " Par ailleurs, "
+            }
+        }
+    };
+
+    /**
+     * =========================================================================
      * MOCK API SERVICE
-     * @DEV: This object simulates your backend API calls. 
-     * In the real application, replace the contents of fetchScanResults 
-     * with a real HTTP request using `axios` or `fetch`.
      * =========================================================================
      */
     const MockApiService = {
         async fetchScanResults() {
-            // Simulate network delay for realism
             await new Promise(resolve => setTimeout(resolve, 800));
 
             const cookieNamesList = ['_ga', '_gid', '_fbp', '_tt', 'NID', 'unknown_pixel', '_sess', 'hotjar_id', 'li_sugr', 'YSC'];
             const categoriesList = ['Marketing', 'Analytics', 'Uncategorized', 'Essential'];
             
-            // Randomly decide if we return a perfect score (10% chance)
             const numViolations = Math.random() > 0.9 ? 0 : Math.floor(Math.random() * 5) + 1;
             const rawViolations = [];
 
@@ -565,12 +737,11 @@
                 rawViolations.push({
                     name: cookieNamesList[Math.floor(Math.random() * cookieNamesList.length)],
                     frequency: Math.floor(Math.random() * 100) + 1,
-                    type: Math.random() > 0.6 ? 'before' : 'after', // 'before' consent, 'after' refuse
+                    type: Math.random() > 0.6 ? 'before' : 'after',
                     category: categoriesList[Math.floor(Math.random() * categoriesList.length)]
                 });
             }
 
-            // Return a format that your actual API should ideally return
             return {
                 baseTotalScanned: 152 + Math.floor(Math.random() * 50),
                 violations: rawViolations
@@ -581,50 +752,52 @@
 
     /**
      * =========================================================================
-     * MAIN VUE APPLICATION (Using Vue 3 Composition API structure)
-     * @DEV: This is structured to easily convert into a `<script setup>` 
-     * block in a standard Vue Single File Component (.vue).
+     * MAIN VUE APPLICATION
      * =========================================================================
      */
     const { createApp, ref, reactive, computed, onMounted, markRaw } = Vue;
 
-    createApp({
+    // --- 1. GLOBAL STATE & I18N SIMULATION ---
+    // @DEV: We lift the language state and the translation function outside 
+    // the component to simulate a global plugin like vue-i18n.
+    const language = ref('en');
+
+    // The logic below replicates the behavior of global `$t()` from vue-i18n
+    const t = (key, params = {}) => {
+        const keys = key.split('.');
+        let val = i18nMessages[language.value];
+        for (const k of keys) {
+            if (!val) return key;
+            val = val[k];
+        }
+        if (!val) return key;
+        
+        if (typeof val === 'string') {
+            return val.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? params[k] : `{${k}}`);
+        }
+        return val; 
+    };
+
+    const app = createApp({
         setup() {
-            // --- 1. STATE (Refs & Reactives) ---
-            const language = ref('en');
+            // --- 2. LOCAL STATE ---
             const isLoading = ref(false);
             const score = ref(100);
             const violations = ref([]);
             
-            const kpis = reactive({
-                beforeConsent: 0,
-                afterRefuse: 0,
-                highFrequency: 0,
-                total: 0
-            });
+            const kpis = reactive({ beforeConsent: 0, afterRefuse: 0, highFrequency: 0, total: 0 });
 
             const narrativeContainer = ref(null);
-            let currentNarrativeSummary = null; // Stored to allow language switching without re-fetching
-            
-            // Chart instances (markRaw is important so Vue doesn't make them reactive, avoiding performance hits)
+            let currentNarrativeSummary = null;
             let scoreChartInstance = null;
             let barChartInstance = null;
 
-
-            // --- 2. COMPUTED PROPERTIES ---
-            
-            // Returns the top 3 violations that cost the most points
+            // --- 3. COMPUTED PROPERTIES ---
             const topActions = computed(() => {
                 return [...violations.value].sort((a, b) => b.pointsLost - a.pointsLost).slice(0, 3);
             });
 
-
-            // --- 3. BUSINESS LOGIC METHODS ---
-
-            /**
-             * Calculates the score based on raw violations.
-             * @DEV: This logic might ideally live on your backend, but if you need it on the front, here it is.
-             */
+            // --- 4. BUSINESS LOGIC METHODS ---
             const calculateScoreAndPoints = (rawViolations) => {
                 let totalPointsLost = 0;
                 const enrichedViolations = rawViolations.map(v => {
@@ -643,23 +816,16 @@
                 return { finalScore, enrichedViolations };
             };
 
-            /**
-             * Main function triggered by the "Simulate Scan" button.
-             * Calls the API, processes the data, and updates the UI.
-             */
             const loadDashboardData = async () => {
                 isLoading.value = true;
                 
                 try {
-                    // @DEV: Replace MockApiService with your real API service here
                     const response = await MockApiService.fetchScanResults();
                     
-                    // 1. Calculate Score & Enqueue Violations
                     const { finalScore, enrichedViolations } = calculateScoreAndPoints(response.violations);
                     score.value = finalScore;
                     violations.value = enrichedViolations.sort((a, b) => b.pointsLost - a.pointsLost);
                     
-                    // 2. Aggregate Data for Narrative & KPIs
                     const summary = {
                         beforeConsentCount: violations.value.filter(v => v.type === 'before').length,
                         afterRefusalCount: violations.value.filter(v => v.type === 'after').length,
@@ -672,87 +838,31 @@
                     };
                     currentNarrativeSummary = summary;
 
-                    // 3. Update KPIs
                     kpis.beforeConsent = summary.beforeConsentCount;
                     kpis.afterRefuse = summary.afterRefusalCount;
                     kpis.highFrequency = summary.highFrequencyIssues;
                     kpis.total = response.baseTotalScanned;
 
-                    // 4. Update UI Elements (Charts & Typing effect)
                     updateCharts();
                     const narrativeText = generateExecutiveNarrative(score.value, summary);
                     typeNarrative(narrativeText);
 
                 } catch (error) {
                     console.error("Failed to load scan results:", error);
-                    // Handle error state here (e.g., show a toast notification)
                 } finally {
                     isLoading.value = false;
                 }
             };
 
-
-            // --- 4. NARRATIVE GENERATION LOGIC ---
-            
+            // --- 5. NARRATIVE GENERATION LOGIC ---
             const generateExecutiveNarrative = (currentScore, summary) => {
-                const lang = language.value;
                 const { beforeConsentCount, afterRefusalCount, marketingCount, essentialCount, analyticsCount, uncategorizedCount, highFrequencyIssues } = summary;
 
-                // Translations mapping
-                const phrases = lang === 'en' ? {
-                    perfect: ["No violations detected: your site fully complies with consent rules. Keep it up!", "Flawless compliance audit. Your setup is perfectly aligned with privacy guidelines."],
-                    levels: {
-                        excellent: ["This score indicates **very strong compliance**, but some findings may still require action"],
-                        good: ["This score indicates **partial compliance**, with fixes that need to be started quickly"],
-                        average: ["This score indicates **fragile compliance**, with a real risk in case of a regulatory audit"],
-                        poor: ["This score indicates **high non-compliance**; immediate action is recommended"]
-                    },
-                    issueIntroSingular: ", mainly due to one critical factor:\n",
-                    issueIntroPlural: ", mainly due to the following factors:\n",
-                    behaviorBeforeSingular: "**Tracking before consent:** A cookie is set before the user has made a choice.",
-                    behaviorBeforePlural: `**Tracking before consent:** ${beforeConsentCount} cookies are set before any user interaction.`,
-                    behaviorAfterSingular: "**Persistence after refusal:** A cookie continues to be set even after an explicit refusal. This is a severe violation.",
-                    behaviorAfterPlural: `**Persistence after refusal:** ${afterRefusalCount} cookies fail to respect the user's refusal, exposing you to high risks.`,
-                    insightMarketingSingular: "A marketing cookie is penalized heavily due to its advertising purpose.",
-                    insightMarketingPlural: `${marketingCount} marketing cookies are heavily penalized due to their advertising purpose.`,
-                    insightEssentialSingular: "An essential cookie requires your manual validation to be marked as exempt.",
-                    insightEssentialPlural: `${essentialCount} essential cookies require validation to remove the penalty.`,
-                    insightAnalyticsSingular: "An analytics cookie appears to be misconfigured.",
-                    insightAnalyticsPlural: `${analyticsCount} analytics cookies appear to be misconfigured.`,
-                    insightUncategorizedSingular: "An uncategorized cookie is treated as potentially risky.",
-                    insightUncategorizedPlural: `${uncategorizedCount} cookies are uncategorized and treated as risky.`,
-                    frequencyWarning: "Some of these issues affect a large portion of your pages, significantly amplifying the penalty.",
-                    lowFrequencyMitigation: "Your score remains relatively high because these issues only affect a small portion of your site."
-                } : {
-                    perfect: ["Aucune violation détectée : votre site respecte pleinement les règles de consentement. Continuez ainsi !", "Audit parfait. Votre configuration est irréprochable."],
-                    levels: {
-                        excellent: ["Ce score indique une **très bonne conformité**, mais certains écarts justifient une action"],
-                        good: ["Ce score indique une **conformité perfectible**, avec des corrections à engager rapidement"],
-                        average: ["Ce score indique une **conformité fragile**, avec un risque réel en cas de contrôle CNIL"],
-                        poor: ["Ce score indique une **non-conformité élevée**, une action immédiate est recommandée"]
-                    },
-                    issueIntroSingular: ", principalement en raison d'un facteur critique :\n",
-                    issueIntroPlural: ", principalement en raison des facteurs suivants :\n",
-                    behaviorBeforeSingular: "**Dépôt avant consentement :** Un cookie est posé avant que l'utilisateur n'ait fait son choix.",
-                    behaviorBeforePlural: `**Action prématurée :** ${beforeConsentCount} cookies sont posés avant toute interaction.`,
-                    behaviorAfterSingular: "**Persistance après refus :** Un cookie continue d'être écrit malgré un refus explicite. Violation grave.",
-                    behaviorAfterPlural: `**Non-respect du refus :** ${afterRefusalCount} cookies ignorent le choix de l'utilisateur.`,
-                    insightMarketingSingular: "Un cookie marketing est très fortement pénalisé en raison de sa finalité publicitaire.",
-                    insightMarketingPlural: `${marketingCount} cookies marketing sont très fortement pénalisés (priorité CNIL).`,
-                    insightEssentialSingular: "Un cookie essentiel listé nécessite d'être marqué comme exempté.",
-                    insightEssentialPlural: `${essentialCount} cookies essentiels nécessitent d'être confirmés comme exemptés.`,
-                    insightAnalyticsSingular: "Un cookie analytique semble mal configuré.",
-                    insightAnalyticsPlural: `${analyticsCount} cookies analytiques semblent mal configurés.`,
-                    insightUncategorizedSingular: "Un cookie non catégorisé est traité comme potentiellement à risque.",
-                    insightUncategorizedPlural: `${uncategorizedCount} cookies non catégorisés sont traités comme à risque.`,
-                    frequencyWarning: "La haute fréquence d'apparition de ces traceurs sur le site décuple la perte de points.",
-                    lowFrequencyMitigation: "Votre score reste relativement élevé car ces écarts ne touchent qu'une faible proportion de votre site."
-                };
+                // Using our external `t()` function inside setup script logic
+                const phrases = t('narrativePhrases');
 
-                // Perfect score override
                 if (currentScore === 100) return phrases.perfect[Math.floor(Math.random() * phrases.perfect.length)];
 
-                // Determine level
                 let levelKey = 'excellent';
                 if (currentScore < 50) levelKey = 'poor';
                 else if (currentScore < 70) levelKey = 'average';
@@ -761,29 +871,25 @@
                 let narrative = `${phrases.levels[levelKey][0]}`;
                 let structuralIssuesCount = (beforeConsentCount > 0 ? 1 : 0) + (afterRefusalCount > 0 ? 1 : 0);
 
-                // Build sentences
                 if (structuralIssuesCount === 1) narrative += `${phrases.issueIntroSingular}\n`;
                 else if (structuralIssuesCount > 1) narrative += `${phrases.issueIntroPlural}\n`;
                 else narrative += `.\n\n`;
 
-                if (beforeConsentCount > 0) narrative += `- ${beforeConsentCount === 1 ? phrases.behaviorBeforeSingular : phrases.behaviorBeforePlural}\n`;
-                if (afterRefusalCount > 0) narrative += `- ${afterRefusalCount === 1 ? phrases.behaviorAfterSingular : phrases.behaviorAfterPlural}\n`;
+                if (beforeConsentCount > 0) narrative += `- ${beforeConsentCount === 1 ? phrases.behaviorBeforeSingular : t('narrativePhrases.behaviorBeforePlural', {count: beforeConsentCount})}\n`;
+                if (afterRefusalCount > 0) narrative += `- ${afterRefusalCount === 1 ? phrases.behaviorAfterSingular : t('narrativePhrases.behaviorAfterPlural', {count: afterRefusalCount})}\n`;
                 narrative += `\n`;
 
-                // Add insights based on categories
                 let insights = [];
-                if (marketingCount > 0) insights.push(marketingCount === 1 ? phrases.insightMarketingSingular : phrases.insightMarketingPlural);
-                if (essentialCount > 0) insights.push(essentialCount === 1 ? phrases.insightEssentialSingular : phrases.insightEssentialPlural);
-                if (analyticsCount > 0 && marketingCount === 0) insights.push(analyticsCount === 1 ? phrases.insightAnalyticsSingular : phrases.insightAnalyticsPlural);
-                if (uncategorizedCount > 0 && insights.length < 2) insights.push(uncategorizedCount === 1 ? phrases.insightUncategorizedSingular : phrases.insightUncategorizedPlural);
+                if (marketingCount > 0) insights.push(marketingCount === 1 ? phrases.insightMarketingSingular : t('narrativePhrases.insightMarketingPlural', {count: marketingCount}));
+                if (essentialCount > 0) insights.push(essentialCount === 1 ? phrases.insightEssentialSingular : t('narrativePhrases.insightEssentialPlural', {count: essentialCount}));
+                if (analyticsCount > 0 && marketingCount === 0) insights.push(analyticsCount === 1 ? phrases.insightAnalyticsSingular : t('narrativePhrases.insightAnalyticsPlural', {count: analyticsCount}));
+                if (uncategorizedCount > 0 && insights.length < 2) insights.push(uncategorizedCount === 1 ? phrases.insightUncategorizedSingular : t('narrativePhrases.insightUncategorizedPlural', {count: uncategorizedCount}));
 
                 if (insights.length > 0) {
-                    const insightIntro = lang === 'en' ? "💡 **Insight:** " : "💡 **À noter :** ";
-                    const joinedInsights = insights.join(lang === 'en' ? ' Also, ' : ' Par ailleurs, ');
-                    narrative += `> ${insightIntro}${joinedInsights}\n\n`;
+                    const joinedInsights = insights.join(phrases.insightJoiner);
+                    narrative += `> ${phrases.insightIntro}${joinedInsights}\n\n`;
                 }
 
-                // Add frequency context
                 if (highFrequencyIssues > 0 && currentScore < 90) {
                     narrative += `${phrases.frequencyWarning}\n\n`;
                 } else if (currentScore >= 80 && currentScore < 100 && highFrequencyIssues === 0) {
@@ -806,7 +912,6 @@
                         currentText += token;
                         narrativeContainer.value.innerHTML = marked.parse(currentText);
                         
-                        // Add CSS Blinker cursor at the end
                         if (index < tokens.length - 1) {
                             const cursor = document.createElement('span');
                             cursor.className = 'cursor';
@@ -815,7 +920,7 @@
                             else narrativeContainer.value.appendChild(cursor);
                         }
                     }, delay);
-                    delay += 5; // Typing speed in ms
+                    delay += 5;
                 });
             };
 
@@ -824,17 +929,15 @@
                     const text = generateExecutiveNarrative(score.value, currentNarrativeSummary);
                     typeNarrative(text);
                 }
+                updateCharts(); 
             };
 
-
-            // --- 5. UI FORMATTING HELPERS ---
-            // @DEV: These can be moved to a shared `utils.js` or generic UI formatting service.
-
+            // --- 6. UI FORMATTING HELPERS ---
             const getScoreColor = (s) => {
-                if (s < 50) return '#ef4444'; // Red
-                if (s < 70) return '#f97316'; // Orange
-                if (s < 90) return '#fbbf24'; // Yellow
-                return '#10b981'; // Green
+                if (s < 50) return '#ef4444';
+                if (s < 70) return '#f97316';
+                if (s < 90) return '#fbbf24';
+                return '#10b981';
             };
 
             const getActionIconWrapperClass = (action) => action.pointsLost >= 10 ? 'bg-icon-danger' : (action.pointsLost >= 5 ? 'bg-icon-warning' : 'bg-icon-info');
@@ -842,26 +945,23 @@
             const getGainBadgeClass = (action) => action.pointsLost >= 10 ? 'gain-badge-success' : (action.pointsLost >= 5 ? 'gain-badge-warning' : 'gain-badge-neutral');
             
             const getActionVerb = (action) => {
-                let verb = language.value === 'en' ? 'Address cookie' : 'Traiter le cookie';
-                if (action.category === 'Uncategorized') verb = language.value === 'en' ? 'Categorize cookie' : 'Catégoriser le cookie';
-                else if (action.category === 'Analytics') verb = language.value === 'en' ? 'Verify cookie' : 'Vérifier le cookie';
-                else if (action.category === 'Essential') verb = language.value === 'en' ? 'Check and exempt cookie' : 'Vérifier et exempter le cookie';
-                return verb;
+                if (action.category === 'Uncategorized') return t('verbs.categorize');
+                if (action.category === 'Analytics') return t('verbs.verify');
+                if (action.category === 'Essential') return t('verbs.exempt');
+                return t('verbs.address');
             };
 
             const getTypeBadgeClass = (type) => type === 'before' ? 'badge-before' : 'badge-after';
-            const getTypeLabel = (type) => type === 'before' ? (language.value === 'en' ? 'Before consent' : 'Avant consentement') : (language.value === 'en' ? 'After refuse' : 'Après refus');
+            const getTypeLabel = (type) => type === 'before' ? t('types.before') : t('types.after');
             
             const getSeverityBadgeClass = (v) => v.pointsLost >= 10 ? 'severity-high' : (v.pointsLost >= 5 ? 'severity-medium' : 'severity-low');
-            const getSeverityLabel = (v) => v.pointsLost >= 10 ? (language.value === 'en' ? 'High' : 'Haute') : (v.pointsLost >= 5 ? (language.value === 'en' ? 'Medium' : 'Moyenne') : (language.value === 'en' ? 'Low' : 'Faible'));
+            const getSeverityLabel = (v) => v.pointsLost >= 10 ? t('severities.high') : (v.pointsLost >= 5 ? t('severities.medium') : t('severities.low'));
             
             const getCategoryBadgeClass = (c) => ({ 'Analytics': 'cat-analytics', 'Essential': 'cat-essential', 'Marketing': 'cat-marketing', 'Uncategorized': 'cat-uncategorized' }[c] || 'cat-uncategorized');
             const getCategoryBoxicon = (c) => ({ 'Analytics': 'bx bx-line-chart', 'Essential': 'bx bx-shield', 'Marketing': 'bx bx-target-lock', 'Uncategorized': 'bx bx-tag' }[c] || 'bx bx-tag');
             const getTextCategoryClass = (c) => ({ 'Analytics': 'text-cat-analytics', 'Essential': 'text-cat-essential', 'Marketing': 'text-cat-marketing', 'Uncategorized': 'text-cat-uncategorized' }[c] || 'text-cat-uncategorized');
 
-
-            // --- 6. CHART.JS MANAGEMENT ---
-
+            // --- 7. CHART.JS MANAGEMENT ---
             const updateCharts = () => {
                 if (scoreChartInstance) {
                     scoreChartInstance.data.datasets[0].data = [score.value, 100 - score.value];
@@ -869,7 +969,10 @@
                     scoreChartInstance.update();
                 }
                 if (barChartInstance) {
-                    // Slight randomization to show movement on refresh during demo
+                    barChartInstance.data.datasets[0].label = t('charts.barLegendBefore');
+                    barChartInstance.data.datasets[1].label = t('charts.barLegendAfterConsent');
+                    barChartInstance.data.datasets[2].label = t('charts.barLegendAfterRefuse');
+                    
                     const variance = () => Math.floor(Math.random() * 10) - 5;
                     barChartInstance.data.datasets[0].data = [6+variance(), 6+variance(), 6+variance(), 20+variance()]; 
                     barChartInstance.data.datasets[2].data = [0, 6+variance(), 0, 0]; 
@@ -881,7 +984,6 @@
                 Chart.defaults.font.family = "'Roboto', sans-serif";
                 Chart.defaults.color = '#64748b';
 
-                // Chart 1: Donut (Score)
                 const ctxScore = document.getElementById('scoreChart').getContext('2d');
                 scoreChartInstance = markRaw(new Chart(ctxScore, {
                     type: 'doughnut',
@@ -901,16 +1003,15 @@
                     }
                 }));
 
-                // Chart 2: Bar Chart (Analytics)
                 const ctxBar = document.getElementById('barChart').getContext('2d');
                 barChartInstance = markRaw(new Chart(ctxBar, {
                     type: 'bar',
                     data: {
                         labels: ['Essential', 'Analytics', 'Marketing', 'Uncategorized'],
                         datasets: [
-                            { label: 'Before consent', data: [6, 6, 6, 20], backgroundColor: '#fbbf24', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
-                            { label: 'After consent', data: [5, 7, 15, 48], backgroundColor: '#67e8f9', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
-                            { label: 'After refuse all', data: [0, 6, 0, 0], backgroundColor: '#ef4444', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 }
+                            { label: t('charts.barLegendBefore'), data: [6, 6, 6, 20], backgroundColor: '#fbbf24', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
+                            { label: t('charts.barLegendAfterConsent'), data: [5, 7, 15, 48], backgroundColor: '#67e8f9', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 },
+                            { label: t('charts.barLegendAfterRefuse'), data: [0, 6, 0, 0], backgroundColor: '#ef4444', borderRadius: 4, barThickness: 20, categoryPercentage: 0.7 }
                         ]
                     },
                     options: {
@@ -926,16 +1027,13 @@
                 }));
             };
 
-
-            // --- 7. LIFECYCLE HOOKS ---
+            // --- 8. LIFECYCLE HOOKS ---
             onMounted(() => {
                 initCharts();
-                // Load initial data upon page load
                 loadDashboardData();
             });
 
-
-            // Expose properties to the template
+            // Expose properties to the template (Notice: t is intentionally omitted here)
             return {
                 language, isLoading, score, violations, kpis, topActions, narrativeContainer,
                 loadDashboardData, reRenderNarrative,
@@ -944,7 +1042,14 @@
                 getSeverityLabel, getCategoryBadgeClass, getCategoryBoxicon, getTextCategoryClass
             };
         }
-    }).mount('#app');
+    });
+
+    // --- 9. INJECT $t GLOBALLY ---
+    // @DEV: This explicitly mimics how "app.use(i18n)" behaves in a standard Vue3 application, 
+    // making $t available everywhere in the template.
+    app.config.globalProperties.$t = t;
+
+    app.mount('#app');
 </script>
 
 </body>
