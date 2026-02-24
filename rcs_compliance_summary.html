@@ -297,8 +297,8 @@
         <div>
             <div class="breadcrumb-title">
                 Realtime Cookie Scanner <span class="mx-2">/</span> 
-                <!-- @DEV: Using standard $t() global plugin format -->
-                <span class="breadcrumb-active">{{ $t('header.title') }}</span>
+                <!-- @DEV: We now use t() to fetch translations just like vue-i18n -->
+                <span class="breadcrumb-active">{{ t('header.title') }}</span>
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -308,13 +308,13 @@
             </select>
             
             <div class="form-check form-switch d-flex align-items-center gap-2 m-0 border-start ps-3 border-secondary-subtle">
-                <label class="form-check-label fw-bold text-secondary small text-uppercase" for="cookiesRares">{{ $t('header.rareCookies') }}</label>
+                <label class="form-check-label fw-bold text-secondary small text-uppercase" for="cookiesRares">{{ t('header.rareCookies') }}</label>
                 <input class="form-check-input shadow-none" type="checkbox" role="switch" id="cookiesRares">
             </div>
 
             <button @click="loadDashboardData" :disabled="isLoading" class="btn-simulate shadow-sm d-flex align-items-center gap-2">
                 <i class="fas fa-rotate" :class="{ 'fa-spin': isLoading }"></i> 
-                {{ isLoading ? $t('header.scanning') : $t('header.simulate') }}
+                {{ isLoading ? t('header.scanning') : t('header.simulate') }}
             </button>
         </div>
     </div>
@@ -339,10 +339,10 @@
                 </div>
                 <div class="d-flex align-items-center gap-2 mt-2">
                     <span class="badge rounded-circle p-1" :style="{ backgroundColor: getScoreColor(score), width: '8px', height: '8px' }"> </span>
-                    <span class="fw-bold text-secondary small">{{ $t('score.title') }}</span>
+                    <span class="fw-bold text-secondary small">{{ t('score.title') }}</span>
                     <div class="custom-tooltip">
                         <i class="far fa-circle-question text-secondary opacity-90"></i>
-                        <span class="tooltip-text">{{ $t('score.tooltip') }}</span>
+                        <span class="tooltip-text">{{ t('score.tooltip') }}</span>
                     </div>
                 </div>
             </div>
@@ -352,7 +352,7 @@
         <div class="col-lg-5 col-md-12">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">{{ $t('narrative.title') }}</h6>
+                    <h6 class="mb-0">{{ t('narrative.title') }}</h6>
                 </div>
                 <!-- Narrative text is injected here programmatically to simulate AI typing -->
                 <div class="narrative flex-grow-1" ref="narrativeContainer"></div>
@@ -362,12 +362,12 @@
         <!-- [SUB-COMPONENT: PriorityActionsCard] -->
         <div class="col-lg-4 col-md-12">
             <div class="card h-100 p-4">
-                <h6 class="mb-4">{{ $t('actions.title') }}</h6>
+                <h6 class="mb-4">{{ t('actions.title') }}</h6>
                 <div class="d-flex flex-column gap-3">
                     
                     <div v-if="topActions.length === 0" class="text-center text-secondary py-4 fw-bold">
                         <i class="fas fa-check-circle text-success fs-1 mb-2"></i>
-                        <p class="mb-0">{{ $t('actions.none') }}</p>
+                        <p class="mb-0">{{ t('actions.none') }}</p>
                     </div>
 
                     <!-- Action Items Loop -->
@@ -381,7 +381,7 @@
                                 <i :class="[getCategoryBoxicon(action.category), getTextCategoryClass(action.category)]" class="fs-5 ms-1"></i>
                             </div>
                             <div class="text-secondary small mt-1 d-flex align-items-center gap-2">
-                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ $t('actions.freq') }}</span>
+                                <span class="text-secondary" style="font-size: 0.8rem;">{{ action.frequency }}% {{ t('actions.freq') }}</span>
                                 <span class="badge-type" :class="getTypeBadgeClass(action.type)">
                                     {{ getTypeLabel(action.type) }}
                                 </span>
@@ -415,7 +415,7 @@
                     <div class="card card-stat border-warning h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ $t('kpis.before') }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.before') }}</div>
                                 <div class="kpi-value">{{ kpis.beforeConsent }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fffbeb; color: #f59e0b;">
@@ -428,7 +428,7 @@
                     <div class="card card-stat border-danger h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ $t('kpis.after') }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.after') }}</div>
                                 <div class="kpi-value">{{ kpis.afterRefuse }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #fef2f2; color: #ef4444;">
@@ -441,7 +441,7 @@
                     <div class="card card-stat border-dark h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ $t('kpis.highFreq') }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.highFreq') }}</div>
                                 <div class="kpi-value">{{ kpis.highFrequency }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f1f5f9; color: #334155;">
@@ -454,7 +454,7 @@
                     <div class="card card-stat border-secondary h-100">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="kpi-label mb-2">{{ $t('kpis.total') }}</div>
+                                <div class="kpi-label mb-2">{{ t('kpis.total') }}</div>
                                 <div class="kpi-value">{{ kpis.total }}</div>
                             </div>
                             <div class="stat-icon-circle" style="background-color: #f8fafc; color: #64748b;">
@@ -470,7 +470,7 @@
         <div class="col-xl-6">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ $t('charts.barTitle') }}</h6>
+                    <h6 class="mb-0 text-center w-100 text-secondary small">{{ t('charts.barTitle') }}</h6>
                 </div>
                 <div style="height: 250px; width: 100%;">
                     <canvas id="barChart"></canvas>
@@ -488,23 +488,23 @@
     <div class="row">
         <div class="col-12">
             <div class="card p-4">
-                <h6 class="mb-4">{{ $t('table.title') }}</h6>
+                <h6 class="mb-4">{{ t('table.title') }}</h6>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
-                                <th>{{ $t('table.name') }}</th>
-                                <th>{{ $t('table.category') }}</th>
-                                <th>{{ $t('table.frequency') }}</th>
-                                <th>{{ $t('table.type') }}</th>
-                                <th>{{ $t('table.severity') }}</th>
-                                <th class="text-end">{{ $t('table.gain') }}</th>
+                                <th>{{ t('table.name') }}</th>
+                                <th>{{ t('table.category') }}</th>
+                                <th>{{ t('table.frequency') }}</th>
+                                <th>{{ t('table.type') }}</th>
+                                <th>{{ t('table.severity') }}</th>
+                                <th class="text-end">{{ t('table.gain') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="violations.length === 0">
-                                <td colspan="7" class="text-center text-secondary py-3">{{ $t('table.empty') }}</td>
+                                <td colspan="7" class="text-center text-secondary py-3">{{ t('table.empty') }}</td>
                             </tr>
                             <tr v-for="(violation, index) in violations" :key="index">
                                 <td class="fw-bold text-secondary">{{ index + 1 }})</td>
@@ -545,6 +545,8 @@
      * =========================================================================
      * I18N DICTIONARY 
      * @DEV: Copy these objects directly into your en.json and fr.json files!
+     * We use a simulated t() function below so the template looks exactly
+     * like it would using vue-i18n.
      * =========================================================================
      */
     const i18nMessages = {
@@ -757,30 +759,10 @@
      */
     const { createApp, ref, reactive, computed, onMounted, markRaw } = Vue;
 
-    // --- 1. GLOBAL STATE & I18N SIMULATION ---
-    // @DEV: We lift the language state and the translation function outside 
-    // the component to simulate a global plugin like vue-i18n.
-    const language = ref('en');
-
-    // The logic below replicates the behavior of global `$t()` from vue-i18n
-    const t = (key, params = {}) => {
-        const keys = key.split('.');
-        let val = i18nMessages[language.value];
-        for (const k of keys) {
-            if (!val) return key;
-            val = val[k];
-        }
-        if (!val) return key;
-        
-        if (typeof val === 'string') {
-            return val.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? params[k] : `{${k}}`);
-        }
-        return val; 
-    };
-
-    const app = createApp({
+    createApp({
         setup() {
-            // --- 2. LOCAL STATE ---
+            // --- 1. STATE ---
+            const language = ref('en');
             const isLoading = ref(false);
             const score = ref(100);
             const violations = ref([]);
@@ -791,6 +773,24 @@
             let currentNarrativeSummary = null;
             let scoreChartInstance = null;
             let barChartInstance = null;
+
+            // --- 2. I18N SIMULATION FUNCTION ---
+            // @DEV: Replace all usages of this `t()` with your vue-i18n `$t()` inside your components.
+            const t = (key, params = {}) => {
+                const keys = key.split('.');
+                let val = i18nMessages[language.value];
+                for (const k of keys) {
+                    if (!val) return key;
+                    val = val[k];
+                }
+                if (!val) return key;
+                
+                // Replace parameters (e.g. {count})
+                if (typeof val === 'string') {
+                    return val.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? params[k] : `{${k}}`);
+                }
+                return val; // Returns arrays/objects directly if requested
+            };
 
             // --- 3. COMPUTED PROPERTIES ---
             const topActions = computed(() => {
@@ -858,7 +858,7 @@
             const generateExecutiveNarrative = (currentScore, summary) => {
                 const { beforeConsentCount, afterRefusalCount, marketingCount, essentialCount, analyticsCount, uncategorizedCount, highFrequencyIssues } = summary;
 
-                // Using our external `t()` function inside setup script logic
+                // Fetching the correct narrative phrases block based on current language
                 const phrases = t('narrativePhrases');
 
                 if (currentScore === 100) return phrases.perfect[Math.floor(Math.random() * phrases.perfect.length)];
@@ -929,6 +929,7 @@
                     const text = generateExecutiveNarrative(score.value, currentNarrativeSummary);
                     typeNarrative(text);
                 }
+                // @DEV: Re-render charts to update labels language
                 updateCharts(); 
             };
 
@@ -969,6 +970,7 @@
                     scoreChartInstance.update();
                 }
                 if (barChartInstance) {
+                    // Update chart translation labels on language change
                     barChartInstance.data.datasets[0].label = t('charts.barLegendBefore');
                     barChartInstance.data.datasets[1].label = t('charts.barLegendAfterConsent');
                     barChartInstance.data.datasets[2].label = t('charts.barLegendAfterRefuse');
@@ -1033,23 +1035,17 @@
                 loadDashboardData();
             });
 
-            // Expose properties to the template (Notice: t is intentionally omitted here)
+            // Expose properties to the template
             return {
                 language, isLoading, score, violations, kpis, topActions, narrativeContainer,
+                t, // Exposing our simulated vue-i18n translation method
                 loadDashboardData, reRenderNarrative,
                 getScoreColor, getActionIconWrapperClass, getActionIcon, getGainBadgeClass,
                 getActionVerb, getTypeBadgeClass, getTypeLabel, getSeverityBadgeClass,
                 getSeverityLabel, getCategoryBadgeClass, getCategoryBoxicon, getTextCategoryClass
             };
         }
-    });
-
-    // --- 9. INJECT $t GLOBALLY ---
-    // @DEV: This explicitly mimics how "app.use(i18n)" behaves in a standard Vue3 application, 
-    // making $t available everywhere in the template.
-    app.config.globalProperties.$t = t;
-
-    app.mount('#app');
+    }).mount('#app');
 </script>
 
 </body>
