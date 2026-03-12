@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Workflow Editor – Facebook CAPI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f0f2f7;overflow:hidden;height:100vh}
+#app{height:100vh;display:flex;flex-direction:column}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-box{background:#fff;border-radius:20px;padding:36px 40px;max-width:420px;width:90%;box-shadow:0 25px 60px rgba(0,0,0,.18);text-align:center}
+.modal-box h3{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:6px}
+.modal-box p{font-size:13.5px;color:#64748b;margin-bottom:24px;line-height:1.6}
+.modal-box .mico{margin-bottom:14px}
+.modal-box .mico svg{width:52px;height:52px}
+.mbtn{display:flex;flex-direction:column;gap:10px}
+.mbtn button{padding:13px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;border:none}
+.mbtn .primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+.mbtn .primary:hover{opacity:.9}
+.mbtn .secondary{background:#f1f3f9;color:#475569}
+.mbtn .secondary:hover{background:#e2e5ec}
+.toolbar{height:48px;background:#fff;border-bottom:1px solid #e2e5ec;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100;flex-shrink:0}
+.toolbar-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;color:#1e293b}
+.toolbar-brand svg{width:20px;height:20px;fill:#6366f1}
+.tag{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600}
+.tb{display:flex;align-items:center;gap:4px}
+.tb button{border:none;background:#f1f3f9;color:#475569;padding:5px 10px;border-radius:7px;font-size:11.5px;cursor:pointer;transition:.15s;font-weight:500;display:flex;align-items:center;gap:4px}
+.tb button:hover{background:#e2e5ec}
+.tb .zv{font-size:11.5px;font-weight:700;color:#334155;min-width:40px;text-align:center}
+.tb button.on{background:#6366f1;color:#fff}
+.main-wrap{display:flex;flex:1;overflow:hidden;position:relative}
+.cw{flex:1;overflow:hidden;position:relative;cursor:grab;background:#f0f2f7;background-image:radial-gradient(#d5d8e2 1px,transparent 1px);background-size:22px 22px}
+.cw.g{cursor:grabbing}
+.cv{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.cs{position:absolute;top:0;left:0;width:5000px;height:4000px;pointer-events:none;z-index:1}
+.cl{fill:none;stroke:#c0c6d4;stroke-width:2.2;stroke-linecap:round}
+.clb{fill:none;stroke:#a78bfa;stroke-width:2;stroke-linecap:round}
+.ca{fill:#c0c6d4}.cab{fill:#a78bfa}
+.bead{filter:drop-shadow(0 0 4px rgba(99,102,241,.6))}
+.nw{position:absolute;z-index:2;cursor:grab;user-select:none}
+.nw.dr{cursor:grabbing;z-index:10}
+.nw.dr .nc{transform:scale(1.06);box-shadow:0 16px 40px rgba(0,0,0,.2)}
+.nw.dim{opacity:.2;pointer-events:none;transition:opacity .4s}
+.nw.hl .nc{animation:hlP 2s ease-in-out infinite}
+.nw.sel .nc{box-shadow:0 0 0 3px #6366f1,0 8px 24px rgba(99,102,241,.2)!important}
+@keyframes hlP{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.7),0 8px 28px rgba(0,0,0,.15)}50%{box-shadow:0 0 0 10px rgba(255,255,255,.25),0 8px 28px rgba(0,0,0,.1)}}
+.nc{width:120px;height:105px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .25s;box-shadow:0 4px 16px rgba(0,0,0,.1),0 0 0 1px rgba(255,255,255,.15) inset;position:relative;overflow:hidden}
+.nc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 60%);pointer-events:none}
+.nc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.15)}
+.nc.wc{background:#fff!important;box-shadow:0 4px 16px rgba(0,0,0,.08),0 0 0 1.5px #e2e5ec}
+.nc.wc::before{display:none}
+.nc.wc:hover{box-shadow:0 8px 28px rgba(0,0,0,.12),0 0 0 1.5px #c7c9d4}
+.nc .ni{display:flex;align-items:center;justify-content:center;z-index:1}
+.nc .ni svg{filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
+.nc .ni img.logo{height:55px;width:auto;object-fit:contain}
+.nl{text-align:center;padding-top:7px;width:120px}
+.nt{font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ns{font-size:10px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd{width:9px;height:9px;background:#fff;border:2.5px solid #c0c6d4;border-radius:50%;position:absolute;z-index:3}
+.cd.r{right:-4px;top:50%;transform:translateY(-50%)}
+.cd.l{left:-4px;top:50%;transform:translateY(-50%)}
+.cd.b{bottom:-4px;left:50%;transform:translateX(-50%)}
+.cd.t{top:-4px;left:50%;transform:translateX(-50%)}
+.sp{width:420px;background:#fff;border-left:1px solid #e2e5ec;display:flex;flex-direction:column;z-index:50;flex-shrink:0}
+.ph{padding:16px 20px 12px;border-bottom:1px solid #f0f1f5}
+.pht{display:flex;justify-content:space-between;align-items:center}
+.ph h5{font-size:14px;font-weight:700;color:#1e293b;margin:0;display:flex;align-items:center;gap:6px}
+.pst{font-size:11px;color:#94a3b8;font-weight:500;background:#f8f9fc;padding:2px 8px;border-radius:20px}
+.pcl{background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;padding:2px;line-height:1}
+.pcl:hover{color:#475569}
+.pnb{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:10px;background:#f8f9fc}
+.pnb .mc{width:36px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.pnb .mc svg{width:18px;height:18px}
+.pnb .mc img{height:20px;width:auto}
+.pnb span{font-weight:700;font-size:13.5px;color:#1e293b}
+.pb{flex:1;overflow-y:auto;padding:16px 20px}
+.wd{font-size:12.5px;color:#475569;line-height:1.6;margin-bottom:16px;padding:11px 12px;background:#f8f9fc;border-radius:9px;border-left:3px solid #6366f1}
+.wf{margin-bottom:13px}
+.wf label{font-size:11.5px;font-weight:600;color:#475569;margin-bottom:3px;display:block}
+.wf select,.wf input[type=text],.wf input[type=number]{width:100%;padding:7px 10px;border:1.5px solid #e2e5ec;border-radius:7px;font-size:12px;color:#334155;background:#fff;transition:.2s}
+.wf select:focus,.wf input:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.wf .form-check{display:flex;align-items:center;gap:7px}
+.wf .form-check input{width:16px;height:16px;accent-color:#6366f1}
+.wf .form-check label{margin:0;font-weight:400;font-size:12px}
+.pf{padding:12px 20px;border-top:1px solid #f0f1f5;display:flex;gap:8px}
+.pf button{flex:1;padding:8px;border:none;border-radius:7px;font-weight:600;font-size:12.5px;cursor:pointer;transition:.15s}
+.bb{background:#f1f3f9;color:#475569}.bb:hover{background:#e2e5ec}.bb:disabled{opacity:.4;cursor:not-allowed}
+.bn{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}.bn:hover{opacity:.9}
+.cond-row{display:flex;gap:5px;margin-bottom:8px;align-items:center}
+.cond-row select,.cond-row input{padding:6px 7px;border:1.5px solid #e2e5ec;border-radius:6px;font-size:11px;color:#334155}
+.cond-row select{width:100px}.cond-row .op{width:58px}.cond-row input{flex:1;min-width:0}
+.cond-row .rm{width:26px;height:26px;border:none;background:#fee2e2;color:#ef4444;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;line-height:1}
+.add-cond{border:1.5px dashed #c7c9d4;background:none;color:#6366f1;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;width:100%;transition:.15s}
+.add-cond:hover{background:#f0f0ff;border-color:#6366f1}
+.ptbl{width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;border-radius:8px;overflow:hidden}
+.ptbl th{background:#f1f3f9;color:#475569;font-weight:600;padding:5px 7px;text-align:left;border-bottom:1px solid #e2e5ec}
+.ptbl td{padding:4px 7px;color:#334155;border-bottom:1px solid #f0f1f5}
+.ptbl tr:last-child td{border:none}
+.ds-count{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;border-radius:9px;border:1px solid}
+.ds-count svg{width:22px;height:22px;flex-shrink:0}
+.ds-count .num{font-size:18px;font-weight:800}
+.ds-count .lbl{font-size:10.5px;font-weight:500}
+.sm-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8f9fc;border-radius:9px;cursor:pointer;margin-bottom:8px;border:1.5px solid #e2e5ec;transition:.2s}
+.sm-toggle:hover{border-color:#a78bfa}
+.sm-toggle span{font-size:12px;font-weight:600;color:#475569}
+.sm-toggle .arr{font-size:14px;color:#94a3b8;transition:.2s;display:inline-block}
+.sm-toggle.open .arr{transform:rotate(180deg)}
+.mtbl{width:100%;border-collapse:collapse;font-size:11px;border-radius:8px;overflow:hidden}
+.mtbl th{background:#f1f3f9;color:#475569;font-weight:600;padding:5px 9px;text-align:left}
+.mtbl td{padding:4px 9px;border-bottom:1px solid #f0f1f5}
+.mtbl .fbv{color:#1877f2;font-weight:600;font-family:'Courier New',monospace;font-size:11px}
+.mtbl .prv{color:#334155}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="modal-overlay" v-if="showModal">
+    <div class="modal-box">
+      <div class="mico"><svg viewBox="0 0 24 24" fill="#6366f1"><path d="M17 3a2 2 0 012 2v2a2 2 0 01-2 2h-1.07A8.001 8.001 0 019 20H5a2 2 0 01-2-2v-2a2 2 0 012-2h1.07A8.001 8.001 0 0113 4h4V3zM5 16v2h4a6 6 0 005.66-4H5zm14-9h-4V5h-1a6 6 0 00-5.66 4H19V7z"/></svg></div>
+      <h3>Bienvenue sur votre workflow</h3>
+      <p>Ce pipeline Facebook CAPI est prêt à être configuré.<br>Comment souhaitez-vous procéder ?</p>
+      <div class="mbtn">
+        <button class="primary" @click="startGuided">🧭 Start Guided Setup</button>
+        <button class="secondary" @click="showModal=false">⚙️ Manual Setup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-brand"><svg viewBox="0 0 24 24"><path d="M17 3a2 2 0 012 2v2a2 2 0 01-2 2h-1.07A8 8 0 019 20H5a2 2 0 01-2-2v-2a2 2 0 012-2h1.07A8 8 0 0113 4h4V3z"/></svg><span>Workflow Editor</span><span class="tag">Facebook CAPI</span></div>
+    <div class="tb">
+      <button @click="zoomOut">−</button>
+      <span class="zv">{{Math.round(zoom*100)}}%</span>
+      <button @click="zoomIn">+</button>
+      <button @click="fitToScreen">⊞ Fit</button>
+      <button @click="autoZ=!autoZ" :class="{on:autoZ}">◎ Auto</button>
+    </div>
+    <div class="tb">
+      <button @click="toggleAnim" :class="{on:anim}">▶ Flow</button>
+      <button @click="toggleWiz" :class="{on:wizMode}">📖 Wizard</button>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <div class="cw" :class="{g:panning}" ref="cw" @mousedown="sPan" @mousemove="oMM" @mouseup="eA" @mouseleave="eA" @wheel.prevent="oWh" @click.self="closePanel">
+      <div class="cv" :style="{transform:'translate('+px+'px,'+py+'px) scale('+zoom+')'}">
+        <svg class="cs">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" class="ca"/></marker>
+            <marker id="ab" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" class="cab"/></marker>
+          </defs>
+          <template v-for="(c,i) in conns" :key="i">
+            <template v-if="c.bi">
+              <path :id="'pd'+i" :d="biP(c,'d')" class="clb" marker-end="url(#ab)" stroke-dasharray="5,3.5"/>
+              <path :id="'pu'+i" :d="biP(c,'u')" class="clb" marker-end="url(#ab)" stroke-dasharray="5,3.5"/>
+              <template v-if="anim">
+                <circle r="4" fill="#8b5cf6" class="bead" :key="'bd'+i+bk"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath :href="'#pd'+i"/></animateMotion></circle>
+                <circle r="4" fill="#c4b5fd" class="bead" :key="'bu'+i+bk"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath :href="'#pu'+i"/></animateMotion></circle>
+              </template>
+            </template>
+            <template v-else>
+              <path :id="'p'+i" :d="cPath(c)" class="cl" marker-end="url(#ah)"/>
+              <template v-if="anim">
+                <circle r="4" :fill="nid(c.from).color" class="bead" :key="'b'+i+bk"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath :href="'#p'+i"/></animateMotion></circle>
+              </template>
+            </template>
+          </template>
+        </svg>
+
+        <div v-for="n in nodes" :key="n.id" class="nw"
+             :class="{dr:drag&&drag.id===n.id,dim:wizMode&&wo[ws]!==n.id,hl:wizMode&&wo[ws]===n.id,sel:!wizMode&&selNode===n.id}"
+             :style="{left:n.x+'px',top:n.y+'px'}"
+             @mousedown.stop="sD(n,$event)">
+          <div class="nc" :class="{wc:n.whiteBg}" :style="n.whiteBg?{}:{background:n.bg}">
+            <div class="ni">
+              <img v-if="n.imgSrc" :src="n.imgSrc" class="logo">
+              <span v-else v-html="n.svgIcon"></span>
+            </div>
+            <span class="cd r" v-if="hC(n.id,'f','right')"></span>
+            <span class="cd l" v-if="hC(n.id,'t','left')"></span>
+            <span class="cd b" v-if="hC(n.id,'f','bottom')||hC(n.id,'t','bottom')"></span>
+            <span class="cd t" v-if="hC(n.id,'t','top')||hC(n.id,'f','top')"></span>
+          </div>
+          <div class="nl"><div class="nt">{{n.title}}</div><div class="ns">{{n.subtitle}}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp" v-if="panelOpen">
+      <div class="ph">
+        <div class="pht">
+          <h5>{{wizMode?'📖 Configuration guidée':'⚙️ Configuration'}}</h5>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pst" v-if="wizMode">{{ws+1}} / {{wo.length}}</span>
+            <button class="pcl" @click="closePanel" v-if="!wizMode">✕</button>
+          </div>
+        </div>
+        <div class="pnb" v-if="activeNode">
+          <div class="mc" :style="{background:activeNode.whiteBg?'#f1f3f9':activeNode.bg}">
+            <img v-if="activeNode.imgSrc" :src="activeNode.imgSrc" style="height:18px;width:auto">
+            <span v-else v-html="activeNode.miniSvg"></span>
+          </div>
+          <span>{{activeNode.title}}</span>
+        </div>
+      </div>
+      <div class="pb" v-if="activeNode">
+        <div class="wd">{{descs[activeNode.id]}}</div>
+        <template v-if="activeNode.id==='source'">
+          <div class="wf"><label>Type d'événement</label><select v-model="cfg.source.event"><option v-for="o in ['Purchase','PageView','Lead','AddToCart','InitiateCheckout','CompleteRegistration']">{{o}}</option></select></div>
+          <div class="wf"><label>Source de données</label><select v-model="cfg.source.src"><option v-for="o in ['Webhook','Base de données','API REST','Google Tag Manager']">{{o}}</option></select></div>
+          <div class="wf"><label>Mode test</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.source.test"><label class="form-check-label">{{cfg.source.test?'Activé':'Désactivé'}}</label></div></div>
+        </template>
+        <template v-if="activeNode.id==='enrich'">
+          <div class="wf"><label>Clé de correspondance</label><select v-model="cfg.enrich.key"><option v-for="o in ['Email','Téléphone','User ID','Cookie ID']">{{o}}</option></select></div>
+          <div class="wf"><label>Hachage SHA-256</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.enrich.hash"><label class="form-check-label">{{cfg.enrich.hash?'Activé':'Désactivé'}}</label></div></div>
+          <div class="wf"><label>Champs à enrichir</label><select v-model="cfg.enrich.fields"><option v-for="o in ['Tous (email, tél, nom, adresse)','Email + Téléphone','Email uniquement','Personnalisé']">{{o}}</option></select></div>
+          <div class="wf"><label>Fallback</label><select v-model="cfg.enrich.fallback"><option v-for="o in ['Continuer sans enrichissement','Bloquer l\'événement','Logger un warning']">{{o}}</option></select></div>
+        </template>
+        <template v-if="activeNode.id==='datastore'">
+          <div class="ds-count" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border-color:#bbf7d0"><svg fill="#16a34a" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg><div><div class="num" style="color:#15803d">12,847</div><div class="lbl" style="color:#4ade80">lignes dans le store</div></div></div>
+          <div class="wf"><label>Clé de lookup</label><select v-model="cfg.datastore.key"><option v-for="o in ['email','phone','customer_id']">{{o}}</option></select></div>
+          <div class="wf"><label>Rafraîchissement auto</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.datastore.refresh"><label class="form-check-label">{{cfg.datastore.refresh?'Activé':'Désactivé'}}</label></div></div>
+          <label style="font-size:11.5px;font-weight:600;color:#475569;margin-bottom:4px;display:block">Preview</label>
+          <div style="overflow-x:auto;border-radius:8px;border:1px solid #e2e5ec"><table class="ptbl"><tr><th>Email</th><th>Prénom</th><th>Nom</th><th>Pays</th></tr><tr v-for="u in dsPreview" :key="u.email"><td>{{u.email}}</td><td>{{u.fn}}</td><td>{{u.ln}}</td><td>{{u.co}}</td></tr></table></div>
+        </template>
+        <template v-if="activeNode.id==='csv'">
+          <div class="wf"><label>Hôte SFTP</label><input type="text" v-model="cfg.csv.host"></div>
+          <div class="wf"><label>Port</label><input type="number" v-model="cfg.csv.port"></div>
+          <div class="wf"><label>Utilisateur</label><input type="text" v-model="cfg.csv.user"></div>
+          <div class="wf"><label>Chemin du fichier</label><input type="text" v-model="cfg.csv.path"></div>
+          <div class="wf"><label>Fréquence</label><select v-model="cfg.csv.freq"><option v-for="o in ['Toutes les heures','Toutes les 6h','Quotidien','Hebdomadaire']">{{o}}</option></select></div>
+        </template>
+        <template v-if="activeNode.id==='filter'">
+          <label style="font-size:11.5px;font-weight:600;color:#475569;margin-bottom:6px;display:block">Conditions</label>
+          <div v-for="(c,i) in cfg.filter.conds" :key="i" class="cond-row">
+            <select v-model="c.prop"><option v-for="o in filterProps">{{o}}</option></select>
+            <select v-model="c.op" class="op"><option v-for="o in ['=','!=','>','<','>=','<=','contains','is null','is not null']">{{o}}</option></select>
+            <input type="text" v-model="c.val" placeholder="valeur">
+            <button class="rm" @click="cfg.filter.conds.splice(i,1)" v-if="cfg.filter.conds.length>1">✕</button>
+          </div>
+          <button class="add-cond" @click="cfg.filter.conds.push({prop:'email',op:'=',val:''})">+ Ajouter une condition</button>
+          <div class="wf" style="margin-top:12px"><label>Opérateur logique</label><select v-model="cfg.filter.logic"><option>AND (toutes)</option><option>OR (au moins une)</option></select></div>
+          <div class="wf"><label>Rejeter les doublons</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.filter.dedup"><label class="form-check-label">{{cfg.filter.dedup?'Oui':'Non'}}</label></div></div>
+        </template>
+        <template v-if="activeNode.id==='consent'">
+          <div class="wf"><label>Catégorie de consentement</label><select v-model="cfg.consent.cat"><option v-for="o in ['Marketing','Analytics','Fonctionnel','Personnalisation','Toutes les catégories']">{{o}}</option></select></div>
+        </template>
+        <template v-if="activeNode.id==='fbcapi'">
+          <div class="wf"><label>Pixel ID</label><input type="text" v-model="cfg.fbcapi.pixel"></div>
+          <div class="wf"><label>Access Token</label><input type="text" v-model="cfg.fbcapi.token"></div>
+          <div class="wf"><label>Test Event Code</label><input type="text" v-model="cfg.fbcapi.testCode"></div>
+          <div class="wf"><label>Déduplication</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.fbcapi.dedup"><label class="form-check-label">{{cfg.fbcapi.dedup?'Activé':'Désactivé'}}</label></div></div>
+          <div class="sm-toggle" :class="{open:smOpen}" @click="smOpen=!smOpen"><span>↔ Smart Mapping</span><span class="arr">▼</span></div>
+          <div v-if="smOpen" style="border:1px solid #e2e5ec;border-radius:8px;overflow:hidden;margin-bottom:8px"><table class="mtbl"><tr><th>Variable Facebook</th><th>Propriété event</th></tr><tr v-for="m in cfg.fbcapi.mapping" :key="m.fb"><td class="fbv">{{m.fb}}</td><td class="prv">{{m.prop}}</td></tr></table></div>
+        </template>
+        <template v-if="activeNode.id==='success'">
+          <div class="ds-count" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd"><svg fill="#2563eb" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32l2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><div><div class="num" style="color:#1d4ed8">1,847</div><div class="lbl" style="color:#60a5fa">events en succès</div></div></div>
+          <div class="wf"><label>Seuil d'alerte (%)</label><input type="number" v-model="cfg.success.threshold"></div>
+          <div class="wf"><label>Intervalle</label><select v-model="cfg.success.interval"><option v-for="o in ['5 min','15 min','1h','Quotidien']">{{o}}</option></select></div>
+        </template>
+        <template v-if="activeNode.id==='error'">
+          <div class="wf"><label>Retries</label><input type="number" v-model="cfg.error.retries"></div>
+          <div class="wf"><label>Délai retry (sec)</label><input type="number" v-model="cfg.error.delay"></div>
+          <div class="wf"><label>Types d'erreurs</label><select v-model="cfg.error.types"><option v-for="o in ['Toutes','Réseau','Validation','Rate limiting']">{{o}}</option></select></div>
+          <div class="wf"><label>Dead letter queue</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.error.dlq"><label class="form-check-label">{{cfg.error.dlq?'Activé':'Désactivé'}}</label></div></div>
+        </template>
+        <template v-if="activeNode.id==='slack'">
+          <div class="wf"><label>Webhook URL</label><input type="text" v-model="cfg.slack.webhook"></div>
+          <div class="wf"><label>Channel</label><input type="text" v-model="cfg.slack.channel"></div>
+          <div class="wf"><label>@channel</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.slack.mention"><label class="form-check-label">{{cfg.slack.mention?'Oui':'Non'}}</label></div></div>
+          <div class="wf"><label>Regroupement</label><select v-model="cfg.slack.batch"><option v-for="o in ['Immédiat','5 min','15 min']">{{o}}</option></select></div>
+        </template>
+      </div>
+      <div class="pf" v-if="wizMode">
+        <button class="bb" @click="ws--" :disabled="ws===0">← Retour</button>
+        <button class="bn" @click="nxS">{{ws===wo.length-1?'Terminer ✓':'Suivant →'}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const{createApp}=Vue;
+const NW=120,CH=105;
+const SLACK_IMG="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAASZQTFRFAAAAN8XxNsXwNsXwNsXwNsXwLrZ9LrZ9LrZ9LrZ9L7d9NsXwNsXwNsXwLrZ9LrZ9LrZ9NsXwNsXwNsXwLrZ9LrZ9NsXwNsXwNsXwNsXwNsXwNsXwLrZ9LrZ9L7d+NsXwNsXwLrZ9NsXwLrZ9LrZ9LrZ9NsXwNsXwLrZ9LrZ9LrZ9LrZ9LrZ9NsXwLrZ9LrZ9LrZ9LrZ94B5a4B5a4B5a4B5a4B5a4B5a4B5a7LIu7LIu7LIu7LIu7LIu4B5a4B5a4B5a4B5a4B5a4B5a7LIu7LIu7LIu4B5a4B5a4B5a4B5a7LIu7LIu4B5a4B5a4B5a7LIu7LIu7LIu4R9b4B5a4B5a7LIu7LIu7LIu7LIu7bMv7LIu7LIu7LIu7LIu7LIu4B5a4R9a59SNAwAAAGJ0Uk5TAAGd9cAWFsD1nQEq/2pr/ysV8XZ2NjagrFA0CxUqAeoi8Wx0NKH+Nzf+6gysdGwiUGoWanZQImw3N3R2ahbA/6wM6v7+/8D1oTR0bPWd8TYi6p0BKhULNDYqAVCsoPEVKwF0lhJIAAAA4UlEQVR4nEXP11JCQRCE4SaDLA5KMEdQkhFQQcJgOCRBFCWZff+XcGq3PPyX30VXNSA5nC63x+vzBxbwX1ApFVokorBNS8tKRaJCMZsQX1ldm5MjGJfWN2Boc2sbTqXb2dUU26MAXIbUfkIoeUDkh9vIYSqdoWzuiMgHTygiHaeA9MkpzqLnXuQLxQtcXpWA8nVFqtZQZ27c3PJdqXxv6ZpoMbc7zNx9MGL10OfHwUCo+PRsaIiX1xE0YTyZSrM3/UDT+8fndH5RU8Wyvr5t+hEqVGVnZtNvv1XP15q9od75A4S/KscPENzXAAAAAElFTkSuQmCC";
+const META_IMG=(()=>{const c=document.createElement('canvas');c.width=120;c.height=66;const x=c.getContext('2d');x.fillStyle='#0081FB';x.beginPath();const s=1.4,ox=8,oy=8;function m(px,py){x.moveTo(px*s+ox,py*s+oy)}function l(px,py){x.lineTo(px*s+ox,py*s+oy)}function bc(x1,y1,x2,y2,x3,y3){x.bezierCurveTo(x1*s+ox,y1*s+oy,x2*s+ox,y2*s+oy,x3*s+ox,y3*s+oy)}m(19.3,0.6);bc(12.8,0.6,7,6,3.5,12.3);bc(1,16.6,0,20.5,0,23.6);bc(0,29.6,3.2,35.4,10,35.4);bc(15,35.4,18.8,31.6,23.2,25.2);l(26.2,20.8);l(29.2,25.2);bc(33.6,31.6,37.4,35.4,42.4,35.4);bc(50.4,35.4,53.6,28.6,53.6,22.6);bc(53.6,19.2,52.1,14.6,49.4,10.3);bc(45.6,3,40.8,0.6,34.3,0.6);bc(29.3,0.6,25.1,4,23.2,6.8);bc(21.3,4,17.1,0.6,12.1,0.6);x.closePath();m(4.1,27.4);bc(4.1,24.6,5.2,21.4,7.1,18.2);bc(10.4,12,13.8,8.6,17.1,8.6);bc(20.7,8.6,23.9,11.8,26.4,15.6);l(22.2,21.8);bc(18.2,27.6,15.6,30.2,12.9,30.2);l(9.1,33.4);bc(5.9,33.4,4.1,30.6,4.1,27.4);x.closePath();m(37.3,27.4);l(33.5,24.2);bc(30.8,24.2,28.2,21.6,24.2,15.8);l(20,9.6);bc(22.5,5.8,25.7,2.6,29.3,2.6);bc(32.6,2.6,36,6,39.3,11.4);bc(41.2,14.6,42.3,18,42.3,20.6);bc(42.3,24.6,40.5,27.4,37.3,27.4);x.closePath();x.fill();return c.toDataURL()})();
+
+// SVG icons — inline, white, 52px
+const SVG={
+source:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>',
+enrich:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+datastore:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="M2 9h20M2 15h20M8 3v18"/></svg>',
+csv:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8M8 9h2"/></svg>',
+filter:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></svg>',
+consent:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9,12 11,14 15,10"/></svg>',
+success:'<svg width="52" height="52" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32l2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>',
+error:'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+};
+// Mini SVGs for panel header (18px, colored)
+const MINI={
+source:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/></svg>',
+enrich:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/></svg>',
+datastore:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>',
+csv:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>',
+filter:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></svg>',
+consent:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+success:'<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="4"/></svg>',
+error:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>',
+};
+
+createApp({
+  data(){return{
+    showModal:true,
+    nodes:[
+      {id:'source',title:'Source de données',subtitle:'Event: Purchase',svgIcon:SVG.source,miniSvg:MINI.source,color:'#6366f1',bg:'linear-gradient(135deg,#6366f1,#818cf8)',x:50,y:200},
+      {id:'enrich',title:'Enrichissement',subtitle:'Données client',svgIcon:SVG.enrich,miniSvg:MINI.enrich,color:'#8b5cf6',bg:'linear-gradient(135deg,#7c3aed,#a78bfa)',x:240,y:200},
+      {id:'datastore',title:'Data Store CRM',subtitle:'12,847 lignes',svgIcon:SVG.datastore,miniSvg:MINI.datastore,color:'#0d9488',bg:'linear-gradient(135deg,#0d9488,#2dd4bf)',x:240,y:390},
+      {id:'csv',title:'Import fichier CRM',subtitle:'SFTP Server',svgIcon:SVG.csv,miniSvg:MINI.csv,color:'#059669',bg:'linear-gradient(135deg,#059669,#34d399)',x:240,y:560},
+      {id:'filter',title:'Filtre',subtitle:'2 conditions',svgIcon:SVG.filter,miniSvg:MINI.filter,color:'#ea580c',bg:'linear-gradient(135deg,#ea580c,#fb923c)',x:430,y:200},
+      {id:'consent',title:'Consentement',subtitle:'Marketing',svgIcon:SVG.consent,miniSvg:MINI.consent,color:'#d97706',bg:'linear-gradient(135deg,#d97706,#fbbf24)',x:620,y:200},
+      {id:'fbcapi',title:'Facebook CAPI',subtitle:'Conversions API',imgSrc:META_IMG,whiteBg:true,color:'#0081FB',bg:'#fff',x:810,y:200},
+      {id:'success',title:'Success',subtitle:'1,847 events',svgIcon:SVG.success,miniSvg:MINI.success,color:'#0ea5e9',bg:'linear-gradient(135deg,#0ea5e9,#67e8f9)',x:1010,y:100},
+      {id:'error',title:'Erreurs',subtitle:'Error Handler',svgIcon:SVG.error,miniSvg:MINI.error,color:'#ef4444',bg:'linear-gradient(135deg,#ef4444,#fca5a5)',x:1010,y:320},
+      {id:'slack',title:'Slack Alert',subtitle:'#alerts-capi',imgSrc:SLACK_IMG,whiteBg:true,color:'#4A154B',bg:'#fff',x:1200,y:320},
+    ],
+    conns:[
+      {from:'source',to:'enrich',fs:'right',ts:'left'},
+      {from:'enrich',to:'datastore',fs:'bottom',ts:'top',bi:true},
+      {from:'csv',to:'datastore',fs:'top',ts:'bottom'},
+      {from:'enrich',to:'filter',fs:'right',ts:'left'},
+      {from:'filter',to:'consent',fs:'right',ts:'left'},
+      {from:'consent',to:'fbcapi',fs:'right',ts:'left'},
+      {from:'fbcapi',to:'success',fs:'right',ts:'left'},
+      {from:'fbcapi',to:'error',fs:'right',ts:'left'},
+      {from:'error',to:'slack',fs:'right',ts:'left'},
+    ],
+    zoom:1,px:0,py:0,anim:true,bk:0,
+    wizMode:false,ws:0,selNode:null,smOpen:false,
+    wo:['source','enrich','datastore','csv','filter','consent','fbcapi','success','error','slack'],
+    drag:null,dO:{x:0,y:0},panning:false,pS:{x:0,y:0},pO:{x:0,y:0},autoZ:true,
+    azTimer:null,wasDragged:false,
+    filterProps:['email','first_name','last_name','phone','country','city','value','currency','event_name','event_id','ip_address'],
+    dsPreview:[
+      {email:'jean.dupont@mail.com',fn:'Jean',ln:'Dupont',co:'FR'},
+      {email:'sarah.miller@mail.co.uk',fn:'Sarah',ln:'Miller',co:'UK'},
+      {email:'marco.rossi@mail.it',fn:'Marco',ln:'Rossi',co:'IT'},
+      {email:'anna.schmidt@mail.de',fn:'Anna',ln:'Schmidt',co:'DE'},
+      {email:'pierre.martin@mail.com',fn:'Pierre',ln:'Martin',co:'FR'},
+    ],
+    cfg:{
+      source:{event:'Purchase',src:'Webhook',test:true},
+      enrich:{key:'Email',hash:true,fields:'Tous (email, tél, nom, adresse)',fallback:'Continuer sans enrichissement'},
+      datastore:{key:'email',refresh:true},
+      csv:{host:'sftp.monentreprise.com',port:22,user:'capi_import',path:'/exports/crm_daily.csv',freq:'Quotidien'},
+      filter:{conds:[{prop:'country',op:'=',val:'UK'},{prop:'value',op:'>',val:'0'}],logic:'AND (toutes)',dedup:true},
+      consent:{cat:'Marketing'},
+      fbcapi:{pixel:'584729103847562',token:'EAAGm0PX4ZCps••••••••',testCode:'TEST42951',dedup:true,mapping:[
+        {fb:'em',prop:'email'},{fb:'ph',prop:'phone'},{fb:'fn',prop:'first_name'},{fb:'ln',prop:'last_name'},
+        {fb:'ct',prop:'city'},{fb:'st',prop:'state'},{fb:'zp',prop:'zip_code'},{fb:'country',prop:'country'},
+        {fb:'external_id',prop:'user_id'},{fb:'value',prop:'event_value'},{fb:'currency',prop:'currency'},
+      ]},
+      success:{threshold:95,interval:'15 min',dash:true},
+      error:{retries:3,delay:30,types:'Toutes',dlq:true},
+      slack:{webhook:'https://hooks.slack.com/services/T0•••/B0•••',channel:'#alerts-capi',mention:true,batch:'5 min'},
+    },
+    descs:{
+      source:"Configurez la source de données qui alimente votre workflow. Sélectionnez le type d'événement à tracker et la source d'où proviennent les données.",
+      enrich:"Le nœud d'enrichissement complète vos événements avec les données CRM (email hashé, téléphone, adresse…) pour améliorer le match rate Facebook.",
+      datastore:"Le Data Store stocke en cache les données CRM pour des look-ups rapides. Il est alimenté par l'import fichier CRM.",
+      csv:"Configurez la connexion SFTP pour importer automatiquement vos fichiers CRM dans le Data Store.",
+      filter:"Définissez les conditions de filtrage pour ne transmettre que les événements pertinents à Facebook.",
+      consent:"Sélectionnez la catégorie de consentement requise avant l'envoi des données à Facebook.",
+      fbcapi:"Envoyez les événements enrichis et consentis à l'API Conversions Facebook. Le Smart Mapping mappe vos propriétés aux variables Facebook.",
+      success:"Suivez en temps réel le nombre d'événements envoyés avec succès à Facebook.",
+      error:"Gestion des erreurs : configurez les retries automatiques et la dead letter queue.",
+      slack:"Recevez des alertes Slack en temps réel lorsqu'une erreur est détectée dans le pipeline.",
+    },
+  }},
+  computed:{
+    panelOpen(){return this.wizMode||(this.selNode!==null)},
+    activeNode(){
+      if(this.wizMode)return this.nodes.find(n=>n.id===this.wo[this.ws])||null;
+      return this.nodes.find(n=>n.id===this.selNode)||null;
+    },
+  },
+  methods:{
+    nid(id){return this.nodes.find(n=>n.id===id)},
+    pt(n,s){if(s==='right')return{x:n.x+NW,y:n.y+CH/2};if(s==='left')return{x:n.x,y:n.y+CH/2};if(s==='bottom')return{x:n.x+NW/2,y:n.y+CH};if(s==='top')return{x:n.x+NW/2,y:n.y};return{x:n.x,y:n.y}},
+    cPath(c){const a=this.nid(c.from),b=this.nid(c.to);if(!a||!b)return'';const s=this.pt(a,c.fs),e=this.pt(b,c.ts);if((c.fs==='right'&&c.ts==='left')||(c.fs==='left'&&c.ts==='right')){const m=(s.x+e.x)/2;return`M${s.x},${s.y}C${m},${s.y} ${m},${e.y} ${e.x},${e.y}`}if(c.fs==='bottom'&&c.ts==='top'||c.fs==='top'&&c.ts==='bottom'){const m=(s.y+e.y)/2;return`M${s.x},${s.y}C${s.x},${m} ${e.x},${m} ${e.x},${e.y}`}return`M${s.x},${s.y}L${e.x},${e.y}`},
+    biP(c,d){const a=this.nid(c.from),b=this.nid(c.to);if(!a||!b)return'';const o=16;if(d==='d'){const sx=a.x+NW/2-o,sy=a.y+CH,ex=b.x+NW/2-o,ey=b.y,m=(sy+ey)/2;return`M${sx},${sy}C${sx},${m} ${ex},${m} ${ex},${ey}`}const sx=b.x+NW/2+o,sy=b.y,ex=a.x+NW/2+o,ey=a.y+CH,m=(sy+ey)/2;return`M${sx},${sy}C${sx},${m} ${ex},${m} ${ex},${ey}`},
+    hC(id,r,s){return this.conns.some(c=>r==='f'?c.from===id&&c.fs===s:c.to===id&&c.ts===s)},
+    closePanel(){this.selNode=null;if(this.wizMode)this.wizMode=false;this.$nextTick(()=>this.fitToScreen())},
+    sD(n,e){this.drag=n;this.wasDragged=false;this.dO={x:e.clientX-n.x*this.zoom-this.px,y:e.clientY-n.y*this.zoom-this.py}},
+    sPan(e){if(!this.drag){this.panning=true;this.pS={x:e.clientX,y:e.clientY};this.pO={x:this.px,y:this.py}}},
+    oMM(e){if(this.drag){const nx=Math.round((e.clientX-this.dO.x-this.px)/this.zoom);const ny=Math.round((e.clientY-this.dO.y-this.py)/this.zoom);if(Math.abs(nx-this.drag.x)>2||Math.abs(ny-this.drag.y)>2)this.wasDragged=true;this.drag.x=nx;this.drag.y=ny;this.bk++;if(this.autoZ){clearTimeout(this.azTimer);this.azTimer=setTimeout(()=>this.fitToScreen(),350)}}else if(this.panning){this.px=this.pO.x+(e.clientX-this.pS.x);this.py=this.pO.y+(e.clientY-this.pS.y)}},
+    eA(){
+      if(this.drag){
+        const n=this.drag;
+        const moved=this.wasDragged;
+        this.bk++;
+        if(moved&&this.autoZ){clearTimeout(this.azTimer);this.fitToScreen()}
+        this.drag=null;
+        if(!moved&&!this.wizMode){
+          this.selNode=this.selNode===n.id?null:n.id;
+          this.smOpen=false;
+          this.$nextTick(()=>this.fitToScreen());
+        }
+      }
+      this.panning=false;
+    },
+    oWh(e){const d=e.deltaY>0?-0.06:0.06,nz=Math.min(2.5,Math.max(0.15,this.zoom+d));const r=this.$refs.cw.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;this.px=mx-(mx-this.px)*(nz/this.zoom);this.py=my-(my-this.py)*(nz/this.zoom);this.zoom=nz;this.autoZ=false},
+    zoomIn(){this.zoom=Math.min(2.5,this.zoom+0.1);this.autoZ=false},
+    zoomOut(){this.zoom=Math.max(0.15,this.zoom-0.1);this.autoZ=false},
+    fitToScreen(){const w=this.$refs.cw;if(!w||!this.nodes.length)return;const r=w.getBoundingClientRect(),pw=r.width,ph=r.height,pad=55;let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;this.nodes.forEach(n=>{x1=Math.min(x1,n.x);y1=Math.min(y1,n.y);x2=Math.max(x2,n.x+NW);y2=Math.max(y2,n.y+CH+30)});const cw=x2-x1+pad*2,ch=y2-y1+pad*2,z=Math.min(pw/cw,ph/ch,1.8);this.zoom=z;this.px=(pw-cw*z)/2-x1*z+pad*z;this.py=(ph-ch*z)/2-y1*z+pad*z},
+    toggleAnim(){this.anim=!this.anim;this.bk++},
+    startGuided(){this.showModal=false;this.wizMode=true;this.ws=0;this.smOpen=false;this.$nextTick(()=>{this.fitToScreen();this.scN(this.wo[0])})},
+    toggleWiz(){this.wizMode=!this.wizMode;this.ws=0;this.selNode=null;this.smOpen=false;this.$nextTick(()=>this.fitToScreen())},
+    nxS(){if(this.ws<this.wo.length-1){this.ws++;this.smOpen=false;this.scN(this.wo[this.ws])}else{this.wizMode=false;this.$nextTick(()=>this.fitToScreen())}},
+    scN(id){const n=this.nid(id);if(!n)return;const w=this.$refs.cw;if(!w)return;const r=w.getBoundingClientRect(),pw=r.width-(this.panelOpen?420:0),ph=r.height;this.px=pw/2-(n.x+NW/2)*this.zoom;this.py=ph/2-(n.y+CH/2)*this.zoom},
+  },
+  mounted(){this.$nextTick(()=>this.fitToScreen())},
+}).mount('#app');
+</script>
+</body>
+</html>
