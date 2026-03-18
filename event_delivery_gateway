@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloudflare Worker Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f3f4f7;
+      --card: #ffffff;
+      --muted: #7f8a9a;
+      --border: #e9edf3;
+      --success: #73d8e7;
+      --success-dark: #48bfd1;
+      --danger: #f16d6d;
+      --danger-dark: #eb5757;
+      --text: #2f3640;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    .dashboard-shell {
+      max-width: 1320px;
+      margin: 24px auto;
+      padding: 0 12px 28px;
+    }
+
+    .soft-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+
+    .top-panel {
+      padding: 18px 20px;
+    }
+
+    .top-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .top-title i {
+      color: #f2c94c;
+      font-size: 1.55rem;
+    }
+
+    .kpi-card {
+      min-height: 190px;
+      overflow: hidden;
+    }
+
+    .kpi-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .kpi-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .kpi-title.success {
+      color: var(--success-dark);
+    }
+
+    .kpi-title.danger {
+      color: var(--danger-dark);
+    }
+
+    .kpi-title i {
+      font-size: 1.25rem;
+    }
+
+    .period-badge {
+      background: #a8afb9;
+      color: white;
+      font-size: 0.72rem;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    .kpi-body {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      height: calc(100% - 61px);
+    }
+
+    .kpi-details {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .kpi-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .metric-label {
+      color: var(--text);
+      font-size: 0.98rem;
+      line-height: 1.2;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-top: 6px;
+    }
+
+    .metric-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .kpi-gauge-wrap {
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .gauge {
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .gauge::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .gauge-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .gauge-content i {
+      font-size: 1.8rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .gauge-success .gauge-content i {
+      color: #f2c94c;
+    }
+
+    .gauge-danger .gauge-content i {
+      color: #5a6072;
+    }
+
+    .gauge-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .gauge-success .gauge-value {
+      color: var(--success-dark);
+    }
+
+    .gauge-danger .gauge-value {
+      color: var(--danger-dark);
+    }
+
+    .chart-card {
+      padding: 18px 18px 8px;
+      min-height: 470px;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-title i {
+      color: #9aa3af;
+      font-size: 1.25rem;
+    }
+
+    .chart-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 0 4px 10px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      font-weight: 600;
+      color: #8b95a4;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      padding: 0 0 8px 70px;
+    }
+
+    .chart-tab.active {
+      color: var(--danger-dark);
+      position: relative;
+    }
+
+    .chart-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -9px;
+      height: 2px;
+      background: var(--danger-dark);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 340px;
+      padding: 12px 8px 0;
+    }
+
+    .muted-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .form-control,
+    .form-control:focus,
+    .form-select,
+    .form-select:focus {
+      box-shadow: none;
+      border-color: #d8dfe8;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    .btn-outline-secondary {
+      border-color: #d8dfe8;
+      color: #5f6b7a;
+    }
+
+    .error-box {
+      background: #fff3f3;
+      border: 1px solid #ffd4d4;
+      color: #b54747;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .error-details {
+      display: block;
+      margin-top: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: #8e3f3f;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.7);
+      z-index: 4;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 991px) {
+      .kpi-body {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-gauge-wrap {
+        border-left: 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .chart-tabs {
+        padding-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="dashboard-shell">
+    <div class="soft-card top-panel mb-4">
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+          <div class="top-title">
+            <i class='bx bxs-cloud'></i>
+            <span>Qualité des requêtes Cloudflare</span>
+          </div>
+          <div class="muted-note">Dashboard de monitoring basé sur l'API GraphQL Analytics de Cloudflare.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+          <div class="input-group" style="min-width: 220px; max-width: 240px;">
+            <span class="input-group-text bg-white"><i class='bx bx-calendar'></i></span>
+            <input v-model="selectedDate" type="date" class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1 align-items-end">
+        <div class="col-12 col-xl-3">
+          <label class="form-label fw-semibold">Account ID</label>
+          <input v-model.trim="accountId" type="text" class="form-control" placeholder="Cloudflare account ID">
+        </div>
+        <div class="col-12 col-xl-4">
+          <label class="form-label fw-semibold">API Token</label>
+          <input v-model.trim="apiToken" type="password" class="form-control" placeholder="Cloudflare API token">
+        </div>
+        <div class="col-12 col-xl-3">
+          <label class="form-label fw-semibold">Nom du Worker</label>
+          <input v-model.trim="scriptName" type="text" class="form-control" placeholder="Nom du script Worker" value="cag-clarins-835">
+        </div>
+        <div class="col-12 col-xl-2 d-grid">
+          <button class="btn btn-primary" @click="loadData" :disabled="loading">
+            <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i v-else class='bx bx-refresh me-2'></i>
+            Charger
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex flex-wrap gap-3 muted-note">
+        <span><strong>Période :</strong> {{ dateLabel }}</span>
+        <span><strong>Bucket :</strong> 1 jour</span>
+        <span><strong>Source :</strong> workersInvocationsAdaptive</span>
+      </div>
+
+      <div v-if="errorMessage" class="error-box mt-3">
+        <div>{{ errorMessage }}</div>
+        <small v-if="errorDetails" class="error-details">{{ errorDetails }}</small>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="soft-card kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title success">
+              <i class='bx bx-check-circle'></i>
+              <span>{{ totalRequests.toLocaleString('fr-FR') }} requêtes totales</span>
+            </div>
+            <span class="period-badge">1j</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-details">
+              <div class="kpi-row">
+                <div>
+                  <div class="metric-label">Requêtes en succès</div>
+                  <div class="metric-value">{{ successRequests.toLocaleString('fr-FR') }}</div>
+                  <div class="metric-sub">Statuts non considérés comme erreurs</div>
+                </div>
+              </div>
+              <div class="kpi-row">
+                <div>
+                  <div class="metric-label">Total analysé</div>
+                  <div class="metric-value" style="font-size: 1.6rem;">{{ totalRequests.toLocaleString('fr-FR') }}</div>
+                </div>
+                <div class="text-end">
+                  <div class="metric-label">Worker</div>
+                  <div class="metric-sub">{{ scriptName || 'N/A' }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-gauge-wrap">
+              <div class="gauge gauge-success" :style="successGaugeStyle">
+                <div class="gauge-content">
+                  <i class='bx bxs-cloud'></i>
+                  <div class="gauge-value">{{ successRate }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="soft-card kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-title danger">
+              <i class='bx bx-error-circle'></i>
+              <span>{{ errorRequests.toLocaleString('fr-FR') }} erreurs</span>
+            </div>
+            <span class="period-badge">1j</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-details">
+              <div class="kpi-row">
+                <div>
+                  <div class="metric-label">Requêtes en erreur</div>
+                  <div class="metric-value">{{ errorRequests.toLocaleString('fr-FR') }}</div>
+                  <div class="metric-sub">Statuts d'échec et exceptions script</div>
+                </div>
+              </div>
+              <div class="kpi-row">
+                <div>
+                  <div class="metric-label">Taux d'erreur</div>
+                  <div class="metric-value" style="font-size: 1.6rem;">{{ errorRate }}%</div>
+                </div>
+                <div class="text-end">
+                  <div class="metric-label">Sous-requêtes</div>
+                  <div class="metric-sub">{{ totalSubrequests.toLocaleString('fr-FR') }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-gauge-wrap">
+              <div class="gauge gauge-danger" :style="errorGaugeStyle">
+                <div class="gauge-content">
+                  <i class='bx bxs-cloud-light-rain'></i>
+                  <div class="gauge-value">{{ errorRate }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="soft-card chart-card position-relative">
+      <div v-if="loading" class="loading-overlay">
+        <div class="text-center">
+          <div class="spinner-border text-primary mb-2"></div>
+          <div class="muted-note">Chargement des métriques Cloudflare...</div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <i class='bx bx-line-chart'></i>
+        <span>Tendance</span>
+      </div>
+
+      <div class="chart-toolbar">
+        <div class="chart-tabs">
+          <span class="chart-tab">minutes</span>
+          <span class="chart-tab">heures</span>
+          <span class="chart-tab active">jours</span>
+          <span class="chart-tab">semaines</span>
+        </div>
+        <span class="period-badge">1j</span>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="requestsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        const savedAccountId = localStorage.getItem('cfDashboard.accountId') || '';
+        const savedApiToken = localStorage.getItem('cfDashboard.apiToken') || '';
+        const savedScriptName = localStorage.getItem('cfDashboard.scriptName') || '';
+
+        return {
+          accountId: savedAccountId,
+          apiToken: savedApiToken,
+          scriptName: savedScriptName,
+          selectedDate: `${yyyy}-${mm}-${dd}`,
+          loading: false,
+          errorMessage: '',
+          errorDetails: '',
+          rows: [],
+          chart: null,
+          series: []
+        };
+      },
+      computed: {
+        totalRequests() {
+          return this.series.reduce((sum, item) => sum + item.requests, 0);
+        },
+        successRequests() {
+          return this.series.reduce((sum, item) => sum + item.successRequests, 0);
+        },
+        errorRequests() {
+          return this.series.reduce((sum, item) => sum + item.errorRequests, 0);
+        },
+        totalSubrequests() {
+          return this.series.reduce((sum, item) => sum + item.subrequests, 0);
+        },
+        successRate() {
+          if (!this.totalRequests) {
+            return 0;
+          }
+
+          return Math.round((this.successRequests / this.totalRequests) * 100);
+        },
+        errorRate() {
+          if (!this.totalRequests) {
+            return 0;
+          }
+
+          return Math.round((this.errorRequests / this.totalRequests) * 100);
+        },
+        successGaugeStyle() {
+          return {
+            background: `conic-gradient(var(--success) 0deg ${(this.successRate / 100) * 360}deg, #edf1f5 ${(this.successRate / 100) * 360}deg 360deg)`
+          };
+        },
+        errorGaugeStyle() {
+          return {
+            background: `conic-gradient(var(--danger) 0deg ${(this.errorRate / 100) * 360}deg, #edf1f5 ${(this.errorRate / 100) * 360}deg 360deg)`
+          };
+        },
+        dateLabel() {
+          if (!this.selectedDate) {
+            return '';
+          }
+
+          const date = new Date(this.selectedDate + 'T00:00:00');
+          return date.toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        }
+      },
+      mounted() {
+        this.renderChart();
+      },
+      watch: {
+        accountId(value) {
+          localStorage.setItem('cfDashboard.accountId', value || '');
+        },
+        apiToken(value) {
+          localStorage.setItem('cfDashboard.apiToken', value || '');
+        },
+        scriptName(value) {
+          localStorage.setItem('cfDashboard.scriptName', value || '');
+        }
+      },
+      methods: {
+        getDateRange() {
+          const start = new Date(this.selectedDate + 'T00:00:00');
+          const end = new Date(this.selectedDate + 'T23:59:59.999');
+
+          return {
+            startIso: start.toISOString(),
+            endIso: end.toISOString()
+          };
+        },
+        isErrorStatus(status) {
+          const errorStatuses = new Set([
+            'scriptThrewException',
+            'internalError',
+            'exceededCpu',
+            'exceededMemory',
+            'responseStreamDisconnected',
+            'unknownError'
+          ]);
+
+          return errorStatuses.has(status);
+        },
+        bucketRowsByDay(rows) {
+          const map = new Map();
+
+          for (const row of rows) {
+            const datetime = row?.dimensions?.datetime;
+            const status = row?.dimensions?.status || 'unknown';
+            const requests = Number(row?.sum?.requests || 0);
+            const subrequests = Number(row?.sum?.subrequests || 0);
+
+            if (!datetime) {
+              continue;
+            }
+
+            const bucket = datetime.slice(0, 10);
+
+            if (!map.has(bucket)) {
+              map.set(bucket, {
+                label: bucket,
+                requests: 0,
+                successRequests: 0,
+                errorRequests: 0,
+                subrequests: 0
+              });
+            }
+
+            const point = map.get(bucket);
+            point.requests += requests;
+            point.subrequests += subrequests;
+
+            if (this.isErrorStatus(status)) {
+              point.errorRequests += requests;
+            } else {
+              point.successRequests += requests;
+            }
+          }
+
+          return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+        },
+        async loadData() {
+          this.errorMessage = '';
+          this.errorDetails = '';
+
+          if (!this.accountId || !this.apiToken || !this.scriptName || !this.selectedDate) {
+            this.errorMessage = 'Veuillez renseigner le account ID, le token API, le nom du Worker et une date.';
+            return;
+          }
+
+          this.loading = true;
+
+          try {
+            const { startIso, endIso } = this.getDateRange();
+
+            const query = `
+              query GetWorkersAnalytics($accountTag: string, $datetimeStart: string, $datetimeEnd: string, $scriptName: string) {
+                viewer {
+                  accounts(filter: { accountTag: $accountTag }) {
+                    workersInvocationsAdaptive(
+                      limit: 10000,
+                      filter: {
+                        scriptName: $scriptName,
+                        datetime_geq: $datetimeStart,
+                        datetime_leq: $datetimeEnd
+                      }
+                    ) {
+                      dimensions {
+                        datetime
+                        scriptName
+                        status
+                      }
+                      sum {
+                        requests
+                        subrequests
+                        errors
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const requestPayload = {
+              query,
+              variables: {
+                accountTag: this.accountId,
+                datetimeStart: startIso,
+                datetimeEnd: endIso,
+                scriptName: this.scriptName
+              }
+            };
+
+            let response;
+
+            try {
+              response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${this.apiToken}`,
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestPayload)
+              });
+            } catch (networkError) {
+              const networkDetails = {
+                name: networkError?.name || 'Error',
+                message: networkError?.message || 'Unknown network error',
+                stack: networkError?.stack || '',
+                endpoint: 'https://api.cloudflare.com/client/v4/graphql',
+                requestPayload,
+                hint: 'If this page is opened as a local file or on a domain not allowed by Cloudflare CORS policy, the browser can block the request before Cloudflare replies.'
+              };
+
+              throw new Error(JSON.stringify(networkDetails, null, 2));
+            }
+
+            const rawResponseText = await response.text();
+            let payload = null;
+
+            try {
+              payload = rawResponseText ? JSON.parse(rawResponseText) : null;
+            } catch (parseError) {
+              payload = null;
+            }
+
+            if (!response.ok) {
+              const httpDetails = {
+                status: response.status,
+                statusText: response.statusText,
+                endpoint: 'https://api.cloudflare.com/client/v4/graphql',
+                requestPayload,
+                responseText: rawResponseText,
+                parsedResponse: payload
+              };
+
+              throw new Error(JSON.stringify(httpDetails, null, 2));
+            }
+
+            if (payload?.errors && payload.errors.length) {
+              const graphqlDetails = {
+                endpoint: 'https://api.cloudflare.com/client/v4/graphql',
+                requestPayload,
+                graphqlErrors: payload.errors,
+                response: payload
+              };
+
+              throw new Error(JSON.stringify(graphqlDetails, null, 2));
+            }
+
+            const rows = payload?.data?.viewer?.accounts?.[0]?.workersInvocationsAdaptive || [];
+            this.rows = rows;
+            this.series = this.bucketRowsByDay(rows);
+            this.renderChart();
+          } catch (error) {
+            this.rows = [];
+            this.series = [];
+            this.renderChart();
+            this.errorMessage = 'Impossible de charger les données Cloudflare.';
+            this.errorDetails = error?.message || String(error);
+            console.error('Cloudflare dashboard loadData failed', error);
+          } finally {
+            this.loading = false;
+          }
+        },
+        renderChart() {
+          const canvas = document.getElementById('requestsChart');
+
+          if (!canvas) {
+            return;
+          }
+
+          const labels = this.series.map(item => {
+            const [year, month, day] = item.label.split('-');
+            return `${day}/${month}`;
+          });
+
+          const successData = this.series.map(item => item.successRequests);
+          const errorData = this.series.map(item => item.errorRequests);
+
+          if (this.chart) {
+            this.chart.destroy();
+          }
+
+          this.chart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: 'Succès',
+                  data: successData,
+                  backgroundColor: '#73d8e7',
+                  borderRadius: 6,
+                  barThickness: 18
+                },
+                {
+                  label: 'Échec',
+                  data: errorData,
+                  backgroundColor: '#f16d6d',
+                  borderRadius: 6,
+                  barThickness: 18
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: 'index',
+                intersect: false
+              },
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                    usePointStyle: false,
+                    boxWidth: 22,
+                    color: '#5f6b7a',
+                    font: {
+                      size: 13,
+                      weight: 600
+                    }
+                  }
+                },
+                tooltip: {
+                  backgroundColor: 'rgba(34, 41, 47, 0.95)',
+                  padding: 10,
+                  callbacks: {
+                    footer: (items) => {
+                      const index = items?.[0]?.dataIndex;
+
+                      if (index === undefined) {
+                        return '';
+                      }
+
+                      const point = this.series[index];
+                      return `Total: ${point.requests.toLocaleString('fr-FR')}`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false,
+                    drawBorder: false
+                  },
+                  ticks: {
+                    color: '#8b95a4',
+                    font: {
+                      size: 12,
+                      weight: 600
+                    }
+                  },
+                  stacked: false
+                },
+                y: {
+                  beginAtZero: true,
+                  grid: {
+                    color: '#eef2f6',
+                    drawBorder: false
+                  },
+                  border: {
+                    display: false
+                  },
+                  ticks: {
+                    color: '#a0a8b4',
+                    font: {
+                      size: 12
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
