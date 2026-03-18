@@ -692,19 +692,16 @@
             `;
 
             const requestPayload = {
-              query,
-              variables: {
-                accountTag: this.accountId,
-                datetimeStart: startIso,
-                datetimeEnd: endIso,
-                scriptName: this.scriptName
-              }
+              accountId: this.accountId,
+              scriptName: this.scriptName,
+              datetimeStart: startIso,
+              datetimeEnd: endIso
             };
 
             let response;
 
             try {
-              response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+              response = await fetch('https://cloudflaregateway.vercel.app/api/cloudflare', {
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${this.apiToken}`,
