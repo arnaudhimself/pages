@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commanders Act Dashboard - Vue Reproduction</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Roboto/Inter mimic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-width: 360px;
+            --sidebar-collapsed-width: 90px;
+            --primary-blue: #2c4eff;
+            
+            --sidebar-bg-start: #efe7f8; 
+            --sidebar-bg-end: #fdfdfd38;
+            
+            --content-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-std: 4px;
+            --radius-lg: 20px; 
+            --transition-speed: 0.3s;
+            
+            --hover-blue-bg: #ffffff7a; 
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* --- Layout --- */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar Global Styling --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
+            border-right: none; 
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: width var(--transition-speed) ease;
+        }
+
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+            min-width: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Styling */
+        .sidebar-header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 0 0 1rem;
+        }
+
+        .btn-toggle-sidebar {
+            border: none;
+            background: transparent;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-std);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .btn-toggle-sidebar:hover {
+            background-color: rgba(44, 78, 255, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        
+        .logo-hexagon {
+            color: #d63384; 
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        #sidebar.collapsed .logo-wrapper { display: none; }
+        #sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        #sidebar.collapsed .btn-toggle-sidebar { margin-right: 0; }
+
+        /* --- Sidebar Content --- */
+        .sidebar-content-wrapper {
+            display: flex;
+            height: calc(100% - 80px);
+            overflow: hidden;
+        }
+
+        .sidebar-left-col {
+            width: 90px;
+            min-width: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: none; 
+            padding-top: 10px;
+            background-color: transparent;
+            z-index: 2;
+            justify-content: space-between;
+        }
+        
+        .sidebar-nav-top, .sidebar-nav-bottom {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar-nav-bottom { padding-bottom: 20px; }
+
+        .sidebar-right-col {
+            flex-grow: 1;
+            padding: 1rem 1.5rem;
+            overflow-y: auto;
+            min-width: 270px;
+            background-color: transparent;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        #sidebar.collapsed .sidebar-right-col {
+            display: none;
+            opacity: 0;
+        }
+
+        /* --- MAIN CONTENT (Card Effect) --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            background-color: var(--content-bg);
+            min-height: 100vh;
+            transition: margin-left var(--transition-speed) ease;
+            width: 100%;
+            overflow-x: hidden;
+            border-top-left-radius: 30px;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+        
+        /* Modifiers for Canvas Mode */
+        .main-content.canvas-active {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--sidebar-bg-end); 
+            background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
+            z-index: -1;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 992px) {
+            :root { --sidebar-width: 90px; }
+            #sidebar { width: 90px; min-width: 90px; }
+            .sidebar-right-col, .logo-wrapper { display: none !important; }
+            .sidebar-header { justify-content: center; padding: 0; }
+            .btn-toggle-sidebar { margin-right: 0; }
+            .main-content { margin-left: 90px; border-top-left-radius: 20px; }
+        }
+
+        @media (max-width: 576px) {
+            .main-content { padding-right: 0; border-top-left-radius: 0; } 
+            .projects-section { padding: 0 1rem 3rem 1rem; } 
+        }
+
+        /* --- Nav Items --- */
+        .nav-item-custom {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 12px 0; width: 85%; 
+            color: var(--text-muted); 
+            text-decoration: none;
+            border-radius: var(--radius-std);
+            transition: all 0.2s ease;
+            font-size: 0.75rem; font-weight: 500;
+            margin-bottom: 0.5rem; text-align: center;
+        }
+        
+        .nav-item-custom i { 
+            font-size: 1.4rem; margin-bottom: 6px; 
+            color: var(--text-muted); 
+            transition: all 0.2s;
+        }
+        
+        .nav-item-custom:hover { 
+            background-color: var(--hover-blue-bg); 
+            color: var(--primary-blue); 
+        }
+        .nav-item-custom:hover i { color: var(--primary-blue); transform: translateY(-2px); }
+
+        .nav-item-custom.active { 
+            background-color: var(--hover-blue-bg);
+            color: var(--primary-blue); 
+            font-weight: 700;
+            box-shadow: none; 
+        }
+        .nav-item-custom.active i { color: var(--primary-blue); opacity: 1; }
+        .nav-item-custom.active::before { display: none; }
+
+        /* Buttons */
+        .btn-create {
+            background: linear-gradient(135deg, #2c4eff 0%, #1a3cff 100%);
+            color: white; border: none; 
+            border-radius: var(--radius-std);
+            font-weight: 600; width: 100%; padding: 0.8rem; margin-bottom: 1.5rem;
+            font-size: 0.9rem; box-shadow: 0 4px 10px rgba(44, 78, 255, 0.2); white-space: nowrap;
+            transition: transform 0.2s;
+        }
+        .btn-create:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(44, 78, 255, 0.3); color: white; }
+
+        .sidebar-divider { margin: 1.5rem 0; border-top: 1px solid rgba(0,0,0,0.08); }
+        .section-title { font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; padding-left: 0.5rem; }
+        
+        .sub-nav-item {
+            display: flex; align-items: center; padding: 0.7rem 0.8rem; 
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem; 
+            border-radius: var(--radius-std);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            transition: all 0.2s;
+        }
+        .sub-nav-item i { width: 24px; margin-right: 10px; text-align: center; color: var(--primary-blue); opacity: 0.8; }
+        
+        .sub-nav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .sub-nav-item.active { background-color: #ffffff; color: var(--primary-blue); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* --- Accordion Menu --- */
+        .main-nav-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.7rem 0.8rem;
+            color: var(--text-dark);
+            text-decoration: none; font-size: 0.9rem; font-weight: 600;
+            border-radius: var(--radius-std);
+            margin-bottom: 0.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .main-nav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .main-nav-item:hover .main-nav-item-content i,
+        .main-nav-item:hover .fa-chevron-down,
+        .main-nav-item:hover .fa-chevron-up { color: var(--primary-blue) !important; }
+        .main-nav-item.open { background-color: #ffffff; color: var(--primary-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .main-nav-item.open .main-nav-item-content i,
+        .main-nav-item.open .fa-chevron-down,
+        .main-nav-item.open .fa-chevron-up { color: var(--primary-blue) !important; }
+
+        .main-nav-item-content { display: flex; align-items: center; }
+        .main-nav-item-content i { width: 20px; font-size: 0.9rem; margin-right: 10px; text-align: center; color: #94a3b8; transition: color 0.2s; }
+        .main-nav-item .fa-chevron-down, .main-nav-item .fa-chevron-up { font-size: 0.7rem; color: #94a3b8; transition: transform 0.2s, color 0.2s; }
+        .main-nav-item.open .fa-chevron-down { transform: rotate(180deg); }
+
+        .submenu-links { padding: 0 0 0.5rem 1rem; list-style: none; margin: 0; opacity: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease; }
+        .submenu-links.open { opacity: 1; max-height: 500px; }
+        .submenu-links a { display: block; padding: 0.4rem 0; color: #475569; font-size: 0.85rem; text-decoration: none; position: relative; }
+        .submenu-links a:hover { color: var(--primary-blue); }
+        .submenu-links a::before { content: ''; position: absolute; left: -15px; top: 50%; width: 6px; height: 1px; background: #cbd5e1; }
+
+        .fav-item { display: flex; align-items: center; padding: 0.6rem 0.8rem; color: #64748b; text-decoration: none; font-size: 0.85rem; border-radius: var(--radius-std); margin-bottom: 2px; transition: all 0.2s; }
+        .fav-item:hover { background-color: var(--hover-blue-bg); color: var(--primary-blue); }
+        .fav-icon { width: 20px; margin-right: 8px; text-align: center; color: #cbd5e1; transition: color 0.2s; }
+        .fav-item:hover .fav-icon { color: var(--primary-blue); }
+
+        /* --- Top Bar --- */
+        .top-bar {
+            padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;
+            background: transparent; position: sticky; top: 0; z-index: 900;
+        }
+        .search-container { position: relative; width: 500px; max-width: 100%; }
+        .search-input { 
+            width: 100%; 
+            border-radius: var(--radius-std);
+            border: 1px solid #e2e8f0; 
+            padding: 0.7rem 1rem 0.7rem 2.8rem; 
+            background-color: #f8f9fa; 
+            box-shadow: none;
+            transition: all 0.2s;
+        }
+        .search-input:focus { background-color: #fff; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(44,78,255,0.1); outline: none; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: #64748b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+
+        /* --- Hero Banner --- */
+        .hero-banner {
+            margin: 0 2rem; 
+            border-radius: var(--radius-lg);
+            height: 220px;
+            background: linear-gradient(90deg, #0019ff 0%, #5335ff 50%, #b900ff 100%);
+            display: flex; align-items: center; justify-content: center; color: white; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(44, 78, 255, 0.2);
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; top: -50%; right: -10%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;
+        }
+        .hero-title { font-size: 1.8rem; font-weight: 700; z-index: 2; text-align: center; padding: 0 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* --- Quick Actions --- */
+        .quick-actions-row { padding: 2rem 2rem 1rem 2rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+        .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; width: auto; }
+        .action-item:hover { transform: translateY(-3px); }
+        .action-icon-circle { 
+            width: 45px; height: 45px; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            color: white; margin-bottom: 8px; font-size: 1.1rem; 
+            flex-shrink: 0; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .action-label { font-size: 0.75rem; color: var(--text-dark); text-align: center; max-width: 80px; line-height: 1.2; font-weight: 500; }
+
+        .pills-row { display: flex; justify-content: center; gap: 1rem; padding-bottom: 2rem; flex-wrap: wrap; }
+        .custom-pill { 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 20px;
+            font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; margin-bottom: 0.5rem; background-color: #f8f9fa; border: 1px solid #e2e8f0; 
+        }
+        .custom-pill:hover { filter: brightness(0.95); border-color: #cbd5e1; }
+        .pill-insights { background-color: #e0f2fe; color: #0369a1; }
+        .pill-integration { background-color: #f3e8ff; color: #7e22ce; }
+        .pill-data { background-color: #fce7f3; color: #be185d; }
+        .pill-reco { background-color: #dcfce7; color: #15803d; }
+
+        /* --- Content Areas --- */
+        .bg-teal { background-color: #0dcaf0; }
+        .bg-green { background-color: #20c997; }
+        .bg-orange { background-color: #fd7e14; }
+        .bg-red { background-color: #dc3545; }
+        .bg-pink { background-color: #d63384; }
+        .bg-indigo { background-color: #6610f2; }
+        .bg-blue { background-color: #0d6efd; }
+        .bg-gray { background-color: #e9ecef; color: #6c757d; }
+        .bg-purple { background-color: #6f42c1; }
+        .bg-dark-blue { background-color: #1e3a8a; }
+
+        .projects-section { padding: 0 2rem 3rem 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        
+        .project-card { 
+            border: 1px solid #e2e8f0; 
+            border-radius: var(--radius-std);
+            overflow: hidden; 
+            transition: box-shadow 0.3s, transform 0.2s; 
+            background: #fff; height: 100%; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            cursor: pointer;
+        }
+        .project-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.08); transform: translateY(-3px); border-color: #cbd5e1; }
+        .card-img-wrapper { height: 150px; background-color: #f1f5f9; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-body { padding: 1.2rem; }
+        .project-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-dark); }
+        .project-category { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* --- Page Specifics --- */
+        .projects-page-header { background: transparent; padding: 2rem 2rem 1rem 2rem; margin-bottom: 1rem; text-align: center; }
+        .projects-search-bar { max-width: 600px; margin: 1.5rem auto 0 auto; position: relative; }
+        .projects-search-input { width: 100%; padding: 1rem 1rem 1rem 3rem; border-radius: var(--radius-std); border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .projects-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem; }
+        
+        .recent-scroll-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 0.5rem 2rem 2rem 2rem; scrollbar-width: thin; }
+        .recent-project-item { min-width: 220px; width: 220px; cursor: pointer; }
+        .recent-img-box { height: 130px; background-color: #fff; border-radius: var(--radius-std); margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; overflow: hidden; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s; }
+        .recent-project-item:hover .recent-img-box { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: #cbd5e1; }
+        .recent-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .recent-meta { font-size: 0.75rem; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+
+        .folder-card { background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius-std); padding: 1.2rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .folder-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+        .folder-icon { font-size: 1.8rem; color: #cbd5e1; }
+        .folder-card:hover .folder-icon { color: #fbbf24; }
+        .folder-name { font-weight: 500; color: #334155; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .folder-count { font-size: 0.75rem; color: #94a3b8; margin-left: auto; white-space: nowrap; }
+
+        /* Templates Header */
+        .templates-header { background-color: transparent; padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid #f1f3f5; margin-bottom: 2rem; }
+        .filter-container { display: flex; gap: 0.5rem; padding-bottom: 0.5rem; overflow-x: auto; scrollbar-width: thin; }
+        .filter-pill { padding: 0.5rem 1.2rem; border-radius: var(--radius-std); font-size: 0.9rem; color: var(--text-dark); background: #fff; border: 1px solid #e9ecef; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .filter-pill:hover { background-color: #e9ecef; border-color: #ced4da; }
+        .filter-pill.active { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); box-shadow: 0 4px 10px rgba(44, 78, 255, 0.3); }
+        .template-icon-wrapper { width: 40px; height: 40px; border-radius: var(--radius-std); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-bottom: 1rem; }
+
+        /* ========================================================= */
+        /* ============ WIZARD CANVAS EDITOR CSS STYLES ============ */
+        /* ========================================================= */
+        
+        .canvas-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background: #f0f2f7; }
+        .wiz-modal-overlay {position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+        .wiz-modal-box {background:#fff;border-radius:20px;padding:36px 40px;max-width:420px;width:90%;box-shadow:0 25px 60px rgba(0,0,0,.18);text-align:center}
+        .wiz-modal-box h3 {font-size:20px;font-weight:800;color:#1e293b;margin-bottom:6px}
+        .wiz-modal-box p {font-size:13.5px;color:#64748b;margin-bottom:24px;line-height:1.6}
+        .wiz-modal-box .mico {margin-bottom:14px}
+        .wiz-modal-box .mico svg {width:52px;height:52px}
+        .wiz-mbtn {display:flex;flex-direction:column;gap:10px}
+        .wiz-mbtn button {padding:13px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;border:none}
+        .wiz-mbtn .primary {background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+        .wiz-mbtn .secondary {background:#f1f3f9;color:#475569}
+        .wiz-toolbar {height:48px;background:#fff;border-bottom:1px solid #e2e5ec;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100;flex-shrink:0}
+        .wiz-toolbar-brand {display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;color:#1e293b}
+        .wiz-toolbar-brand svg {width:20px;height:20px;fill:#6366f1}
+        .wiz-tag {background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600}
+        .tb {display:flex;align-items:center;gap:4px}
+        .tb button {border:none;background:#f1f3f9;color:#475569;padding:5px 10px;border-radius:7px;font-size:11.5px;cursor:pointer;transition:.15s;font-weight:500;display:flex;align-items:center;gap:4px}
+        .tb button.on {background:#6366f1;color:#fff}
+        .wiz-main-wrap {display:flex;flex:1;overflow:hidden;position:relative}
+        .cw {flex:1;overflow:hidden;position:relative;cursor:grab;background:#f0f2f7;background-image:radial-gradient(#d5d8e2 1px,transparent 1px);background-size:22px 22px}
+        .cv {position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+        .cs {position:absolute;top:0;left:0;width:5000px;height:4000px;pointer-events:none;z-index:1}
+        .cl {fill:none;stroke:#c0c6d4;stroke-width:2.2;stroke-linecap:round}
+        .clb {fill:none;stroke:#a78bfa;stroke-width:2;stroke-linecap:round}
+        .ca {fill:#c0c6d4}
+        .cab {fill:#a78bfa}
+        .bead {filter:drop-shadow(0 0 4px rgba(99,102,241,.6))}
+        .nw {position:absolute;z-index:2;cursor:grab;user-select:none}
+        .nw.dr {cursor:grabbing;z-index:10}
+        .nw.dr .nc {transform:scale(1.06);box-shadow:0 16px 40px rgba(0,0,0,.2)}
+        .nw.dim {opacity:.2;pointer-events:none;transition:opacity .4s}
+        .nw.sel .nc {box-shadow:0 0 0 3px #6366f1,0 8px 24px rgba(99,102,241,.2)!important}
+        .nw.hl .nc {animation:hlP 2s ease-in-out infinite}
+        @keyframes hlP {0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.7),0 8px 28px rgba(0,0,0,.15)}50%{box-shadow:0 0 0 10px rgba(255,255,255,.25),0 8px 28px rgba(0,0,0,.1)}}
+        .nc {width:120px;height:105px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .25s;box-shadow:0 4px 16px rgba(0,0,0,.1),0 0 0 1px rgba(255,255,255,.15) inset;position:relative;overflow:hidden}
+        .nc.wc {background:#fff!important;box-shadow:0 4px 16px rgba(0,0,0,.08),0 0 0 1.5px #e2e5ec}
+        .nc .ni img.logo {height:55px;width:auto;object-fit:contain}
+        .nl {text-align:center;padding-top:7px;width:120px}
+        .nt {font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .ns {font-size:10px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .cd {width:9px;height:9px;background:#fff;border:2.5px solid #c0c6d4;border-radius:50%;position:absolute;z-index:3}
+        .cd.r {right:-4px;top:50%;transform:translateY(-50%)}
+        .cd.l {left:-4px;top:50%;transform:translateY(-50%)}
+        .cd.b {bottom:-4px;left:50%;transform:translateX(-50%)}
+        .cd.t {top:-4px;left:50%;transform:translateX(-50%)}
+        .sp {width:420px;background:#fff;border-left:1px solid #e2e5ec;display:flex;flex-direction:column;z-index:50;flex-shrink:0}
+        .ph {padding:16px 20px 12px;border-bottom:1px solid #f0f1f5}
+        .pht {display:flex;justify-content:space-between;align-items:center}
+        .ph h5 {font-size:14px;font-weight:700;color:#1e293b;margin:0;display:flex;align-items:center;gap:6px}
+        .pst {font-size:11px;color:#94a3b8;font-weight:500;background:#f8f9fc;padding:2px 8px;border-radius:20px}
+        .pcl {background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;padding:2px;line-height:1}
+        .pnb {display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:10px;background:#f8f9fc}
+        .pnb .mc {width:36px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+        .pb {flex:1;overflow-y:auto;padding:16px 20px}
+        .wd {font-size:12.5px;color:#475569;line-height:1.6;margin-bottom:16px;padding:11px 12px;background:#f8f9fc;border-radius:9px;border-left:3px solid #6366f1}
+        .wf {margin-bottom:13px}
+        .wf label {font-size:11.5px;font-weight:600;color:#475569;margin-bottom:3px;display:block}
+        .wf select,.wf input[type=text],.wf input[type=number] {width:100%;padding:7px 10px;border:1.5px solid #e2e5ec;border-radius:7px;font-size:12px;color:#334155;background:#fff;transition:.2s}
+        .wf select:focus,.wf input:focus {outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+        .wf .form-check {display:flex;align-items:center;gap:7px}
+        .wf .form-check input {width:16px;height:16px;accent-color:#6366f1}
+        .wf .form-check label {margin:0;font-weight:400;font-size:12px}
+        .pf {padding:12px 20px;border-top:1px solid #f0f1f5;display:flex;gap:8px}
+        .pf button {flex:1;padding:8px;border:none;border-radius:7px;font-weight:600;font-size:12.5px;cursor:pointer;transition:.15s}
+        .bb {background:#f1f3f9;color:#475569}.bb:hover{background:#e2e5ec}.bb:disabled{opacity:.4;cursor:not-allowed}
+        .bn {background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}.bn:hover{opacity:.9}
+        .cond-row {display:flex;gap:5px;margin-bottom:8px;align-items:center}
+        .cond-row select,.cond-row input {padding:6px 7px;border:1.5px solid #e2e5ec;border-radius:6px;font-size:11px;color:#334155}
+        .cond-row select {width:100px}.cond-row .op{width:58px}.cond-row input{flex:1;min-width:0}
+        .cond-row .rm {width:26px;height:26px;border:none;background:#fee2e2;color:#ef4444;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;line-height:1}
+        .add-cond {border:1.5px dashed #c7c9d4;background:none;color:#6366f1;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;width:100%;transition:.15s}
+        .ptbl {width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;border-radius:8px;overflow:hidden}
+        .ptbl th {background:#f1f3f9;color:#475569;font-weight:600;padding:5px 7px;text-align:left;border-bottom:1px solid #e2e5ec}
+        .ptbl td {padding:4px 7px;color:#334155;border-bottom:1px solid #f0f1f5}
+        .ds-count {display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;border-radius:9px;border:1px solid}
+        .sm-toggle {display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8f9fc;border-radius:9px;cursor:pointer;margin-bottom:8px;border:1.5px solid #e2e5ec;transition:.2s}
+        .mtbl {width:100%;border-collapse:collapse;font-size:11px;border-radius:8px;overflow:hidden}
+        .mtbl th {background:#f1f3f9;color:#475569;font-weight:600;padding:5px 9px;text-align:left}
+        .mtbl td {padding:4px 9px;border-bottom:1px solid #f0f1f5}
+        
+        .empty-canvas-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#64748b; font-size:1.1rem; }
+        .empty-canvas-state i { font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="wrapper">
+        <sidebar-component 
+            :active-tab="activeTab" 
+            :is-collapsed="sidebarCollapsed"
+            @change-tab="setActiveTab"
+            @toggle-sidebar="toggleSidebar"
+            :integration-menu-state="integrationMenuState"
+            @toggle-integration-menu="toggleIntegrationMenu"
+            :analyses-menu-state="analysesMenuState"
+            @toggle-analyses-menu="toggleAnalysesMenu"
+        ></sidebar-component>
+
+        <div class="main-content" :class="{ 'expanded': sidebarCollapsed, 'canvas-active': activeTab === 'canvas' }">
+            <top-bar></top-bar>
+
+            <!-- ACCUEIL -->
+            <div v-if="activeTab === 'accueil'">
+                <div class="hero-banner mb-4">
+                    <div class="hero-title">Qu’allez-vous optimiser aujourd’hui ?</div>
+                </div>
+                <div class="quick-actions-row">
+                    <quick-action v-for="(action, index) in quickActions" :key="index" :data="action"></quick-action>
+                    <div class="action-item">
+                        <div class="action-icon-circle bg-gray"><i class="fas fa-ellipsis-h"></i></div>
+                        <span class="action-label">Plus</span>
+                    </div>
+                </div>
+                <div class="projects-section mt-4">
+                    <div class="section-header">
+                        <h4 class="mb-0 fw-bold">Projets récents</h4>
+                        <button class="btn btn-outline-light text-dark border"><i class="fas fa-list"></i></button>
+                    </div>
+                    <div class="row g-4">
+                        <project-card 
+                            v-for="(project, index) in recentProjectsAccueil" 
+                            :key="index" 
+                            :project="project"
+                            @click="handleProjectClick(project)">
+                        </project-card>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROJETS -->
+            <div v-else-if="activeTab === 'projets'">
+                <div class="projects-page-header">
+                    <h2 class="fw-bold mb-3">Tous les projets</h2>
+                    <div class="projects-search-bar">
+                        <i class="fas fa-search projects-search-icon"></i>
+                        <input type="text" class="projects-search-input" placeholder="Rechercher dans tout le contenu">
+                    </div>
+                </div>
+                <div class="px-4 mb-2"><h5 class="fw-bold mb-3 text-dark">Récents</h5></div>
+                <div class="recent-scroll-container">
+                    <div class="recent-project-item" v-for="(item, i) in projectsPageRecents" :key="i" @click="handleProjectClick(item)">
+                        <div class="recent-img-box">
+                            <div v-if="item.id === 'fb_capi'" class="text-primary" style="font-size: 2.5rem;"><i class="fab fa-facebook"></i></div>
+                            <div v-else class="text-muted" style="font-size: 2rem;"><i class="fas fa-layer-group"></i></div>
+                        </div>
+                        <div class="recent-title">{{ item.name }}</div>
+                    </div>
+                </div>
+                <div class="px-4 mb-5 mt-4">
+                     <div class="d-flex align-items-center mb-3">
+                         <h5 class="fw-bold mb-0 text-dark">Projets</h5>
+                    </div>
+                    <div class="row g-4">
+                        <project-card 
+                            v-for="(design, index) in projectDesigns" 
+                            :key="index" 
+                            :project="design"
+                            @click="handleProjectClick(design)">
+                        </project-card>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODELES -->
+            <div v-else-if="activeTab === 'modeles'">
+                <div class="templates-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="fw-bold mb-2">Bibliothèque de Modèles</h2>
+                            <p class="text-muted mb-0">Démarrez plus rapidement vos projets en utilisant nos configurations pré-établies.</p>
+                        </div>
+                    </div>
+                    <div class="filter-container mt-4">
+                        <div class="filter-pill" :class="{ active: activeTemplateFilter === 'all' }" @click="activeTemplateFilter = 'all'">Tout voir</div>
+                        <div v-for="cat in categories" :key="cat" class="filter-pill" :class="{ active: activeTemplateFilter === cat }" @click="activeTemplateFilter = cat">{{ cat }}</div>
+                    </div>
+                </div>
+                
+                <div class="projects-section">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-4 col-xl-3" v-for="(tpl, index) in filteredTemplates" :key="index">
+                            <div class="project-card h-100 p-4 d-flex flex-column" @click="handleTemplateClick(tpl)">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="template-icon-wrapper" :class="tpl.bgClass"><i :class="tpl.icon"></i></div>
+                                    <span class="badge bg-light text-dark border text-truncate">{{ tpl.category }}</span>
+                                </div>
+                                <h5 class="fw-bold mb-2" style="font-size: 1rem;">{{ tpl.title }}</h5>
+                                <p class="text-muted small mb-3" style="font-size: 0.8rem;">{{ tpl.description }}</p>
+                                <button class="btn btn-outline-primary btn-sm w-100 mt-auto" @click.stop="handleTemplateClick(tpl)">Utiliser ce modèle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANVAS WIZARD DRIVEN BY JSON -->
+            <canvas-editor v-else-if="activeTab === 'canvas'" :blueprint="currentBlueprint"></canvas-editor>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+    const { createApp, ref, computed, watch } = Vue;
+
+    // --- Assets & SVG definitions ---
+    const SLACK_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAASZQTFRFAAAAN8XxNsXwNsXwNsXwNsXwLrZ9LrZ9LrZ9LrZ9L7d9NsXwNsXwNsXwLrZ9LrZ9LrZ9NsXwNsXwNsXwLrZ9LrZ9NsXwNsXwNsXwNsXwNsXwNsXwLrZ9LrZ9L7d+NsXwNsXwLrZ9NsXwLrZ9LrZ9LrZ9NsXwNsXwLrZ9LrZ9LrZ9LrZ9LrZ9NsXwLrZ9LrZ9LrZ9LrZ94B5a4B5a4B5a4B5a4B5a4B5a4B5a7LIu7LIu7LIu7LIu7LIu4B5a4B5a4B5a4B5a4B5a4B5a7LIu7LIu7LIu4B5a4B5a4B5a4B5a7LIu7LIu4B5a4B5a4B5a7LIu7LIu7LIu4R9b4B5a4B5a7LIu7LIu7LIu7LIu7bMv7LIu7LIu7LIu7LIu7LIu4B5a4R9a59SNAwAAAGJ0Uk5TAAGd9cAWFsD1nQEq/2pr/ysV8XZ2NjagrFA0CxUqAeoi8Wx0NKH+Nzf+6gysdGwiUGoWanZQImw3N3R2ahbA/6wM6v7+/8D1oTR0bPWd8TYi6p0BKhULNDYqAVCsoPEVKwF0lhJIAAAA4UlEQVR4nEXP11JCQRCE4SaDLA5KMEdQkhFQQcJgOCRBFCWZff+XcGq3PPyX30VXNSA5nC63x+vzBxbwX1ApFVokorBNS8tKRaJCMZsQX1ldm5MjGJfWN2Boc2sbTqXb2dUU26MAXIbUfkIoeUDkh9vIYSqdoWzuiMgHTygiHaeA9MkpzqLnXuQLxQtcXpWA8nVFqtZQZ27c3PJdqXxv6ZpoMbc7zNx9MGL10OfHwUCo+PRsaIiX1xE0YTyZSrM3/UDT+8fndH5RU8Wyvr5t+hEqVGVnZtNvv1XP15q9od75A4S/KscPENzXAAAAAElFTkSuQmCC";
+    const META_IMG = (() => { const c=document.createElement('canvas');c.width=120;c.height=66;const x=c.getContext('2d');x.fillStyle='#0081FB';x.beginPath();const s=1.4,ox=8,oy=8;function m(px,py){x.moveTo(px*s+ox,py*s+oy)}function l(px,py){x.lineTo(px*s+ox,py*s+oy)}function bc(x1,y1,x2,y2,x3,y3){x.bezierCurveTo(x1*s+ox,y1*s+oy,x2*s+ox,y2*s+oy,x3*s+ox,y3*s+oy)}m(19.3,0.6);bc(12.8,0.6,7,6,3.5,12.3);bc(1,16.6,0,20.5,0,23.6);bc(0,29.6,3.2,35.4,10,35.4);bc(15,35.4,18.8,31.6,23.2,25.2);l(26.2,20.8);l(29.2,25.2);bc(33.6,31.6,37.4,35.4,42.4,35.4);bc(50.4,35.4,53.6,28.6,53.6,22.6);bc(53.6,19.2,52.1,14.6,49.4,10.3);bc(45.6,3,40.8,0.6,34.3,0.6);bc(29.3,0.6,25.1,4,23.2,6.8);bc(21.3,4,17.1,0.6,12.1,0.6);x.closePath();m(4.1,27.4);bc(4.1,24.6,5.2,21.4,7.1,18.2);bc(10.4,12,13.8,8.6,17.1,8.6);bc(20.7,8.6,23.9,11.8,26.4,15.6);l(22.2,21.8);bc(18.2,27.6,15.6,30.2,12.9,30.2);l(9.1,33.4);bc(5.9,33.4,4.1,30.6,4.1,27.4);x.closePath();m(37.3,27.4);l(33.5,24.2);bc(30.8,24.2,28.2,21.6,24.2,15.8);l(20,9.6);bc(22.5,5.8,25.7,2.6,29.3,2.6);bc(32.6,2.6,36,6,39.3,11.4);bc(41.2,14.6,42.3,18,42.3,20.6);bc(42.3,24.6,40.5,27.4,37.3,27.4);x.closePath();x.fill();return c.toDataURL()})();
+
+    const SVG = {
+        source: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>',
+        enrich: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+        datastore: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="M2 9h20M2 15h20M8 3v18"/></svg>',
+        csv: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8M8 9h2"/></svg>',
+        filter: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></svg>',
+        consent: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9,12 11,14 15,10"/></svg>',
+        success: '<svg width="52" height="52" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32l2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>',
+        error: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        default: '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>'
+    };
+    const MINI = {
+        source: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/></svg>',
+        enrich: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/></svg>',
+        datastore: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>',
+        csv: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>',
+        filter: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></svg>',
+        consent: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="4"/></svg>',
+        error: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>',
+        default: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>'
+    };
+
+    const NW = 120, CH = 105;
+
+    // --- BLUEPRINTS SYSTEM (JSON Format) ---
+    const blueprints = {
+        'fb_capi': {
+            name: "Facebook CAPI",
+            flow: [
+                { id: 'source', module: 'source', title: 'Source de données', subtitle: 'Event: Purchase', color: '#6366f1', bg: 'linear-gradient(135deg,#6366f1,#818cf8)', metadata: { designer: { x: 50, y: 200 } } },
+                { id: 'enrich', module: 'enrich', title: 'Enrichissement', subtitle: 'Données client', color: '#8b5cf6', bg: 'linear-gradient(135deg,#7c3aed,#a78bfa)', metadata: { designer: { x: 240, y: 200 } } },
+                { id: 'datastore', module: 'datastore', title: 'Data Store CRM', subtitle: '12,847 lignes', color: '#0d9488', bg: 'linear-gradient(135deg,#0d9488,#2dd4bf)', metadata: { designer: { x: 240, y: 390 } } },
+                { id: 'csv', module: 'csv', title: 'Import fichier CRM', subtitle: 'SFTP Server', color: '#059669', bg: 'linear-gradient(135deg,#059669,#34d399)', metadata: { designer: { x: 240, y: 560 } } },
+                { id: 'filter', module: 'filter', title: 'Filtre', subtitle: '2 conditions', color: '#ea580c', bg: 'linear-gradient(135deg,#ea580c,#fb923c)', metadata: { designer: { x: 430, y: 200 } } },
+                { id: 'consent', module: 'consent', title: 'Consentement', subtitle: 'Marketing', color: '#d97706', bg: 'linear-gradient(135deg,#d97706,#fbbf24)', metadata: { designer: { x: 620, y: 200 } } },
+                { id: 'fbcapi', module: 'fbcapi', title: 'Facebook CAPI', subtitle: 'Conversions API', imgSrc: META_IMG, whiteBg: true, color: '#0081FB', bg: '#fff', metadata: { designer: { x: 810, y: 200 } } },
+                { id: 'success', module: 'success', title: 'Success', subtitle: '1,847 events', color: '#0ea5e9', bg: 'linear-gradient(135deg,#0ea5e9,#67e8f9)', metadata: { designer: { x: 1010, y: 100 } } },
+                { id: 'error', module: 'error', title: 'Erreurs', subtitle: 'Error Handler', color: '#ef4444', bg: 'linear-gradient(135deg,#ef4444,#fca5a5)', metadata: { designer: { x: 1010, y: 320 } } },
+                { id: 'slack', module: 'slack', title: 'Slack Alert', subtitle: '#alerts-capi', imgSrc: SLACK_IMG, whiteBg: true, color: '#4A154B', bg: '#fff', metadata: { designer: { x: 1200, y: 320 } } }
+            ],
+            connections: [
+                { from: 'source', to: 'enrich', fs: 'right', ts: 'left' },
+                { from: 'enrich', to: 'datastore', fs: 'bottom', ts: 'top', bi: true },
+                { from: 'csv', to: 'datastore', fs: 'top', ts: 'bottom' },
+                { from: 'enrich', to: 'filter', fs: 'right', ts: 'left' },
+                { from: 'filter', to: 'consent', fs: 'right', ts: 'left' },
+                { from: 'consent', to: 'fbcapi', fs: 'right', ts: 'left' },
+                { from: 'fbcapi', to: 'success', fs: 'right', ts: 'left' },
+                { from: 'fbcapi', to: 'error', fs: 'right', ts: 'left' },
+                { from: 'error', to: 'slack', fs: 'right', ts: 'left' }
+            ],
+            config: {
+                source: { event: 'Purchase', src: 'Webhook', test: true },
+                enrich: { key: 'Email', hash: true, fields: 'Tous (email, tél, nom, adresse)', fallback: 'Continuer sans enrichissement' },
+                datastore: { key: 'email', refresh: true },
+                csv: { host: 'sftp.monentreprise.com', port: 22, user: 'capi_import', path: '/exports/crm_daily.csv', freq: 'Quotidien' },
+                filter: { conds: [{ prop: 'country', op: '=', val: 'UK' }, { prop: 'value', op: '>', val: '0' }], logic: 'AND (toutes)', dedup: true },
+                consent: { cat: 'Marketing' },
+                fbcapi: { pixel: '584729103847562', token: 'EAAGm0PX4ZCps••••••••', testCode: 'TEST42951', dedup: true, mapping: [
+                    {fb:'em',prop:'email'},{fb:'ph',prop:'phone'},{fb:'fn',prop:'first_name'},{fb:'ln',prop:'last_name'},
+                    {fb:'ct',prop:'city'},{fb:'st',prop:'state'},{fb:'zp',prop:'zip_code'},{fb:'country',prop:'country'},
+                    {fb:'external_id',prop:'user_id'},{fb:'value',prop:'event_value'},{fb:'currency',prop:'currency'}
+                ]},
+                success: { threshold: 95, interval: '15 min', dash: true },
+                error: { retries: 3, delay: 30, types: 'Toutes', dlq: true },
+                slack: { webhook: 'https://hooks.slack.com/services/T0•••/B0•••', channel: '#alerts-capi', mention: true, batch: '5 min' }
+            },
+            wizardOrder: ['source','enrich','datastore','csv','filter','consent','fbcapi','success','error','slack']
+        },
+        'empty_template': {
+            name: "Nouveau Projet (Vide)",
+            flow: [],
+            connections: [],
+            config: {},
+            wizardOrder: []
+        }
+    };
+
+    // --- Component: Canvas Editor ---
+    const CanvasEditor = {
+        props: ['blueprint'],
+        template: `
+        <div class="canvas-wrapper">
+            <div class="wiz-modal-overlay" v-if="showModal && nodes.length > 0">
+                <div class="wiz-modal-box">
+                <div class="mico"><svg viewBox="0 0 24 24" fill="#6366f1"><path d="M17 3a2 2 0 012 2v2a2 2 0 01-2 2h-1.07A8.001 8.001 0 019 20H5a2 2 0 01-2-2v-2a2 2 0 012-2h1.07A8.001 8.001 0 0113 4h4V3zM5 16v2h4a6 6 0 005.66-4H5zm14-9h-4V5h-1a6 6 0 00-5.66 4H19V7z"/></svg></div>
+                <h3>Bienvenue sur votre workflow</h3>
+                <p>Ce pipeline {{projectName}} est prêt à être configuré.<br>Comment souhaitez-vous procéder ?</p>
+                <div class="wiz-mbtn">
+                    <button class="primary" @click="startGuided">🧭 Start Guided Setup</button>
+                    <button class="secondary" @click="showModal=false">⚙️ Manual Setup</button>
+                </div>
+                </div>
+            </div>
+
+            <div class="wiz-toolbar">
+                <div class="wiz-toolbar-brand"><svg viewBox="0 0 24 24"><path d="M17 3a2 2 0 012 2v2a2 2 0 01-2 2h-1.07A8 8 0 019 20H5a2 2 0 01-2-2v-2a2 2 0 012-2h1.07A8 8 0 0113 4h4V3z"/></svg><span>Workflow Editor</span><span class="wiz-tag" v-if="projectName">{{projectName}}</span></div>
+                <div class="tb" v-if="nodes.length > 0">
+                    <button @click="zoomOut">−</button>
+                    <span class="zv">{{Math.round(zoom*100)}}%</span>
+                    <button @click="zoomIn">+</button>
+                    <button @click="fitToScreen">⊞ Fit</button>
+                    <button @click="autoZ=!autoZ" :class="{on:autoZ}">◎ Auto</button>
+                </div>
+                <div class="tb" v-if="nodes.length > 0">
+                    <button @click="toggleAnim" :class="{on:anim}">▶ Flow</button>
+                    <button @click="toggleWiz" :class="{on:wizMode}">📖 Wizard</button>
+                </div>
+            </div>
+
+            <div class="wiz-main-wrap">
+                <div class="cw" :class="{g:panning}" ref="cw" @mousedown="sPan" @mousemove="oMM" @mouseup="eA" @mouseleave="eA" @wheel.prevent="oWh" @click.self="closePanel">
+                    
+                    <div v-if="nodes.length === 0" class="empty-canvas-state">
+                        <i class="fas fa-project-diagram"></i>
+                        <div>Aucun nœud n'est configuré dans ce JSON (Template vide).</div>
+                    </div>
+
+                    <div class="cv" v-else :style="{transform:'translate('+px+'px,'+py+'px) scale('+zoom+')'}">
+                        <svg class="cs">
+                        <defs>
+                            <marker id="ah" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" class="ca"/></marker>
+                            <marker id="ab" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" class="cab"/></marker>
+                        </defs>
+                        <template v-for="(c,i) in conns" :key="i">
+                            <template v-if="c.bi">
+                            <path :id="'pd'+i" :d="biP(c,'d')" class="clb" marker-end="url(#ab)" stroke-dasharray="5,3.5"/>
+                            <path :id="'pu'+i" :d="biP(c,'u')" class="clb" marker-end="url(#ab)" stroke-dasharray="5,3.5"/>
+                            <template v-if="anim">
+                                <circle r="4" fill="#8b5cf6" class="bead" :key="'bd'+i+bk"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath :href="'#pd'+i"/></animateMotion></circle>
+                                <circle r="4" fill="#c4b5fd" class="bead" :key="'bu'+i+bk"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath :href="'#pu'+i"/></animateMotion></circle>
+                            </template>
+                            </template>
+                            <template v-else>
+                            <path :id="'p'+i" :d="cPath(c)" class="cl" marker-end="url(#ah)"/>
+                            <template v-if="anim">
+                                <circle r="4" :fill="nid(c.from).color" class="bead" :key="'b'+i+bk"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath :href="'#p'+i"/></animateMotion></circle>
+                            </template>
+                            </template>
+                        </template>
+                        </svg>
+
+                        <div v-for="n in nodes" :key="n.id" class="nw"
+                            :class="{dr:drag&&drag.id===n.id,dim:wizMode&&wo[ws]!==n.id,hl:wizMode&&wo[ws]===n.id,sel:!wizMode&&selNode===n.id}"
+                            :style="{left:n.x+'px',top:n.y+'px'}"
+                            @mousedown.stop="sD(n,$event)">
+                        <div class="nc" :class="{wc:n.whiteBg}" :style="n.whiteBg?{}:{background:n.bg}">
+                            <div class="ni">
+                            <img v-if="n.imgSrc" :src="n.imgSrc" class="logo">
+                            <span v-else v-html="n.svgIcon"></span>
+                            </div>
+                            <span class="cd r" v-if="hC(n.id,'f','right')"></span>
+                            <span class="cd l" v-if="hC(n.id,'t','left')"></span>
+                            <span class="cd b" v-if="hC(n.id,'f','bottom')||hC(n.id,'t','bottom')"></span>
+                            <span class="cd t" v-if="hC(n.id,'t','top')||hC(n.id,'f','top')"></span>
+                        </div>
+                        <div class="nl"><div class="nt">{{n.title}}</div><div class="ns">{{n.subtitle}}</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sp" v-if="panelOpen && activeNode">
+                <div class="ph">
+                    <div class="pht">
+                    <h5>{{wizMode?'📖 Configuration guidée':'⚙️ Configuration'}}</h5>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span class="pst" v-if="wizMode">{{ws+1}} / {{wo.length}}</span>
+                        <button class="pcl" @click="closePanel" v-if="!wizMode">✕</button>
+                    </div>
+                    </div>
+                    <div class="pnb">
+                    <div class="mc" :style="{background:activeNode.whiteBg?'#f1f3f9':activeNode.bg}">
+                        <img v-if="activeNode.imgSrc" :src="activeNode.imgSrc" style="height:18px;width:auto">
+                        <span v-else v-html="activeNode.miniSvg"></span>
+                    </div>
+                    <span>{{activeNode.title}}</span>
+                    </div>
+                </div>
+                <div class="pb">
+                    <div class="wd">{{descs[activeNode.id] || 'Description de la configuration du nœud.'}}</div>
+                    
+                    <template v-if="activeNode.id==='source'">
+                    <div class="wf"><label>Type d'événement</label><select v-model="cfg.source.event"><option v-for="o in ['Purchase','PageView','Lead','AddToCart','InitiateCheckout','CompleteRegistration']">{{o}}</option></select></div>
+                    <div class="wf"><label>Source de données</label><select v-model="cfg.source.src"><option v-for="o in ['Webhook','Base de données','API REST','Google Tag Manager']">{{o}}</option></select></div>
+                    <div class="wf"><label>Mode test</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.source.test"><label class="form-check-label">{{cfg.source.test?'Activé':'Désactivé'}}</label></div></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='enrich'">
+                    <div class="wf"><label>Clé de correspondance</label><select v-model="cfg.enrich.key"><option v-for="o in ['Email','Téléphone','User ID','Cookie ID']">{{o}}</option></select></div>
+                    <div class="wf"><label>Hachage SHA-256</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.enrich.hash"><label class="form-check-label">{{cfg.enrich.hash?'Activé':'Désactivé'}}</label></div></div>
+                    <div class="wf"><label>Champs à enrichir</label><select v-model="cfg.enrich.fields"><option v-for="o in ['Tous (email, tél, nom, adresse)','Email + Téléphone','Email uniquement','Personnalisé']">{{o}}</option></select></div>
+                    <div class="wf"><label>Fallback</label><select v-model="cfg.enrich.fallback"><option v-for="o in ['Continuer sans enrichissement','Bloquer l\\'événement','Logger un warning']">{{o}}</option></select></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='datastore'">
+                    <div class="ds-count" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border-color:#bbf7d0"><svg fill="#16a34a" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg><div><div class="num" style="color:#15803d">12,847</div><div class="lbl" style="color:#4ade80">lignes dans le store</div></div></div>
+                    <div class="wf"><label>Clé de lookup</label><select v-model="cfg.datastore.key"><option v-for="o in ['email','phone','customer_id']">{{o}}</option></select></div>
+                    <div class="wf"><label>Rafraîchissement auto</label><div class="form-check form-switch"><input class="form-check-input" type="checkbox" v-model="cfg.datastore.refresh"><label class="form-check-label">{{cfg.datastore.refresh?'Activé':'Désactivé'}}</label></div></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='csv'">
+                    <div class="wf"><label>Hôte SFTP</label><input type="text" v-model="cfg.csv.host"></div>
+                    <div class="wf"><label>Chemin du fichier</label><input type="text" v-model="cfg.csv.path"></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='filter'">
+                    <label style="font-size:11.5px;font-weight:600;color:#475569;margin-bottom:6px;display:block">Conditions</label>
+                    <div v-for="(c,i) in cfg.filter.conds" :key="i" class="cond-row">
+                        <select v-model="c.prop"><option v-for="o in filterProps">{{o}}</option></select>
+                        <select v-model="c.op" class="op"><option v-for="o in ['=','!=','>','<','>=','<=','contains','is null']">{{o}}</option></select>
+                        <input type="text" v-model="c.val" placeholder="valeur">
+                    </div>
+                    </template>
+                    <template v-else-if="activeNode.id==='consent'">
+                    <div class="wf"><label>Catégorie de consentement</label><select v-model="cfg.consent.cat"><option v-for="o in ['Marketing','Analytics','Fonctionnel','Personnalisation','Toutes les catégories']">{{o}}</option></select></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='fbcapi'">
+                    <div class="wf"><label>Pixel ID</label><input type="text" v-model="cfg.fbcapi.pixel"></div>
+                    <div class="wf"><label>Access Token</label><input type="text" v-model="cfg.fbcapi.token"></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='success'">
+                    <div class="wf"><label>Seuil d'alerte (%)</label><input type="number" v-model="cfg.success.threshold"></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='error'">
+                    <div class="wf"><label>Retries</label><input type="number" v-model="cfg.error.retries"></div>
+                    </template>
+                    <template v-else-if="activeNode.id==='slack'">
+                    <div class="wf"><label>Webhook URL</label><input type="text" v-model="cfg.slack.webhook"></div>
+                    </template>
+                    <template v-else>
+                        <div class="wf"><div class="text-muted text-center py-4">Configuration JSON dynamique non implémentée visuellement pour ce module.</div></div>
+                    </template>
+                </div>
+                <div class="pf" v-if="wizMode">
+                    <button class="bb" @click="ws--" :disabled="ws===0">← Retour</button>
+                    <button class="bn" @click="nxS">{{ws===wo.length-1?'Terminer ✓':'Suivant →'}}</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        `,
+        data(){return{
+            showModal:false, projectName: '',
+            nodes:[], conns:[], cfg:{}, wo:[],
+            zoom:1,px:0,py:0,anim:true,bk:0, wizMode:false,ws:0,selNode:null,
+            drag:null,dO:{x:0,y:0},panning:false,pS:{x:0,y:0},pO:{x:0,y:0},autoZ:true,azTimer:null,wasDragged:false,
+            filterProps:['email','first_name','last_name','phone','country','city','value','currency'],
+            descs:{
+                source:"Configurez la source de données qui alimente votre workflow.", enrich:"Enrichissez vos événements avec les données CRM.", datastore:"Stockez en cache les données CRM.", csv:"Importez vos fichiers CRM.", filter:"Définissez les conditions de filtrage.", consent:"Vérifiez le consentement.", fbcapi:"Envoyez les événements à l'API Meta.", success:"Suivez les succès.", error:"Gestion des erreurs.", slack:"Alertes Slack."
+            }
+        }},
+        watch: {
+            blueprint: {
+                immediate: true,
+                handler(newBlueprint) {
+                    if(newBlueprint) this.loadBlueprint(newBlueprint);
+                }
+            }
+        },
+        computed:{
+            panelOpen(){return this.wizMode||(this.selNode!==null)},
+            activeNode(){
+                if(this.wizMode)return this.nodes.find(n=>n.id===this.wo[this.ws])||null;
+                return this.nodes.find(n=>n.id===this.selNode)||null;
+            },
+        },
+        methods:{
+            loadBlueprint(bp) {
+                this.projectName = bp.name || 'Nouveau Workflow';
+                this.nodes = (bp.flow || []).map(f => ({
+                    id: f.id,
+                    title: f.title || f.module,
+                    subtitle: f.subtitle || '',
+                    svgIcon: SVG[f.module] || SVG.default,
+                    miniSvg: MINI[f.module] || MINI.default,
+                    imgSrc: f.imgSrc,
+                    whiteBg: f.whiteBg || false,
+                    color: f.color || '#94a3b8',
+                    bg: f.bg || '#94a3b8',
+                    x: f.metadata?.designer?.x || 0,
+                    y: f.metadata?.designer?.y || 0
+                }));
+                this.conns = bp.connections || [];
+                this.cfg = JSON.parse(JSON.stringify(bp.config || {}));
+                this.wo = bp.wizardOrder || [];
+                this.ws = 0;
+                this.wizMode = false;
+                this.selNode = null;
+                
+                this.nodes.forEach(n => { if(!this.cfg[n.id]) this.cfg[n.id] = {}; });
+                this.showModal = this.nodes.length > 0;
+                this.$nextTick(() => this.fitToScreen());
+            },
+            nid(id){return this.nodes.find(n=>n.id===id)},
+            pt(n,s){if(s==='right')return{x:n.x+NW,y:n.y+CH/2};if(s==='left')return{x:n.x,y:n.y+CH/2};if(s==='bottom')return{x:n.x+NW/2,y:n.y+CH};if(s==='top')return{x:n.x+NW/2,y:n.y};return{x:n.x,y:n.y}},
+            cPath(c){const a=this.nid(c.from),b=this.nid(c.to);if(!a||!b)return'';const s=this.pt(a,c.fs),e=this.pt(b,c.ts);if((c.fs==='right'&&c.ts==='left')||(c.fs==='left'&&c.ts==='right')){const m=(s.x+e.x)/2;return`M${s.x},${s.y}C${m},${s.y} ${m},${e.y} ${e.x},${e.y}`}if(c.fs==='bottom'&&c.ts==='top'||c.fs==='top'&&c.ts==='bottom'){const m=(s.y+e.y)/2;return`M${s.x},${s.y}C${s.x},${m} ${e.x},${m} ${e.x},${e.y}`}return`M${s.x},${s.y}L${e.x},${e.y}`},
+            biP(c,d){const a=this.nid(c.from),b=this.nid(c.to);if(!a||!b)return'';const o=16;if(d==='d'){const sx=a.x+NW/2-o,sy=a.y+CH,ex=b.x+NW/2-o,ey=b.y,m=(sy+ey)/2;return`M${sx},${sy}C${sx},${m} ${ex},${m} ${ex},${ey}`}const sx=b.x+NW/2+o,sy=b.y,ex=a.x+NW/2+o,ey=a.y+CH,m=(sy+ey)/2;return`M${sx},${sy}C${sx},${m} ${ex},${m} ${ex},${ey}`},
+            hC(id,r,s){return this.conns.some(c=>r==='f'?c.from===id&&c.fs===s:c.to===id&&c.ts===s)},
+            closePanel(){this.selNode=null;if(this.wizMode)this.wizMode=false;this.$nextTick(()=>this.fitToScreen())},
+            sD(n,e){this.drag=n;this.wasDragged=false;this.dO={x:e.clientX-n.x*this.zoom-this.px,y:e.clientY-n.y*this.zoom-this.py}},
+            sPan(e){if(!this.drag){this.panning=true;this.pS={x:e.clientX,y:e.clientY};this.pO={x:this.px,y:this.py}}},
+            oMM(e){if(this.drag){const nx=Math.round((e.clientX-this.dO.x-this.px)/this.zoom);const ny=Math.round((e.clientY-this.dO.y-this.py)/this.zoom);if(Math.abs(nx-this.drag.x)>2||Math.abs(ny-this.drag.y)>2)this.wasDragged=true;this.drag.x=nx;this.drag.y=ny;this.bk++;if(this.autoZ){clearTimeout(this.azTimer);this.azTimer=setTimeout(()=>this.fitToScreen(),350)}}else if(this.panning){this.px=this.pO.x+(e.clientX-this.pS.x);this.py=this.pO.y+(e.clientY-this.pS.y)}},
+            eA(){if(this.drag){const n=this.drag;const moved=this.wasDragged;this.bk++;if(moved&&this.autoZ){clearTimeout(this.azTimer);this.fitToScreen()}this.drag=null;if(!moved&&!this.wizMode){this.selNode=this.selNode===n.id?null:n.id;this.$nextTick(()=>this.fitToScreen());}}this.panning=false;},
+            oWh(e){const d=e.deltaY>0?-0.06:0.06,nz=Math.min(2.5,Math.max(0.15,this.zoom+d));const r=this.$refs.cw.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;this.px=mx-(mx-this.px)*(nz/this.zoom);this.py=my-(my-this.py)*(nz/this.zoom);this.zoom=nz;this.autoZ=false},
+            zoomIn(){this.zoom=Math.min(2.5,this.zoom+0.1);this.autoZ=false},
+            zoomOut(){this.zoom=Math.max(0.15,this.zoom-0.1);this.autoZ=false},
+            fitToScreen(){const w=this.$refs.cw;if(!w||!this.nodes.length)return;const r=w.getBoundingClientRect(),pw=r.width,ph=r.height,pad=55;let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;this.nodes.forEach(n=>{x1=Math.min(x1,n.x);y1=Math.min(y1,n.y);x2=Math.max(x2,n.x+NW);y2=Math.max(y2,n.y+CH+30)});const cw=x2-x1+pad*2,ch=y2-y1+pad*2,z=Math.min(pw/cw,ph/ch,1.8);this.zoom=z;this.px=(pw-cw*z)/2-x1*z+pad*z;this.py=(ph-ch*z)/2-y1*z+pad*z},
+            toggleAnim(){this.anim=!this.anim;this.bk++},
+            startGuided(){this.showModal=false;this.wizMode=true;this.ws=0;this.$nextTick(()=>{this.fitToScreen();this.scN(this.wo[0])})},
+            toggleWiz(){this.wizMode=!this.wizMode;this.ws=0;this.selNode=null;this.$nextTick(()=>this.fitToScreen())},
+            nxS(){if(this.ws<this.wo.length-1){this.ws++;this.scN(this.wo[this.ws])}else{this.wizMode=false;this.$nextTick(()=>this.fitToScreen())}},
+            scN(id){const n=this.nid(id);if(!n)return;const w=this.$refs.cw;if(!w)return;const r=w.getBoundingClientRect(),pw=r.width-(this.panelOpen?420:0),ph=r.height;this.px=pw/2-(n.x+NW/2)*this.zoom;this.py=ph/2-(n.y+CH/2)*this.zoom},
+        }
+    };
+
+    // --- Other UI Components (Sidebar, TopBar, Cards) ---
+    const QuickAction = { props: ['data'], template: `<div class="action-item"><div class="action-icon-circle" :class="data.bgClass"><i :class="data.icon"></i></div><span class="action-label">{{ data.label }}</span></div>` };
+    const ProjectCard = { props: ['project'], template: `
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+            <div class="project-card h-100">
+                <div class="card-img-wrapper">
+                    <div v-if="project.type === 'awin'" class="d-flex flex-column align-items-center"><div class="awin-logo">AWIN</div></div>
+                    <div v-else-if="project.id === 'fb_capi'" class="text-primary" style="font-size: 2.5rem;"><i class="fab fa-facebook"></i></div>
+                    <div v-else-if="project.type === 'amazon'" style="font-size: 2.5rem; color: #ff9900;"><i class="fab fa-amazon"></i></div>
+                    <div v-else-if="project.type === 'doc'" class="text-muted" style="font-size: 2.5rem;"><i class="fas fa-file-alt"></i></div>
+                    <div v-else class="text-muted" style="font-size: 2.5rem;"><i class="fas fa-cogs"></i></div>
+                </div>
+                <div class="card-body">
+                    <div class="project-title">{{ project.title || project.name }}</div>
+                    <div class="project-category">{{ project.category || 'Projet' }}</div>
+                </div>
+            </div>
+        </div>
+    `};
+
+    const SidebarComponent = {
+        props: ['activeTab', 'isCollapsed', 'integrationMenuState', 'analysesMenuState'],
+        emits: ['change-tab', 'toggle-sidebar', 'toggle-integration-menu', 'toggle-analyses-menu'],
+        setup() {
+            const integrationMenus = [
+                { id: 'sources', title: 'Sources', icon: 'fas fa-database', submenus: [{ title: 'Overview', url: '#' }] },
+                { id: 'destinations', title: 'Destinations', icon: 'fas fa-paper-plane', submenus: [{ title: 'Overview', url: '#' }] }
+            ];
+            const analysesMenus = [
+                 { id: 'campaigns', title: 'Campaigns', icon: 'fas fa-bullhorn', submenus: [{ title: 'Media Performance', url: '#' }]},
+                 { id: 'dataInsights', title: 'Data Insights', icon: 'fas fa-brain', submenus: [{ title: 'User-centric', url: '#' }]}
+            ];
+            return { integrationMenus, analysesMenus };
+        },
+        template: `
+            <nav id="sidebar" :class="{ 'collapsed': isCollapsed }">
+                <div class="sidebar-header">
+                    <button class="btn-toggle-sidebar" @click="$emit('toggle-sidebar')"><i v-if="isCollapsed" class="fas fa-bars"></i><i v-else class="fas fa-outdent"></i></button>
+                    <div class="logo-wrapper"><i class="fas fa-hexagon-nodes logo-hexagon"></i><span class="logo-text">COMMANDERS ACT</span></div>
+                </div>
+                <div class="sidebar-content-wrapper">
+                    <div class="sidebar-left-col">
+                        <div class="sidebar-nav-top">
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'accueil' }" @click.prevent="$emit('change-tab', 'accueil')"><i class="fas fa-home"></i>Accueil</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'projets' }" @click.prevent="$emit('change-tab', 'projets')"><i class="far fa-folder"></i>Projets</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'modeles' }" @click.prevent="$emit('change-tab', 'modeles')"><i class="fas fa-columns"></i>Modèles</a>
+                            <a href="#" class="nav-item-custom" :class="{ active: activeTab === 'integrations' }" @click.prevent="$emit('change-tab', 'integrations')"><i class="fas fa-plug"></i>Intégrations</a>
+                        </div>
+                    </div>
+                    <div class="sidebar-right-col d-flex flex-column">
+                        <button class="btn btn-create mb-3" v-if="activeTab !== 'modeles'"><i class="fas fa-plus me-2"></i> Nouveau projet</button>
+                        <span class="section-title">Vos favoris</span>
+                        <a href="#" class="sub-nav-item" @click.prevent="$emit('change-tab', 'canvas')"><i class="fab fa-facebook text-primary"></i> Facebook CAPI</a>
+                    </div>
+                </div>
+            </nav>
+        `
+    };
+
+    const TopBar = {
+        template: `
+            <div class="top-bar">
+                <div class="search-container"><i class="fas fa-search search-icon"></i><input type="text" class="search-input" placeholder="Recherche rapide..."></div>
+                <div class="user-profile">
+                    <div class="user-avatar me-2">A</div>
+                    <div><div style="font-size: 0.75rem; font-weight: bold;">Personnel</div><div style="font-size: 0.7rem; color: #6c757d;">Arnaud</div></div>
+                </div>
+            </div>
+        `
+    };
+
+    // --- Main App Setup ---
+    const app = createApp({
+        components: { 'sidebar-component': SidebarComponent, 'top-bar': TopBar, 'quick-action': QuickAction, 'project-card': ProjectCard, 'canvas-editor': CanvasEditor },
+        setup() {
+            const activeTab = ref('accueil');
+            const activeTemplateFilter = ref('all');
+            const sidebarCollapsed = ref(false);
+            const currentBlueprint = ref(null);
+            
+            // Lier le clic sur un projet au blueprint via son ID
+            const handleProjectClick = (item) => {
+                const bp = blueprints[item.id] || blueprints['empty_template'];
+                currentBlueprint.value = bp;
+                activeTab.value = 'canvas';
+            };
+
+            const handleTemplateClick = (tpl) => {
+                const bp = blueprints[tpl.id] || blueprints['empty_template'];
+                currentBlueprint.value = bp;
+                activeTab.value = 'canvas';
+            };
+
+            const toggleSidebar = () => { sidebarCollapsed.value = !sidebarCollapsed.value; };
+            const setActiveTab = (tab) => { activeTab.value = tab; };
+
+            const quickActions = ref([
+                { label: 'Conversions', icon: 'fas fa-file-invoice-dollar', bgClass: 'bg-teal' },
+                { label: 'Campagnes', icon: 'fas fa-bullhorn', bgClass: 'bg-green' }
+            ]);
+
+            const recentProjectsAccueil = ref([
+                { id: 'fb_capi', title: 'Facebook CAPI', category: 'Integration', type: 'fb' },
+                { id: 'other', title: 'Home personalisation', category: 'Website Personalisation', type: 'web' }
+            ]);
+            
+            const projectsPageRecents = ref([
+                { id: 'fb_capi', name: 'Facebook CAPI', type: 'fb' },
+                { id: 'other', name: 'Amazon CAPI', type: 'amazon' }
+            ]);
+
+            const projectDesigns = ref([
+                 { id: 'fb_capi', title: 'Facebook CAPI', category: 'Integration', type: 'fb' },
+                 { id: 'other', title: 'Christmas campaign report', category: 'Analytics', type: 'doc' },
+            ]);
+
+            const categories = ref(['Campagnes & Conversions', 'Data Quality']);
+
+            const allTemplates = ref([
+              {
+                id: 'fb_capi',
+                title: 'Meta Conversions API',
+                category: 'Campagnes & Conversions',
+                description: 'Improve Meta campaign performance with reliable first-party server-side events.',
+                icon: 'fab fa-facebook',
+                bgClass: 'bg-blue'
+              },
+              {
+                id: 'google_capi',
+                title: 'Google Enhanced Conversion',
+                category: 'Campagnes & Conversions',
+                description: 'Recover lost conversions and improve Smart Bidding with server-side tracking.',
+                icon: 'fab fa-google',
+                bgClass: 'bg-orange'
+              }
+            ]);
+
+            const filteredTemplates = computed(() => {
+                if (activeTemplateFilter.value === 'all') return allTemplates.value;
+                return allTemplates.value.filter(t => t.category === activeTemplateFilter.value);
+            });
+
+            return {
+                activeTab, setActiveTab, toggleSidebar, sidebarCollapsed,
+                quickActions, recentProjectsAccueil, projectsPageRecents, projectDesigns,
+                activeTemplateFilter, categories, filteredTemplates,
+                handleProjectClick, handleTemplateClick, currentBlueprint
+            };
+        }
+    });
+
+    app.mount('#app');
+</script>
+
+</body>
+</html>
