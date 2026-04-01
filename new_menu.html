@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataPipe - Vue + Bootstrap 5</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Boxicons CSS -->
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+<!-- Vue 3 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<!-- SortableJS pour un Drag & Drop fluide -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+<style>
+:root {
+  --bg:#f5f6f8; --s:#fff; --s2:#f0f2f5; --bd:#e4e7ec; --bds:#d0d5dd;
+  --t1:#0f1623; --t2:#5a6578; --tm:#8c97a8;
+  --ac:#2563eb; --al:#eff4ff; --am:#dbeafe;
+  --ok:#16a34a; --ok-bg:#dcfce7; --ok-bd:#bbf7d0;
+  --warn:#f59e0b; --warn-bg:#fffbeb; --warn-bd:#fde68a;
+  --err:#e84d4d; --err-bg:#fff1f1;
+  --ns:#3b82f6; --nt:#8b5cf6; --nf:#f59e0b; --nm:#06b6d4; --nd:#10b981; --nv:#f97316;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --ml:0 8px 24px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04);
+  --xl:0 20px 48px rgba(0,0,0,.12),0 8px 16px rgba(0,0,0,.06);
+  --r:10px; --rs:6px; --rl:14px;
+}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5;overflow-x:hidden;}
+
+/* ─── SIDEBAR & LAYOUT ─── */
+.app-wrapper { display: flex; height: 100vh; overflow: hidden; position: relative; }
+.sidebar { width: 88px; background: var(--s); border-right: 1px solid var(--bd); display: flex; flex-direction: column; z-index: 1002; position: relative; height: 100vh; padding: 12px 6px; }
+.sidebar-menu { flex-grow: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.sidebar-menu::-webkit-scrollbar { display: none; }
+.main-content { flex: 1; overflow-y: auto; background: var(--bg); position: relative; z-index: 1; }
+.logo-area { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px; cursor: pointer; color: var(--ac); font-weight: 800; font-size: 16px; }
+.logo-dot { width: 18px; height: 18px; background: var(--ac); border-radius: 6px; }
+
+.nav-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.nav-link-custom { padding: 10px 4px; border-radius: 8px; color: var(--t2); font-size: 10.5px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: all .15s; text-decoration: none; position: relative; text-align: center; user-select: none; -webkit-user-select: none; }
+.nav-link-custom > i.bx { font-size: 24px; color: var(--tm); transition: all .15s; }
+.nav-link-custom span { line-height: 1.1; pointer-events: none; }
+.nav-link-custom:hover { background: var(--s2); color: var(--t1); }
+.nav-link-custom:hover > i.bx { color: var(--t1); }
+.nav-link-custom.active { background: var(--al); color: var(--ac); font-weight: 600; }
+.nav-link-custom.active > i.bx { color: var(--ac); }
+
+/* Drag & Drop Styles */
+.sortable-ghost { opacity: 0.5; background: var(--s2); border-radius: 8px; border: 2px dashed var(--bds); }
+.sortable-ghost > * { visibility: hidden; }
+.sortable-fallback { opacity: 1 !important; background: var(--s) !important; box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important; border-radius: 8px !important; transform: scale(1.05) rotate(2deg); cursor: grabbing !important; z-index: 10000 !important; list-style: none; }
+.sortable-fallback .unpin-btn { display: none !important; }
+
+/* Pin/Unpin logic */
+.unpin-btn { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--bd); background: #fff; color: var(--t2); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; z-index: 2; padding: 0; opacity: 0; transform: scale(0.5); transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transition-delay: 0s; }
+.nav-link-custom:hover .unpin-btn { opacity: 1; transform: scale(1); transition-delay: 0.3s; }
+.unpin-btn:hover { color: var(--t1); border-color: var(--tm); transform: scale(1.15) !important; transition-delay: 0s !important; }
+.pin-crossed { position: relative; display: flex; align-items: center; justify-content: center; }
+.pin-crossed::after { content: ''; position: absolute; width: 1px; height: 12px; background-color: currentColor; transform: rotate(45deg); }
+
+/* Plus panel */
+.plus-panel { position: absolute; left: 88px; top: 0; bottom: 0; width: 280px; background: #fff; border-right: 1px solid var(--bd); box-shadow: 4px 0 16px rgba(0,0,0,0.06); z-index: 1001; padding: 24px 16px; transform: translateX(-100%); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); visibility: hidden; display: flex; flex-direction: column; overflow-y: auto; }
+.plus-panel.open { transform: translateX(0); visibility: visible; }
+.plus-overlay { position: fixed; inset: 0; z-index: 1000; background: transparent; }
+.plus-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--t1); font-weight: 500; transition: background 0.15s; text-decoration: none;}
+.plus-item:hover { background: var(--s2); }
+
+.av { width: 32px; height: 32px; background: linear-gradient(135deg,#6366f1,#8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+
+.btn-custom { padding: 7px 16px; border-radius: var(--rs); font-family: 'Geist', sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .15s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;}
+.btn-p { background: var(--ac); color: #fff; } .btn-p:hover { background: #1d4ed8; color: #fff; } .btn-p:disabled { background: #93c5fd; cursor: not-allowed; opacity: .8; }
+.btn-o { background: var(--s); color: var(--t2); border: 1.5px solid var(--bds); } .btn-o:hover { border-color: var(--ac); color: var(--ac); }
+.btn-ghost { background: none; color: var(--t2); border: none; } .btn-ghost:hover { color: var(--t1); background: var(--s2); }
+
+/* ─── MAIN VIEWS ─── */
+.view-container { max-width: 1200px; margin: 0 auto; padding: 40px 32px; }
+.view { display: none; } .view.active { display: block; }
+@keyframes fi { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.view.active { animation: fi .2s ease; }
+
+.page-hd h1 { font-size: 24px; font-weight: 700; letter-spacing: -.5px; margin: 0; }
+.page-hd p { color: var(--t2); margin-top: 3px; font-size: 14px; margin-bottom: 0; }
+
+/* ─── SCENARIOS ─── */
+.flows-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.flow-card { background: var(--s); border: 1.5px solid var(--bd); border-radius: var(--r); padding: 20px; cursor: pointer; transition: all .2s; box-shadow: var(--sh); }
+.flow-card:hover { border-color: var(--ac); box-shadow: var(--ml); transform: translateY(-1px); }
+.fc-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.fc-title { font-size: 15px; font-weight: 700; letter-spacing: -.2px; display:flex; align-items:center; gap:8px;}
+.fc-sub { font-size: 12px; color: var(--t2); margin-top: 3px; }
+.fc-status { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 10px; background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd); }
+.fc-status::before { content: ''; width: 6px; height: 6px; background: var(--ok); border-radius: 50%; }
+.fc-nodes { display: flex; align-items: center; gap: 0; margin-bottom: 14px; overflow: hidden; }
+.fcn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.fcn.source { background: var(--ns); } .fcn.transform { background: var(--nt); } .fcn.filter { background: var(--nf); } .fcn.mapping { background: var(--nm); } .fcn.dest { background: var(--nd); } .fcn.validation { background: var(--nv); }
+.fce { flex: 1; height: 1.5px; background: var(--bds); min-width: 5px; max-width: 20px; position: relative; }
+.fce::after { content: ''; position: absolute; right: -1px; top: -3px; border-left: 4px solid var(--bds); border-top: 3px solid transparent; border-bottom: 3px solid transparent; }
+.fc-stats { display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid var(--bd); }
+.fc-stat { display: flex; flex-direction: column; gap: 1px; }
+.fc-stat-v { font-size: 14px; font-weight: 700; color: var(--t1); }
+.fc-stat-l { font-size: 11px; color: var(--tm); }
+.fc-new-badge { background: var(--warn-bg); border: 1px solid var(--warn-bd); color: var(--warn); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-left: 6px; display:inline-block; }
+
+.empty-scenario-card { border: 1px dashed var(--bds); border-radius: var(--r); padding: 32px; text-align: center; background: var(--bg); transition: all 0.2s; }
+.empty-scenario-card:hover { border-color: var(--ac); background: var(--al); }
+
+/* ─── HERO SLOT MACHINE ─── */
+.hero-statement { font-size: 24px; font-weight: 700; color: var(--t1); line-height: 1.2; display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; }
+
+.slot-column {
+  position: relative;
+  height: 48px;
+  width: 260px; /* Fixed width prevents jittering during animation */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rotator-item {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 8px;
+  letter-spacing: -0.2px;
+  width: max-content;
+}
+
+.trigger-item { background: var(--al); color: var(--ac); border: 1px solid var(--am); }
+.action-item { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd); }
+
+.slot-slide-enter-active,
+.slot-slide-leave-active {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+}
+.slot-slide-leave-active {
+  position: absolute;
+}
+.slot-slide-enter-from {
+  transform: translateY(40px);
+  opacity: 0;
+}
+.slot-slide-leave-to {
+  transform: translateY(-40px);
+  opacity: 0;
+}
+
+.hero-outcome {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--t2);
+  margin-top: 20px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fade-outcome-enter-active,
+.fade-outcome-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-outcome-enter-from,
+.fade-outcome-leave-to {
+  opacity: 0;
+}
+
+/* ─── FLOW DETAIL ─── */
+.back-btn { display: flex; align-items: center; gap: 6px; color: var(--t2); font-size: 13.5px; font-weight: 500; cursor: pointer; transition: color .15s; padding: 5px 10px; border-radius: var(--rs); margin-left: -10px; display:inline-flex;}
+.back-btn:hover { color: var(--t1); background: var(--s2); }
+.flow-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bd); }
+.flow-name { font-size: 22px; font-weight: 700; letter-spacing: -.5px; margin-bottom:6px; }
+.flow-source-tag { font-size: 12px; color: var(--t2); background: var(--s2); border: 1px solid var(--bd); padding: 3px 10px; border-radius: 10px; display: flex; align-items: center; gap: 5px; }
+.flow-source-tag code { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--t1); }
+
+/* CANVAS */
+.canvas-wrap { background: var(--s2); border: 1px solid var(--bd); border-radius: var(--r); padding: 48px 40px; position: relative; overflow: hidden; }
+.canvas-wrap::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(var(--bd) 1px, transparent 1px); background-size: 24px 24px; opacity: .6; }
+.canvas-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: nowrap; overflow-x: auto; min-width: min-content; margin: 0 auto; }
+.canvas-node { position: relative; flex-shrink: 0; }
+.cn-card { background: var(--s); border: 2px solid var(--bd); border-radius: var(--r); width: 140px; padding: 14px 14px 12px; cursor: pointer; transition: all .2s; box-shadow: var(--sh); }
+.cn-card:hover { border-color: var(--ac); box-shadow: var(--ml); transform: translateY(-2px); }
+.cn-card.cn-new { border-color: var(--nv); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
+.cn-type-bar { height: 4px; border-radius: 2px; margin-bottom: 11px; }
+.cn-card.source .cn-type-bar { background: var(--ns); } .cn-card.filter .cn-type-bar { background: var(--nf); } .cn-card.mapping .cn-type-bar { background: var(--nm); } .cn-card.dest .cn-type-bar { background: var(--nd); } .cn-card.validation .cn-type-bar { background: var(--nv); } .cn-card.transform .cn-type-bar { background: var(--nt); }
+.cn-icon { font-size: 24px; margin-bottom: 7px; display: block; color: var(--t2); }
+.cn-label { font-size: 13px; font-weight: 700; color: var(--t1); letter-spacing: -.1px; line-height: 1.25; margin-bottom: 4px; }
+.cn-detail { font-size: 11px; color: var(--t2); font-family: 'Geist Mono', monospace; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cn-stats { font-size: 11px; color: var(--tm); }
+.cn-new-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--nv); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 8px; white-space: nowrap; letter-spacing: .3px; box-shadow: 0 2px 6px rgba(249,115,22,.3); }
+@keyframes nodeIn { from { opacity: 0; transform: translateY(-12px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.cn-card.cn-new { animation: nodeIn .4s cubic-bezier(.34,1.56,.64,1) both; animation-delay: .1s; }
+
+.canvas-arrow { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; color: var(--bds); }
+.canvas-arrow.arrow-new { color: var(--nv); }
+
+.cstat { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--t2); }
+.cstat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cstat-dot.ok { background: var(--ok); } .cstat-dot.warn { background: var(--warn); } .cstat-dot.err { background: var(--err); }
+
+/* ─── TEMPLATES ─── */
+.filter-bar { background: var(--s); border: 1px solid var(--bd); border-radius: var(--r); padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; box-shadow: var(--sh); }
+.fl { font-size: 12px; font-weight: 600; color: var(--tm); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; margin-bottom: 0;}
+.tab { padding: 5px 13px; border-radius: 20px; border: 1.5px solid transparent; background: transparent; font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500; color: var(--t2); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.tab:hover { background: var(--s2); color: var(--t1); }
+.tab.active { background: var(--al); color: var(--ac); border-color: var(--am); }
+.dv { width: 1px; height: 22px; background: var(--bd); }
+.sw { margin-left: auto; position: relative; }
+.sin { padding: 6px 12px 6px 32px; border: 1.5px solid var(--bd); border-radius: var(--rs); background: var(--s2); font-family: 'Geist', sans-serif; font-size: 13px; color: var(--t1); width: 200px; outline: none; transition: all .15s; }
+.sin:focus { border-color: var(--ac); background: var(--s); }
+.sico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--tm); pointer-events: none; font-size: 16px; }
+
+.tmpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+@keyframes tfi { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.tcard { background: var(--s); border: 1.5px solid var(--bd); border-radius: var(--r); overflow: hidden; cursor: pointer; transition: all .2s; box-shadow: var(--sh); display: flex; flex-direction: column; animation: tfi .2s ease both; }
+.tcard:hover { border-color: var(--ac); box-shadow: var(--ml); transform: translateY(-2px); }
+.tcard.hc { border-color: #bbf7d0; } .tcard.hc:hover { border-color: var(--ok); }
+.tcard.aa { opacity: .7; }
+.tcp { background: var(--s2); border-bottom: 1px solid var(--bd); padding: 14px 18px; height: 80px; display: flex; align-items: center; position: relative; overflow: hidden; }
+.tcp::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(37,99,235,.03), transparent 60%); }
+.tnf { display: flex; align-items: center; gap: 0; width: 100%; }
+.tnm { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.tnm.source { background: var(--ns); } .tnm.transform { background: var(--nt); } .tnm.filter { background: var(--nf); } .tnm.mapping { background: var(--nm); } .tnm.dest { background: var(--nd); } .tnm.validation { background: var(--nv); }
+.te { flex: 1; height: 1.5px; background: linear-gradient(90deg, var(--bds), var(--bd)); min-width: 5px; max-width: 20px; position: relative; }
+.te::after { content: ''; position: absolute; right: -1px; top: -3px; border-left: 4px solid var(--bds); border-top: 3px solid transparent; border-bottom: 3px solid transparent; }
+.tbw { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+.tpb { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: .3px; }
+.tnb { background: var(--al); border: 1px solid var(--am); color: var(--ac); font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: .3px; }
+.tcb2 { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+.tctg { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.ct { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 8px; letter-spacing: .1px; }
+.cat-conversion { background: #fff1f1; color: #e84d4d; } .cat-audience { background: #f5f0ff; color: #7c3aed; }
+.cat-analytics { background: #f0f9ff; color: #0ea5e9; } .cat-quality { background: #fffbeb; color: #f59e0b; }
+.cat-enrichment { background: #ecfdf5; color: #10b981; } .cat-privacy { background: #eef2ff; color: #6366f1; }
+.tctitle { font-size: 13.5px; font-weight: 700; letter-spacing: -.1px; margin-bottom: 4px; line-height: 1.3; }
+.tcdesc { font-size: 12px; color: var(--t2); line-height: 1.5; flex: 1; }
+.tcfoot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bd); }
+.cbdg { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 8px; display: flex; align-items: center; gap: 3px; }
+.bq { background: #dcfce7; color: #16a34a; } .bs { background: #dbeafe; color: #2563eb; } .ba { background: #f3e8ff; color: #9333ea; }
+.ub { font-size: 12px; font-weight: 600; color: var(--ac); background: none; border: none; cursor: pointer; font-family: 'Geist', sans-serif; display: flex; align-items: center; gap: 3px; padding: 0; transition: gap .15s; }
+.ub:hover { gap: 5px; } .ub::after { content: '→'; } .ub.dis { color: var(--tm); cursor: default; } .ub.dis::after { display: none; }
+.sh-lbl { grid-column: 1/-1; padding: 4px 0; margin-top: 6px; } .sh-lbl:first-child { margin-top: 0; }
+.sh-lbl h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--tm); display: flex; align-items: center; gap: 8px; margin:0;}
+.sh-lbl h3::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.cc-card { border: 1.5px dashed var(--bds); background: var(--bg); cursor: pointer; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: all .2s; text-align: center; padding: 20px; }
+.cc-card:hover { border-color: var(--ac); background: var(--al); transform: translateY(-2px); }
+.cc-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--s); border: 2px dashed var(--bds); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--tm); transition: all .2s; }
+.cc-card:hover .cc-icon { border-color: var(--ac); color: var(--ac); background: #fff; }
+
+/* ─── OVERLAYS ─── */
+.ov { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(3px); z-index: 1050; align-items: center; justify-content: center; }
+@keyframes mdin { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* Template detail modal */
+.mdl { background: var(--s); border-radius: var(--rl); width: 600px; max-width: 94vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--xl); animation: mdin .2s ease; display:flex; flex-direction:column;}
+.mdl-hd { padding: 22px 22px 0; display: flex; align-items: flex-start; justify-content: space-between; position: sticky; top: 0; background: var(--s); z-index: 2; padding-bottom: 2px; }
+.mdl-title { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
+.mdl-x { width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--bd); background: var(--s2); cursor: pointer; font-size: 18px; color: var(--tm); display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; padding:0; line-height:1;}
+.mdl-x:hover { background: var(--s); color: var(--t1); }
+.mdl-bd { padding: 16px 22px; flex:1;}
+.mdesc { color: var(--t2); font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+.mflow { background: var(--s2); border: 1px solid var(--bd); border-radius: var(--rs); padding: 12px 14px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+.nl { display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 700; color: #fff; padding: 4px 9px; border-radius: 5px; white-space: nowrap; }
+.nl.source { background: var(--ns); } .nl.transform { background: var(--nt); } .nl.filter { background: var(--nf); } .nl.mapping { background: var(--nm); } .nl.dest { background: var(--nd); } .nl.validation { background: var(--nv); }
+.earr { color: var(--tm); font-size: 12px; }
+.clt-ttl { font-size: 12.5px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.clt-ttl span { color: var(--tm); font-weight: 400; }
+.clpw { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.clpb { flex: 1; height: 4px; background: var(--bd); border-radius: 4px; overflow: hidden; }
+.clpf { height: 100%; background: var(--ok); border-radius: 4px; transition: width .4s; }
+.clpl { font-size: 11.5px; color: var(--t2); font-weight: 600; white-space: nowrap; }
+.cl { display: flex; flex-direction: column; gap: 5px; }
+.cli { display: flex; align-items: flex-start; gap: 9px; padding: 8px 11px; border-radius: var(--rs); border: 1px solid transparent; }
+.cli.ready { background: var(--ok-bg); border-color: var(--ok-bd); } .cli.needed { background: var(--s2); border-color: var(--bd); } .cli.optional { background: var(--s2); border-color: var(--bd); opacity: .65; }
+.cico { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 1px; }
+.cico.ready { background: var(--ok); color: #fff; } .cico.needed { background: #fff; border: 2px solid var(--bds); } .cico.optional { background: #fff; border: 2px dashed var(--bds); }
+.ci-lbl { font-size: 12.5px; font-weight: 600; line-height: 1.3; } .ci-lbl.r { color: var(--ok); }
+.ci-inf { font-size: 11.5px; color: var(--t2); margin-top: 1px; }
+.ci-fr { display: inline-flex; align-items: center; gap: 3px; background: #fff; border: 1px solid var(--ok-bd); color: var(--ok); font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 7px; margin-top: 3px; }
+.ci-opt { font-size: 10px; color: var(--tm); background: var(--s); border: 1px solid var(--bd); padding: 0 5px; border-radius: 7px; margin-left: 5px; }
+.mdl-ft { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 22px; border-top: 1px solid var(--bd); background: var(--s2); position: sticky; bottom: 0; }
+
+/* ─── WIZARD ─── */
+.wiz { background: var(--s); border-radius: var(--rl); width: 680px; max-width: 94vw; max-height: 92vh; display: flex; flex-direction: column; box-shadow: var(--xl); animation: mdin .2s ease; overflow: hidden; }
+.wiz-hd { padding: 22px 24px 18px; border-bottom: 1px solid var(--bd); flex-shrink: 0; }
+.wiz-steps { display: flex; align-items: center; gap: 0; margin-bottom: 4px; }
+.wiz-step { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--tm); flex: 1; }
+.wiz-step.active { color: var(--ac); } .wiz-step.done { color: var(--ok); }
+.wiz-step-num { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--bds); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; background: #fff; }
+.wiz-step.active .wiz-step-num { border-color: var(--ac); background: var(--ac); color: #fff; } .wiz-step.done .wiz-step-num { border-color: var(--ok); background: var(--ok); color: #fff; font-size:14px;}
+.wiz-step-line { flex: 1; height: 2px; background: var(--bd); margin: 0 8px; max-width: 60px; } .wiz-step-line.done { background: var(--ok); }
+.wiz-title { font-size: 18px; font-weight: 700; letter-spacing: -.3px; margin-top: 12px; }
+.wiz-sub { font-size: 13px; color: var(--t2); margin-top: 3px; }
+.wiz-bd { padding: 22px 24px; overflow-y: auto; flex: 1; }
+.wiz-ft { padding: 14px 24px; border-top: 1px solid var(--bd); display: flex; justify-content: space-between; align-items: center; background: var(--s2); flex-shrink: 0; }
+
+.schema-table { width: 100%; border: 1px solid var(--bd); border-radius: var(--rs); overflow: hidden; margin-bottom: 16px; border-collapse: collapse;}
+.schema-table th { background: var(--s2); padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--tm); text-align: left; border-bottom: 1px solid var(--bd); }
+.schema-table td { padding: 8px 12px; border-bottom: 1px solid var(--bd); vertical-align: middle; font-size: 13px; }
+.schema-table tr:last-child td { border-bottom: none; }
+.schema-table tr:hover td { background: var(--al); }
+.sf-inp { width: 100%; border: 1.5px solid var(--bd); border-radius: var(--rs); padding: 5px 9px; font-family: 'Geist Mono', monospace; font-size: 12.5px; outline: none; background: var(--s); transition: border-color .15s; color: var(--t1); }
+.sf-inp:focus { border-color: var(--ac); }
+.sf-sel { border: 1.5px solid var(--bd); border-radius: var(--rs); padding: 5px 9px; font-family: 'Geist', sans-serif; font-size: 12.5px; outline: none; background: var(--s); cursor: pointer; color: var(--t1); width: 100%; }
+.sf-sel:focus { border-color: var(--ac); }
+.tog { display: flex; align-items: center; gap: 8px; }
+.tog-btn { padding: 3px 10px; border-radius: 8px; border: 1.5px solid var(--bd); background: var(--s); font-family: 'Geist', sans-serif; font-size: 11.5px; font-weight: 600; cursor: pointer; color: var(--tm); transition: all .15s; }
+.tog-btn.on { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok); }
+.del-btn { width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--bd); background: var(--s); cursor: pointer; font-size: 16px; color: var(--tm); display: flex; align-items: center; justify-content: center; transition: all .15s; padding:0; line-height:1;}
+.del-btn:hover { background: var(--err-bg); border-color: var(--err); color: var(--err); }
+.add-field-row { padding: 8px 12px; border-top: 1px dashed var(--bd); }
+.add-field-btn { display: flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--ac); background: none; border: none; cursor: pointer; font-family: 'Geist', sans-serif; padding: 4px 0; transition: all .15s; }
+.add-field-btn:hover { gap: 7px; }
+
+.radio-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-opt { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border: 1.5px solid var(--bd); border-radius: var(--rs); cursor: pointer; transition: all .15s; }
+.radio-opt:hover { border-color: var(--bds); background: var(--s2); }
+.radio-opt.selected { border-color: var(--ac); background: var(--al); }
+.radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--bds); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all .15s; }
+.radio-opt.selected .radio-dot { border-color: var(--ac); background: var(--ac); }
+.radio-opt.selected .radio-dot::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+.radio-lbl { font-size: 13.5px; font-weight: 700; margin-bottom: 2px; }
+.radio-desc { font-size: 12px; color: var(--t2); line-height: 1.45; }
+.sinfo { background: var(--s2); border: 1px solid var(--bd); border-radius: var(--rs); padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+.sinfo-ico { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.sinfo-txt { font-size: 13px; color: var(--t2); line-height: 1.5; } .sinfo-txt strong { color: var(--t1); font-weight: 700; }
+
+.flow-prev { background: #fff; border: 1px solid var(--bd); border-radius: var(--rs); padding: 10px 14px; margin-top: 8px; }
+.fp-label { font-size: 11px; font-weight: 700; color: var(--tm); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+.fp-nodes { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.fp-node { font-size: 11px; font-weight: 700; color: #fff; padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+.fp-node.source { background: var(--ns); } .fp-node.filter { background: var(--nf); } .fp-node.mapping { background: var(--nm); } .fp-node.dest { background: var(--nd); } .fp-node.validation { background: var(--nv); } .fp-node.transform { background: var(--nt); }
+.fp-arrow { color: var(--tm); font-size: 11px; }
+.fp-new-tag { background: var(--nv); color: #fff; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 5px; margin-left: 2px; letter-spacing: .2px; }
+
+.chk-flow-item { border: 1px solid var(--bd); border-radius: var(--rs); padding: 12px 14px; margin-bottom: 8px; transition: all .15s; cursor: pointer; }
+.chk-flow-item:hover { border-color: var(--bds); }
+.chk-flow-item.checked { border-color: var(--ac); background: var(--al); }
+.cfi-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.cfi-chk { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--bds); background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.chk-flow-item.checked .cfi-chk { background: var(--ac); border-color: var(--ac); color: #fff; font-size: 11px; }
+.cfi-name { font-size: 13.5px; font-weight: 700; }
+.cfi-src { font-size: 11.5px; color: var(--t2); }
+.auto-apply { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1.5px dashed var(--bds); border-radius: var(--rs); cursor: pointer; transition: all .15s; margin-top: 4px; }
+.auto-apply:hover { border-color: var(--ac); background: var(--al); }
+.auto-apply.checked { border-color: var(--ok); background: var(--ok-bg); }
+
+/* SUCCESS TOAST */
+.toast-custom { position: fixed; bottom: 24px; right: 24px; background: var(--t1); color: #fff; padding: 12px 18px; border-radius: var(--rs); font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 8px; z-index: 9999; box-shadow: var(--xl); transform: translateY(80px); opacity: 0; transition: all .35s cubic-bezier(.34,1.56,.64,1); }
+.toast-custom.show { transform: translateY(0); opacity: 1; }
+.toast-ico { font-size: 18px; color:var(--nd); }
+
+/* FLOATING DEBUG CONTROLS */
+.debug-controls { position: fixed; bottom: 24px; left: 104px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+.debug-btn { background: #fff; border: 1px solid var(--bd); border-radius: 8px; font-size: 12px; color: var(--tm); padding: 6px 12px; cursor: pointer; box-shadow: var(--sh); text-align: left; transition: all 0.15s; }
+.debug-btn:hover { border-color: var(--ac); color: var(--ac); box-shadow: var(--ml); }
+</style>
+</head>
+<body>
+
+<div id="app" class="app-wrapper">
+
+  <!-- SIDEBAR CANVA-STYLE -->
+  <aside class="sidebar">
+    <div class="logo-area" @click="nav('home')" title="DataPipe">
+      <div class="logo-dot mb-1"></div>
+      <span style="letter-spacing: -0.5px;">DP</span>
+    </div>
+    
+    <!-- Home fixe en haut, hors du drag & drop -->
+    <ul class="nav-menu mb-1">
+      <li>
+        <a class="nav-link-custom" :class="{ active: currentView === 'home' }" @click.prevent="nav('home')">
+          <i class='bx bx-home'></i>
+          <span>Home</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-menu">
+      <ul class="nav-menu" ref="sortableMenu">
+        <li v-for="item in sortablePinnedItems" :key="item.id">
+          <a class="nav-link-custom" :class="{ active: currentView === item.id || (item.id === 'flows' && currentView === 'flow-detail') }" @click.prevent="nav(item.id)">
+            <i class='bx' :class="item.icon"></i>
+            <span>{{ item.label }}</span>
+            <button class="unpin-btn" @click.stop="togglePin(item.id)" title="Désépingler"><i class='bx bx-pin pin-crossed'></i></button>
+          </a>
+        </li>
+      </ul>
+
+      <hr class="my-2 border-secondary opacity-25">
+      
+      <ul class="nav-menu">
+        <li>
+          <a class="nav-link-custom" :class="{ active: isPlusOpen }" @mouseenter="openPlusMenu" @mouseleave="closePlusMenu" @click.prevent="openPlusMenu">
+            <i class='bx bx-dots-horizontal-rounded'></i>
+            <span>Plus</span>
+          </a>
+        </li>
+      </ul>
+
+      <template v-if="pinnedItems.includes('admin')">
+        <hr class="my-2 border-secondary opacity-25">
+        <ul class="nav-menu">
+          <li>
+            <a class="nav-link-custom" :class="{ active: currentView === 'admin' }" @click.prevent="nav('admin')">
+              <i class='bx bx-cog'></i>
+              <span>Admin</span>
+              <button class="unpin-btn" @click.stop="togglePin('admin')" title="Désépingler"><i class='bx bx-pin pin-crossed'></i></button>
+            </a>
+          </li>
+        </ul>
+      </template>
+    </div>
+
+    <div class="mt-auto py-2 border-top text-center">
+       <div class="av mx-auto cursor-pointer" title="Mon Compte">MA</div>
+    </div>
+  </aside>
+
+  <!-- PLUS PANEL -->
+  <div class="plus-panel" :class="{ open: isPlusOpen }" @mouseenter="openPlusMenu" @mouseleave="closePlusMenu">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="m-0 fw-bold text-dark">Plus d'outils</h6>
+      <i class='bx bx-x cursor-pointer fs-4 text-muted' @click="isPlusOpen = false"></i>
+    </div>
+    <div class="d-flex flex-column gap-2">
+      <a v-for="item in unpinnedMenuItems" :key="item.id" class="plus-item" @click.prevent="nav(item.id); isPlusOpen = false">
+        <i class="bx fs-4 text-secondary" :class="item.icon"></i>
+        <span class="flex-grow-1" style="font-size: 13.5px;">{{ item.label }}</span>
+        <button class="btn btn-sm btn-light p-1 d-flex align-items-center justify-content-center" style="color: var(--t2)" @click.stop="togglePin(item.id)" title="Épingler"><i class='bx bx-pin'></i></button>
+      </a>
+      <div v-if="unpinnedMenuItems.length === 0" class="text-muted small text-center mt-4">Tous les outils sont épinglés.</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="view-container">
+
+      <!-- VIEW: HOME -->
+      <div class="view" :class="{ active: currentView === 'home' }">
+        <!-- Empty State Home with Robust Slot Machine Hero -->
+        <div v-if="state.flows.length === 0" class="d-flex flex-column align-items-center justify-content-center text-center w-100" style="min-height: calc(100vh - 80px);">
+          
+          <div class="text-center" style="max-width: 800px; margin-bottom: 40px;">
+            <div style="font-size: 22px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">
+              Vous parlez métier. On s'occupe du reste.
+            </div>
+            <div style="font-size: 15px; font-weight: 600; color: var(--t2); margin-bottom: 10px;">
+              Un <span style="color: var(--ac); font-weight: 700;">scénario</span> = un déclencheur <span style="color: var(--tm); margin: 0 6px;">·</span> vos règles <span style="color: var(--tm); margin: 0 6px;">·</span> une action automatique.
+            </div>
+            <div style="font-size: 13px; font-weight: 400; color: var(--tm);">
+              Des templates prêts en minutes <span style="color: var(--tm); margin: 0 6px;">·</span> Des résultats mesurés dès le premier jour.
+            </div>
+          </div>
+
+          <div class="hero-statement w-100" @mouseenter="pauseHero" @mouseleave="resumeHero" style="cursor: default;">
+            <div class="d-flex align-items-center justify-content-center flex-nowrap" style="gap: 12px; width: 100%;">
+              <span style="font-size: 24px; font-weight: 700; color: var(--t1); flex-shrink: 0;">Quand</span>
+              
+              <div class="slot-column">
+                <transition name="slot-slide">
+                  <div :key="currentHeroIndex" class="rotator-item trigger-item">{{ currentHeroPair.t }}</div>
+                </transition>
+              </div>
+              
+              <span class="text-muted mx-2" style="font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0;">→ vos règles s'appliquent →</span>
+              
+              <div class="slot-column">
+                <transition name="slot-slide">
+                  <div :key="currentHeroIndex" class="rotator-item action-item">{{ currentHeroPair.a }}</div>
+                </transition>
+              </div>
+            </div>
+            
+            <div class="hero-outcome">
+              <transition name="fade-outcome">
+                <div v-show="showOutcome" class="d-flex align-items-center gap-2">
+                  <span>📈</span>
+                  <span>{{ currentHeroPair.o }}</span>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <p style="font-size: 16px; color: var(--t2); margin-top: 48px; margin-bottom: 24px;">Configurez une fois. Agissez en continu.</p>
+          <button class="btn-custom btn-p" style="padding: 12px 24px; font-size: 15px;" @click="nav('templates')">Créer mon premier scénario →</button>
+
+        </div>
+
+        <!-- Populated State Home -->
+        <div v-else>
+          <div class="page-hd d-flex justify-content-between align-items-end mb-4">
+            <div><h1>Home</h1><p>Vue d'ensemble de vos pipelines</p></div>
+          </div>
+          
+          <div class="row g-3 mb-5">
+            <div class="col-md-4">
+              <div class="p-4" style="background: #fff; border: 1px solid var(--bd); border-radius: 10px; box-shadow: var(--sh);">
+                <div style="font-size: 28px; font-weight: 700; color: var(--t1);">{{ state.flows.length }}</div>
+                <div style="font-size: 13px; color: var(--t2); margin-top: 4px;">Active scenarios</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4" style="background: #fff; border: 1px solid var(--bd); border-radius: 10px; box-shadow: var(--sh);">
+                <div style="font-size: 28px; font-weight: 700; color: var(--t1);">{{ totalEventsPerHour.toLocaleString() }}</div>
+                <div style="font-size: 13px; color: var(--t2); margin-top: 4px;">Total events / hour</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4" style="background: #fff; border: 1px solid var(--bd); border-radius: 10px; box-shadow: var(--sh);">
+                <div style="font-size: 28px; font-weight: 700; color: var(--t1);">{{ averageDeliveryRate }}%</div>
+                <div style="font-size: 13px; color: var(--t2); margin-top: 4px;">Average delivery rate</div>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">Active scenarios</h3>
+          <div class="flows-grid mb-3">
+            <div v-for="flow in state.flows.slice(0, 3)" :key="flow.id" class="flow-card" style="cursor: default;" @click.stop>
+              <div class="fc-head">
+                <div>
+                  <div class="fc-title">
+                    {{ flow.name }}
+                    <span v-if="flow.nodes.some(n => n.type === 'validation')" class="fc-new-badge"><i class='bx bx-shield-quarter'></i> Schema</span>
+                  </div>
+                  <div class="fc-sub">{{ flow.source }} · {{ flow.sourceDetail }}</div>
+                </div>
+                <div class="fc-status">active</div>
+              </div>
+              <div class="fc-nodes">
+                <template v-for="(node, index) in flow.nodes" :key="index">
+                  <div class="fcn" :class="node.type" :title="node.label"><i :class="nodeIcon(node.type)"></i></div>
+                  <div v-if="index < flow.nodes.length - 1" class="fce"></div>
+                </template>
+              </div>
+              <div class="fc-stats">
+                <div class="fc-stat"><div class="fc-stat-v">{{ flow.eventsPerHour.toLocaleString() }}</div><div class="fc-stat-l">events/h</div></div>
+                <div class="fc-stat"><div class="fc-stat-v">{{ flow.deliveryRate }}%</div><div class="fc-stat-l">delivery</div></div>
+                <div class="fc-stat"><div class="fc-stat-v">{{ flow.lastRun }}</div><div class="fc-stat-l">last event</div></div>
+              </div>
+            </div>
+          </div>
+          <div v-if="state.flows.length > 3" class="text-center mt-4">
+            <a href="#" class="nav-link-custom d-inline-flex px-3 py-2" @click.prevent="nav('flows')" style="background: var(--s); border: 1px solid var(--bd);">See all in Scenarios →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: SCENARIOS (ex My Flows) grouped by categories -->
+      <div class="view" :class="{ active: currentView === 'flows' }">
+        <div class="page-hd d-flex justify-content-between align-items-end mb-4">
+          <div><h1>Scenarios</h1><p>Active data pipelines & experiences</p></div>
+          <button class="btn-custom btn-p" @click="nav('templates')"><i class='bx bx-plus'></i> New scenario</button>
+        </div>
+        
+        <!-- Section: Data Flows -->
+        <div class="scenario-section mb-5">
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h3 class="fs-6 fw-bold mb-0 text-dark">Data Flows</h3>
+          </div>
+          <div class="flows-grid">
+            <template v-if="state.flows.length > 0">
+              <div v-for="flow in state.flows" :key="flow.id" class="flow-card" @click="nav('flow-detail', flow.id)">
+                <div class="fc-head">
+                  <div>
+                    <div class="fc-title">
+                      {{ flow.name }}
+                      <span v-if="flow.nodes.some(n => n.type === 'validation')" class="fc-new-badge"><i class='bx bx-shield-quarter'></i> Schema</span>
+                    </div>
+                    <div class="fc-sub">{{ flow.source }} · {{ flow.sourceDetail }}</div>
+                  </div>
+                  <div class="fc-status">active</div>
+                </div>
+                <div class="fc-nodes">
+                  <template v-for="(node, index) in flow.nodes" :key="index">
+                    <div class="fcn" :class="node.type" :title="node.label"><i :class="nodeIcon(node.type)"></i></div>
+                    <div v-if="index < flow.nodes.length - 1" class="fce"></div>
+                  </template>
+                </div>
+                <div class="fc-stats">
+                  <div class="fc-stat"><div class="fc-stat-v">{{ flow.eventsPerHour.toLocaleString() }}</div><div class="fc-stat-l">events/h</div></div>
+                  <div class="fc-stat"><div class="fc-stat-v">{{ flow.deliveryRate }}%</div><div class="fc-stat-l">delivery</div></div>
+                  <div class="fc-stat"><div class="fc-stat-v">{{ flow.lastRun }}</div><div class="fc-stat-l">last event</div></div>
+                </div>
+              </div>
+            </template>
+            <!-- Empty State Data Flows -->
+            <div v-else class="empty-scenario-card" style="grid-column: 1/-1;">
+               <div style="font-size: 32px; margin-bottom: 12px; color: var(--tm);"><i class='bx bx-hexagon'></i></div>
+               <div style="font-size: 16px; font-weight: 700; color: var(--t1); margin-bottom: 4px;">Aucun flow configuré</div>
+               <div class="text-muted mb-3">Commencez par un template ou créez un flow from scratch.</div>
+               <button class="btn-custom btn-p" @click="nav('templates')">Voir les templates →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autre sections vides par défaut -->
+        <div v-for="sec in emptySections" :key="sec.id" class="scenario-section mb-5">
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h3 class="fs-6 fw-bold mb-0 text-dark">{{ sec.title }}</h3>
+          </div>
+          <div class="empty-scenario-card">
+            <div class="text-muted mb-2">{{ sec.desc }}</div>
+            <button class="btn-custom btn-ghost text-primary p-0" @click="nav('templates')">+ Créer via Templates</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW: Flow detail canvas -->
+      <div class="view" :class="{ active: currentView === 'flow-detail' }">
+        <div v-if="currentFlow">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="back-btn" @click="nav('flows')"><i class='bx bx-left-arrow-alt'></i> Scenarios</div>
+          </div>
+          
+          <div class="flow-meta">
+            <div>
+              <div class="flow-name">{{ currentFlow.name }}</div>
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <span class="flow-source-tag">Source: <code>{{ currentFlow.sourceDetail }}</code></span>
+                <span class="flow-source-tag">Events: {{ currentFlow.events.join(', ') }}</span>
+                <span class="fc-status py-1 px-2" style="font-size:11.5px">active</span>
+              </div>
+            </div>
+            <div class="ms-auto d-flex gap-2">
+              <button class="btn-custom btn-o" @click="nav('templates')"><i class='bx bx-plus'></i> Add dest.</button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <div class="canvas-inner">
+              <template v-for="(node, index) in currentFlow.nodes" :key="index">
+                <div class="canvas-node">
+                  <div v-if="node.isNew" class="cn-new-tag">✦ NEW</div>
+                  <div class="cn-card" :class="[node.type, { 'cn-new': node.isNew }]">
+                    <div class="cn-type-bar"></div>
+                    <span class="cn-icon"><i :class="nodeIcon(node.type)"></i></span>
+                    <div class="cn-label">{{ node.label }}</div>
+                    <div class="cn-detail" :title="node.detail">{{ node.detail }}</div>
+                    <div v-if="node.stats" class="cn-stats">{{ node.stats }}</div>
+                  </div>
+                </div>
+                <div v-if="index < currentFlow.nodes.length - 1" class="canvas-arrow" :class="{'arrow-new': currentFlow.nodes[index+1]?.isNew}">
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M0 6h16M11 1l5 5-5 5"/>
+                  </svg>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex gap-4">
+              <div class="cstat"><div class="cstat-dot ok"></div>{{ currentFlow.eventsPerHour.toLocaleString() }} events/h</div>
+              <div class="cstat"><div class="cstat-dot ok"></div>{{ currentFlow.deliveryRate }}% delivery rate</div>
+              <div v-if="currentFlowHasValidation" class="cstat"><div class="cstat-dot warn"></div>Schema validation active</div>
+              <div class="cstat"><div class="cstat-dot ok"></div>Last event {{ currentFlow.lastRun }}</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn-custom btn-o">Edit flow</button>
+              <button class="btn-custom btn-o">View logs</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Templates -->
+      <div class="view" :class="{ active: currentView === 'templates' }">
+        <div class="page-hd d-flex justify-content-between align-items-end mb-4">
+          <div><h1>Pipeline Templates</h1><p>Start from a pre-built template or connect a single destination</p></div>
+        </div>
+        
+        <div class="filter-bar">
+          <span class="fl">Use case</span>
+          <div class="d-flex gap-1 flex-wrap">
+            <button class="tab" :class="{ active: activeCat === 'all' }" @click="setCategory('all')">All</button>
+            <button class="tab" :class="{ active: activeCat === 'conversion' }" @click="setCategory('conversion')">🎯 Conversion</button>
+            <button class="tab" :class="{ active: activeCat === 'audience' }" @click="setCategory('audience')">👥 Audience</button>
+            <button class="tab" :class="{ active: activeCat === 'analytics' }" @click="setCategory('analytics')">📊 Analytics</button>
+            <button class="tab cat-quality-tab" :class="{ active: activeCat === 'quality' }" @click="setCategory('quality')">✅ Data Quality</button>
+            <button class="tab" :class="{ active: activeCat === 'enrichment' }" @click="setCategory('enrichment')">💎 Enrichment</button>
+            <button class="tab" :class="{ active: activeCat === 'privacy' }" @click="setCategory('privacy')">🔒 Privacy</button>
+          </div>
+          <div class="dv"></div>
+          <div class="sw">
+            <i class='bx bx-search sico'></i>
+            <input class="sin" type="text" placeholder="Search templates…" v-model="searchQuery">
+          </div>
+        </div>
+
+        <div class="small fw-semibold text-muted mb-3"><span class="text-dark">{{ filteredTemplates.length }}</span> templates</div>
+        
+        <div class="tmpl-grid">
+          <div class="tcard cc-card" @click="alert('Canvas builder')">
+            <div class="cc-icon"><i class='bx bx-plus'></i></div>
+            <div class="fw-bold text-secondary mt-1" style="font-size:13px;">Build from scratch</div>
+            <div class="small text-muted">Canvas vide, liberté totale</div>
+          </div>
+
+          <template v-for="(group, index) in templateGroups" :key="index">
+            <div v-if="group.items.length && activeCat === 'all' && !searchQuery" class="sh-lbl">
+              <h3>{{ group.label }}</h3>
+            </div>
+            <div v-for="(t, i) in group.items" :key="t.id" class="tcard" :class="{ aa: t.alreadyActive }" @click="openTemplateDetail(t)" :style="{'animation-delay': (i * 0.02) + 's'}">
+              <div class="tcp">
+                <div class="tbw">
+                  <span v-if="t.alreadyActive" class="tpb" style="background:#f0fdf4;border-color:#86efac;color:#15803d">✓ Active</span>
+                  <span v-if="t.popular && !t.alreadyActive" class="tpb">Popular</span>
+                  <span v-if="t.isNew" class="tnb">New</span>
+                </div>
+                <div class="tnf">
+                  <template v-for="(n, idx) in t.nodes" :key="idx">
+                    <div class="tnm" :class="n"><i :class="nodeIcon(n)"></i></div>
+                    <div v-if="idx < t.nodes.length - 1" class="te"></div>
+                  </template>
+                </div>
+              </div>
+              <div class="tcb2">
+                <div class="tctg">
+                  <span v-for="c in t.cats" :key="c" class="ct" :class="'cat-' + c">{{ categoryLabel(c) }}</span>
+                </div>
+                <div class="tctitle">{{ t.title }}</div>
+                <div class="tcdesc">{{ t.desc }}</div>
+                <div class="tcfoot">
+                  <span v-if="t.c === 'quick'" class="cbdg bq">⚡ Quick</span>
+                  <span v-else-if="t.c === 'standard'" class="cbdg bs">◆◆ Standard</span>
+                  <span v-else class="cbdg ba">◆◆◆ Advanced</span>
+                  <button class="ub" :class="{ dis: t.alreadyActive }">{{ t.alreadyActive ? 'Already active' : 'Use template' }}</button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- GENERIC STUBS -->
+      <div class="view" :class="{ active: !['home','flows','flow-detail','templates'].includes(currentView) }">
+        <div class="page-hd mb-4">
+          <div><h1 class="text-capitalize">{{ currentView.replace('-', ' ') }}</h1><p>Module en construction</p></div>
+        </div>
+        <p class="text-muted"><i class='bx bx-left-arrow-alt'></i> Navigate to <strong>Scenarios</strong> or <strong>Templates</strong>.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════ OVERLAYS ═══════════════ -->
+
+  <!-- Template detail modal -->
+  <div v-if="isTemplateModalOpen" class="ov" @click.self="isTemplateModalOpen = false">
+    <div class="mdl">
+      <div class="mdl-hd">
+        <div>
+          <div class="mdl-title">{{ currentTemplate.title }}</div>
+          <div class="d-flex gap-1 mt-2 flex-wrap">
+            <span v-for="c in currentTemplate.cats" :key="c" class="ct" :class="'cat-' + c">{{ categoryLabel(c) }}</span>
+            <span class="cbdg" :class="currentTemplate.c === 'quick' ? 'bq' : currentTemplate.c === 'standard' ? 'bs' : 'ba'" style="font-size:11px">
+              {{ currentTemplate.c === 'quick' ? '⚡ Quick connect' : currentTemplate.c === 'standard' ? '◆◆ Standard' : '◆◆◆ Advanced' }}
+            </span>
+          </div>
+        </div>
+        <button class="mdl-x" @click="isTemplateModalOpen = false"><i class='bx bx-x'></i></button>
+      </div>
+      
+      <div class="mdl-bd">
+        <p class="mdesc">{{ currentTemplate.long }}</p>
+        
+        <div class="mflow">
+          <template v-for="(n, i) in currentTemplate.nodes" :key="i">
+            <span class="nl" :class="n">{{ nodeLabel(n, currentTemplate) }}</span>
+            <span v-if="i < currentTemplate.nodes.length - 1" class="earr">→</span>
+          </template>
+        </div>
+        
+        <div>
+          <div class="clt-ttl">What you'll need <span>{{ activeChecklistReadyCount }}/{{ activeChecklistRequiredCount }} ready</span></div>
+          <div class="clpw">
+            <div class="clpb"><div class="clpf" :style="{ width: activeChecklistProgress + '%' }"></div></div>
+            <span class="clpl">{{ activeChecklistProgress }}% ready</span>
+          </div>
+          <div class="cl">
+            <div v-for="(item, idx) in activeChecklist" :key="idx" class="cli" :class="item.s">
+              <div class="cico" :class="item.s"><i v-if="item.s === 'ready'" class='bx bx-check'></i></div>
+              <div>
+                <div class="ci-lbl" :class="{ r: item.s === 'ready' }">
+                  {{ item.l }} <span v-if="item.s === 'opt'" class="ci-opt">optional</span>
+                </div>
+                <div class="ci-inf">{{ item.i }}</div>
+                <div v-if="item.fr" class="ci-fr"><i class='bx bx-subdirectory-right'></i> {{ item.fr }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mdl-ft">
+        <button class="btn-custom btn-o" @click="isTemplateModalOpen = false">Close</button>
+        <button class="btn-custom btn-p" :disabled="currentTemplate.alreadyActive" @click="handleTemplateCTA">
+          {{ currentTemplate.alreadyActive ? 'Already active' : 'Use this template →' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schema Validation Wizard -->
+  <div v-if="isWizardOpen" class="ov" @click.self="isWizardOpen = false">
+    <div class="wiz">
+      <div class="wiz-hd">
+        <div class="wiz-steps">
+          <div class="wiz-step" :class="{ active: wizStep === 1, done: wizStep > 1 }">
+            <div class="wiz-step-num"><i v-if="wizStep > 1" class='bx bx-check'></i><span v-else>1</span></div>
+            <span>Define rules</span>
+          </div>
+          <div class="wiz-step-line" :class="{ done: wizStep > 1 }"></div>
+          <div class="wiz-step" :class="{ active: wizStep === 2 }">
+            <div class="wiz-step-num">2</div>
+            <span>Apply to flows</span>
+          </div>
+        </div>
+        
+        <div class="wiz-title">{{ wizStep === 1 ? 'Define your validation schema' : 'Where to apply this schema?' }}</div>
+        <div class="wiz-sub">{{ wizStep === 1 ? "Specify which fields are expected and their types. Events that don't match will be blocked or flagged." : "The schema will be inserted as a validation node in the selected flows." }}</div>
+      </div>
+      
+      <div class="wiz-bd">
+        <!-- Wizard Step 1 -->
+        <div v-if="wizStep === 1">
+          <div class="sinfo">
+            <div class="sinfo-ico">📋</div>
+            <div class="sinfo-txt">Ce schéma sera appliqué aux événements entrants depuis <strong>Web Container (CA-8X42ZP)</strong>. Tout événement ne respectant pas ces règles sera intercepté.</div>
+          </div>
+          <table class="schema-table">
+            <thead><tr><th>Field name</th><th>Type</th><th>Constraint</th><th></th></tr></thead>
+            <tbody>
+              <tr v-for="(f, i) in schemaFields" :key="i">
+                <td><input class="sf-inp" v-model="f.name" placeholder="field_name"/></td>
+                <td>
+                  <select class="sf-sel" v-model="f.type">
+                    <option value="string">string</option><option value="number">number</option>
+                    <option value="boolean">boolean</option><option value="array">array</option><option value="any">any</option>
+                  </select>
+                </td>
+                <td>
+                  <div class="tog">
+                    <button class="tog-btn" :class="{ on: f.required }" @click="f.required = true">required</button>
+                    <button class="tog-btn" :class="{ on: !f.required }" :style="!f.required ? 'background:var(--warn-bg);border-color:var(--warn-bd);color:var(--warn)' : ''" @click="f.required = false">optional</button>
+                  </div>
+                </td>
+                <td><button class="del-btn" @click="schemaFields.splice(i, 1)"><i class='bx bx-x'></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="add-field-row">
+            <button class="add-field-btn" @click="addField"><i class='bx bx-plus'></i> Add field</button>
+          </div>
+          <div class="mt-3">
+            <div class="clt-ttl">On invalid event</div>
+            <div class="radio-group">
+              <div class="radio-opt" :class="{ selected: onInvalid === 'block' }" @click="onInvalid = 'block'">
+                <div class="radio-dot"></div>
+                <div><div class="radio-lbl">Block and quarantine</div><div class="radio-desc">L'événement n'est pas transmis aux destinations. Il est mis en quarantaine.</div></div>
+              </div>
+              <div class="radio-opt" :class="{ selected: onInvalid === 'log' }" @click="onInvalid = 'log'">
+                <div class="radio-dot"></div>
+                <div><div class="radio-lbl">Log only (don't block)</div><div class="radio-desc">L'événement continue son chemin mais une alerte est générée.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Step 2 -->
+        <div v-else>
+          <div class="sinfo">
+            <div class="sinfo-ico">⚙</div>
+            <div class="sinfo-txt">Le schéma sera inséré comme <strong>nœud de validation</strong> entre la source et le premier nœud de chaque flow sélectionné. Il s'applique <strong>une fois pour tous</strong> les flows de cette source.</div>
+          </div>
+          <div class="clt-ttl mb-2">{{ sourceFlows.length }} flows utilisent cette source</div>
+          
+          <div v-for="flow in sourceFlows" :key="flow.id" class="chk-flow-item" :class="{ checked: applyToFlows[flow.id] !== false }" @click="applyToFlows[flow.id] = applyToFlows[flow.id] === false ? true : false">
+            <div class="cfi-hd">
+              <div class="cfi-chk"><i v-if="applyToFlows[flow.id] !== false" class='bx bx-check'></i></div>
+              <div>
+                <div class="cfi-name">{{ flow.name }}</div>
+                <div class="cfi-src">{{ flow.source }} · {{ flow.sourceDetail }} · {{ flow.eventsPerHour.toLocaleString() }} events/h</div>
+              </div>
+            </div>
+            <div class="flow-prev">
+              <div class="fp-label">Avant</div>
+              <div class="fp-nodes">
+                <template v-for="(n, i) in flow.nodes" :key="i">
+                  <span class="fp-node" :class="n.type">{{ n.label }}</span>
+                  <span v-if="i < flow.nodes.length - 1" class="fp-arrow">→</span>
+                </template>
+              </div>
+            </div>
+            <div v-if="applyToFlows[flow.id] !== false" class="flow-prev" style="margin-top:6px;border-color:var(--nv);background:#fff7f0">
+              <div class="fp-label" style="color:var(--nv)">Après → validation node ajouté</div>
+              <div class="fp-nodes">
+                <span class="fp-node source">Source</span><span class="fp-arrow">→</span>
+                <span class="fp-node validation">Schema<span class="fp-new-tag">NEW</span></span><span class="fp-arrow">→</span>
+                <template v-for="(n, i) in flow.nodes.filter(x => x.type !== 'source')" :key="i">
+                  <span class="fp-node" :class="n.type">{{ n.label }}</span>
+                  <span v-if="i < flow.nodes.filter(x => x.type !== 'source').length - 1" class="fp-arrow">→</span>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div class="auto-apply mt-2" :class="{ checked: autoApply }" @click="autoApply = !autoApply">
+            <div class="cfi-chk" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--bds);background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">
+              <i v-if="autoApply" class='bx bx-check' style="color:var(--ac)"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700">Appliquer automatiquement aux futurs flows</div>
+              <div style="font-size:12px;color:var(--t2);margin-top:2px">Tout nouveau flow créé sur cette source inclura automatiquement ce nœud de validation.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="wiz-ft">
+        <button class="btn-custom btn-ghost" :style="{ visibility: wizStep > 1 ? 'visible' : 'hidden' }" @click="wizStep--">← Back</button>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn-custom btn-o" @click="isWizardOpen = false">Cancel</button>
+          <button class="btn-custom btn-p" @click="handleWizardNext">
+            {{ wizStep === 1 ? 'Next: Apply to flows →' : 'Apply schema →' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success toast -->
+  <div class="toast-custom" :class="{ show: toastVisible }">
+    <i class='bx bxs-check-circle toast-ico'></i> <span>{{ toastMsg }}</span>
+  </div>
+
+  <!-- Floating debug buttons -->
+  <div class="debug-controls">
+    <button class="debug-btn" @click="resetFlows">⟳ Reset demo</button>
+    <button class="debug-btn" @click="clearAllFlows">⟳ Clear flows</button>
+  </div>
+
+</div>
+
+<script>
+const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch } = Vue;
+
+const SK = 'dp_state_v3';
+const PIN_SK = 'dp_pinned_v1';
+
+const MENU_ITEMS = [
+  { id: 'home', icon: 'bx-home', label: 'Home' },
+  { id: 'flows', icon: 'bx-git-branch', label: 'Scenarios' },
+  { id: 'templates', icon: 'bx-layer', label: 'Templates' },
+  { id: 'integrations', icon: 'bx-plug', label: 'Integrations' },
+  { id: 'audiences', icon: 'bx-group', label: 'Audiences' },
+  { id: 'cookie-scanner', icon: 'bx-radar', label: 'Cookie Scanner' },
+  { id: 'personalization', icon: 'bx-user-pin', label: 'Personalization' },
+  { id: 'merchandising', icon: 'bx-store-alt', label: 'Merchandising' },
+  { id: 'data-management', icon: 'bx-data', label: 'Data Mgmt' },
+  { id: 'monitoring', icon: 'bx-pulse', label: 'Monitoring' },
+  { id: 'web-container', icon: 'bx-code-block', label: 'Web Container' },
+  { id: 'admin', icon: 'bx-cog', label: 'Admin' }
+];
+
+const TMPLS = [
+  {id:1,  title:"Meta CAPI", cats:["conversion"], c:"quick", popular:true, alreadyActive:true, desc:"Envoyez vos événements vers l'API Conversions de Meta.", nodes:["source","filter","dest"], dl:"Meta CAPI", long:"Configure un pipeline server-side vers l'API Conversions de Meta. Transmis de façon fiable même avec adblocking activé."},
+  {id:2,  title:"Google Enhanced Conversions", cats:["conversion"], c:"quick", desc:"Améliorez la précision de vos conversions Google Ads grâce aux données first-party hashées.", nodes:["source","filter","dest"], dl:"Google Ads", long:"Envoie les données hashées (email, tél.) à Google Enhanced Conversions pour améliorer la précision du modèle d'attribution."},
+  {id:3,  title:"TikTok Events API", cats:["conversion"], c:"quick", desc:"Transmettez les conversions à TikTok server-side.", nodes:["source","filter","dest"], dl:"TikTok", long:"Pipeline vers la TikTok Events API. Contourne les limitations navigateur."},
+  {id:4,  title:"Snapchat CAPI", cats:["conversion"], c:"quick", desc:"Envoi server-side vers la Snapchat Conversions API.", nodes:["source","filter","dest"], dl:"Snapchat CAPI", long:"Configure la Snapchat Conversions API. Améliore l'attribution et la qualité des signaux."},
+  {id:5,  title:"LinkedIn Conversions API", cats:["conversion"], c:"quick", desc:"Conversions B2B vers LinkedIn Ads server-side.", nodes:["source","filter","dest"], dl:"LinkedIn", long:"Pipeline vers LinkedIn CAPI. Idéal pour mesurer les leads B2B."},
+  {id:6,  title:"Microsoft Advertising UET", cats:["conversion"], c:"quick", desc:"Événements UET server-side pour Bing et Edge.", nodes:["source","filter","dest"], dl:"Bing / Microsoft", long:"Configure la remontée server-side vers Microsoft Advertising via UET."},
+  {id:7,  title:"Amazon Ads CAPI", cats:["conversion"], c:"quick", isNew:true, desc:"Achats et leads server-side vers Amazon Ads.", nodes:["source","filter","dest"], dl:"Amazon Ads", long:"Nouveau connecteur Amazon Ads Conversions API."},
+  {id:8,  title:"All Conversion APIs Bundle", cats:["conversion"], c:"standard", popular:true, desc:"Configurez la source une fois, activez chaque CAPI à la carte.", nodes:["source","transform","filter","dest"], dl:"Multi-CAPI", long:"Configure la source et normalisation en une fois, puis choisissez quelles CAPIs activer."},
+  {id:9,  title:"Segment → Google Customer Match", cats:["audience"], c:"standard", popular:true, desc:"Listes CRM vers Google Customer Match.", nodes:["source","mapping","dest"], dl:"Google Ads", long:"Synchronise vos segments first-party vers Google Customer Match. Données hashées côté serveur."},
+  {id:10, title:"Segment → Meta Custom Audiences", cats:["audience"], c:"standard", desc:"Segments CDP vers Meta Ads.", nodes:["source","mapping","dest"], dl:"Meta Audiences", long:"Envoie les segments à Meta Custom Audiences en quasi temps réel."},
+  {id:11, title:"Segment → TikTok Custom Audience",cats:["audience"], c:"standard", desc:"Segments CRM sur TikTok pour du retargeting.", nodes:["source","mapping","dest"], dl:"TikTok", long:"Envoie vos listes à TikTok via l'API audience personnalisée."},
+  {id:12, title:"Suppression List Sync", cats:["audience","privacy"], c:"standard", desc:"Listes désabonnés vers toutes vos plateformes ad.", nodes:["source","filter","dest"], dl:"All platforms", long:"Maintient vos listes de suppression à jour sur toutes vos plateformes pub."},
+  {id:13, title:"GA4 Server-Side", cats:["analytics"], c:"quick", popular:true, alreadyActive:true, desc:"Événements GA4 server-side pour des cookies longue durée.", nodes:["source","dest"], dl:"GA4", long:"GA4 server-side via Measurement Protocol. Prolonge la durée de vie des cookies first-party."},
+  {id:14, title:"Piano Analytics (AT Internet)", cats:["analytics"], c:"quick", desc:"Events server-side vers Piano Analytics.", nodes:["source","dest"], dl:"Piano Analytics", long:"Connecteur server-side pour Piano Analytics. Solution exemptable de consentement selon la CNIL."},
+  {id:15, title:"Amplitude Server-Side", cats:["analytics"], c:"quick", desc:"Événements produit vers Amplitude en server-side.", nodes:["source","dest"], dl:"Amplitude", long:"Envoie les événements d'usage produit à Amplitude via l'HTTP API."},
+  {id:16, title:"Mixpanel Server-Side", cats:["analytics"], c:"quick", desc:"Événements d'engagement vers Mixpanel.", nodes:["source","dest"], dl:"Mixpanel", long:"Pipeline server-side vers Mixpanel."},
+  {id:17, title:"Adobe Analytics Server-Side", cats:["analytics"], c:"standard", desc:"Hits Adobe Analytics via le Data Insertion API.", nodes:["source","transform","dest"], dl:"Adobe Analytics", long:"Implémentation server-side pour Adobe Analytics."},
+  {id:18, title:"Full Funnel Analytics Multi-tool",cats:["analytics"],c:"advanced", desc:"GA4 + Amplitude + Mixpanel en parallèle avec normalisation.", nodes:["source","transform","mapping","dest"], dl:"GA4 + Amplitude + Mixpanel", long:"Normalise le schéma une fois, distribue vers plusieurs outils analytics."},
+  {id:29, title:"Event Schema Validation", cats:["quality"], c:"quick", desc:"Validez chaque événement entrant contre un schéma JSON. Les malformés sont mis en quarantaine.", nodes:["source","filter","dest"], dl:"Validated stream", long:"Vérifie la conformité des événements avec votre schéma défini. Les invalides sont redirigés vers un flux de quarantaine et une alerte est déclenchée.", isSchemaWizard:true},
+  {id:30, title:"Deduplication Filter", cats:["quality"], c:"quick", desc:"Éliminez les doublons entre pixel client-side et server-side.", nodes:["source","filter","dest"], dl:"Clean stream", long:"Applique une fenêtre de déduplication basée sur l'event_id."},
+  {id:31, title:"PII Scrubbing & Anonymization", cats:["quality","privacy"], c:"standard", desc:"Supprimez automatiquement les PII avant les outils tiers.", nodes:["source","transform","dest"], dl:"Sanitized stream", long:"Neutralise les données personnelles dans les payloads. Hash emails, tronque IPs."},
+  {id:32, title:"Event Volume Monitoring", cats:["quality"], c:"standard", desc:"Alertes Slack si le flux d'événements chute ou explose.", nodes:["source","filter","dest"], dl:"Monitoring + Slack", long:"Surveille le volume d'événements. Déclenche une alerte si déviation de ±30%."},
+  {id:33, title:"Dead Letter Queue", cats:["quality"], c:"standard", desc:"Capturez les événements en échec et rejouez-les après correction.", nodes:["source","filter","dest"], dl:"DLQ + Replay", long:"Implémente une file de messages morts pour les événements non transmis."},
+  {id:34, title:"Data Freshness Check", cats:["quality"], c:"quick", desc:"Alertez si un événement critique n'a reçu aucun hit depuis N minutes.", nodes:["source","filter","dest"], dl:"Alert stream", long:"Monitore la fraîcheur des données. Alerte si aucun hit reçu pendant une fenêtre configurable."},
+  {id:35, title:"Full Data Quality Pipeline", cats:["quality"], c:"advanced", desc:"Validation + déduplication + PII scrubbing + monitoring en un seul pipeline.", nodes:["source","transform","filter","dest"], dl:"Certified stream", long:"Pipeline complet de qualité : validation, déduplication, suppression PII, monitoring."},
+  {id:36, title:"Currency & Unit Normalization", cats:["quality"], c:"standard", isNew:true, desc:"Normalisez devises, unités et formats entre vos sources.", nodes:["source","transform","dest"], dl:"Normalized stream", long:"Normalise valeurs monétaires, formats de date, champs custom."},
+  {id:37, title:"CRM Data Hydration", cats:["enrichment"], c:"standard", popular:true, desc:"Enrichissez chaque événement avec les données CRM.", nodes:["source","transform","mapping","dest"], dl:"Enriched stream", long:"Joint les données CRM en temps réel à chaque événement entrant."},
+  {id:38, title:"Product Catalog Enrichment", cats:["enrichment"], c:"standard", desc:"Ajoutez les données catalogue aux événements e-commerce.", nodes:["source","transform","dest"], dl:"Enriched events", long:"Enrichit les événements produit avec les données catalogue."},
+  {id:39, title:"Geolocation & Device Enrichment",cats:["enrichment"], c:"quick", desc:"Pays, région, device à chaque événement.", nodes:["source","transform","dest"], dl:"Enriched stream", long:"Résout la géolocalisation et parse le user-agent."},
+  {id:40, title:"Identity Resolution", cats:["enrichment"], c:"advanced", desc:"Résolvez l'identité cross-device.", nodes:["source","transform","mapping","dest"], dl:"Unified profile", long:"Graphe d'identité reliant identifiants anonymes aux authentifiés."},
+  {id:41, title:"Consent-Based Routing", cats:["privacy"], c:"standard", popular:true, desc:"Routez les événements selon le consentement.", nodes:["source","filter","dest"], dl:"Conditional destinations", long:"Evalue le vecteur de consentement et route vers les destinations autorisées uniquement."},
+  {id:42, title:"Google Consent Mode v2", cats:["privacy","conversion"], c:"standard", desc:"Consent Mode v2 server-side pour le modeling Google.", nodes:["source","transform","dest"], dl:"Google Ads + GA4", long:"Configure le Google Consent Mode v2 en mode Advanced."},
+  {id:43, title:"IP Anonymization", cats:["privacy"], c:"quick", desc:"Tronquez les IPs avant transmission aux tiers.", nodes:["source","transform","dest"], dl:"Privacy-safe stream", long:"Applique la troncature IPv4 à chaque événement."},
+  {id:44, title:"Data Residency — EU Only", cats:["privacy"], c:"standard", isNew:true, desc:"Données traitées uniquement dans l'UE.", nodes:["source","filter","dest"], dl:"EU-only destinations", long:"Garantit que les événements ne sont transmis qu'à des endpoints EU."},
+];
+
+const HERO_PAIRS = [
+  { t: "Un achat", a: "Meta CAPI + GA4", o: "+15 à 23% de conversions attribuées" },
+  { t: "Un cookie inconnu", a: "Alerte DPO Slack", o: "Conformité cookie maintenue en continu" },
+  { t: "Un visiteur VIP hésite", a: "Offre personnalisée", o: "+8 à 14% de taux de conversion on-site" },
+  { t: "Un segment RFM change", a: "Customer Match mis à jour", o: "+20 à 30% de ROAS first-party" },
+  { t: "Une conversion non consentie", a: "Bloquée côté serveur", o: "Zéro transfert non conforme" },
+  { t: "Un événement mal formaté", a: "Quarantaine + alerte", o: "+30 à 40% de data quality score" },
+  { t: "Un client devient premium", a: "CDP enrichi", o: "Profils clients complets à 95%+" },
+  { t: "Un stock critique", a: "Home mise à jour", o: "+5 à 12% de revenus merchandising" },
+  { t: "Un nouveau tag détecté", a: "Notice mise à jour", o: "Audit cookie 100% automatisé" },
+  { t: "Un lead TikTok", a: "Contact Salesforce créé", o: "-70% de saisie manuelle CRM" }
+];
+
+createApp({
+  setup() {
+    function getInitialState(forceDefault = false) {
+      if (!forceDefault) {
+        const saved = localStorage.getItem(SK);
+        if (saved) return JSON.parse(saved);
+      }
+      return {
+        flows: [
+          { id: 'fb-capi', name: 'FB CAPI — Purchase', source: 'Web Container', sourceId: 'wc-main', sourceDetail: 'CA-8X42ZP', status: 'active', eventsPerHour: 1243, lastRun: '2 min ago', deliveryRate: 98.2, events: ['purchase','add_to_cart','lead'], nodes: [
+            { id:'src', type:'source', label:'Web Container', detail:'CA-8X42ZP', stats:'1,243 events/h' },
+            { id:'flt', type:'filter', label:'Consent Filter', detail:'marketing req.', stats:'94% pass rate' },
+            { id:'map', type:'mapping', label:'Purchase Mapping', detail:'7 fields mapped', stats:'' },
+            { id:'dst', type:'dest', label:'Meta CAPI', detail:'Pixel #12345678', stats:'↑ 98.2% delivery' }
+          ]},
+          { id: 'ga4', name: 'GA4 Server-Side', source: 'Web Container', sourceId: 'wc-main', sourceDetail: 'CA-8X42ZP', status: 'active', eventsPerHour: 4821, lastRun: '1 min ago', deliveryRate: 99.8, events: ['page_view','purchase','add_to_cart'], nodes: [
+            { id:'src', type:'source', label:'Web Container', detail:'CA-8X42ZP', stats:'4,821 events/h' },
+            { id:'dst', type:'dest', label:'GA4', detail:'G-8XK42ZP01', stats:'↑ 99.8% delivery' }
+          ]}
+        ]
+      };
+    }
+
+    const initialState = getInitialState();
+    const currentView = ref(initialState.flows.length === 0 ? 'home' : 'flows');
+    const currentFlowId = ref(null);
+    const state = reactive(initialState);
+    
+    // Sidebar Pin Logic
+    const DEFAULT_PINNED = ['home', 'flows', 'templates', 'integrations', 'audiences', 'cookie-scanner'];
+    const pinnedItems = ref(JSON.parse(localStorage.getItem(PIN_SK)) || DEFAULT_PINNED);
+    
+    const isPlusOpen = ref(false);
+    let plusTimeout = null;
+    const sortableMenu = ref(null);
+
+    const openPlusMenu = () => {
+      clearTimeout(plusTimeout);
+      isPlusOpen.value = true;
+    };
+
+    const closePlusMenu = () => {
+      plusTimeout = setTimeout(() => {
+        isPlusOpen.value = false;
+      }, 150);
+    };
+
+    watch(pinnedItems, (newVal) => {
+      localStorage.setItem(PIN_SK, JSON.stringify(newVal));
+    }, { deep: true });
+
+    const togglePin = (id) => {
+      if (id === 'home') return; // Cannot toggle home
+      if (pinnedItems.value.includes(id)) {
+        pinnedItems.value = pinnedItems.value.filter(i => i !== id);
+      } else {
+        pinnedItems.value.push(id);
+      }
+    };
+
+    const sortablePinnedItems = computed(() => {
+      return pinnedItems.value
+        .filter(id => id !== 'admin' && id !== 'home')
+        .map(id => MENU_ITEMS.find(item => item.id === id))
+        .filter(Boolean);
+    });
+
+    const unpinnedMenuItems = computed(() => MENU_ITEMS.filter(i => !pinnedItems.value.includes(i.id)));
+
+    // Empty Sections for Scenarios view
+    const emptySections = [
+      { id: 'audiences', title: 'Audiences & Scoring', desc: 'Aucune audience ou règle de scoring configurée.' },
+      { id: 'experiences', title: 'Site Experiences', desc: 'Aucune expérience sur site configurée.' },
+      { id: 'alerts', title: 'Alerts & Monitoring', desc: 'Aucune alerte configurée.' },
+      { id: 'merch', title: 'Merchandising Rules', desc: 'Aucune règle de merchandising configurée.' }
+    ];
+
+    // Computed for Home dashboard
+    const totalEventsPerHour = computed(() => {
+      let total = 0;
+      for (let i = 0; i < state.flows.length; i++) {
+        total += state.flows[i].eventsPerHour || 0;
+      }
+      return total;
+    });
+
+    const averageDeliveryRate = computed(() => {
+      if (state.flows.length === 0) {
+        return 0;
+      }
+      let total = 0;
+      for (let i = 0; i < state.flows.length; i++) {
+        total += state.flows[i].deliveryRate || 0;
+      }
+      return (total / state.flows.length).toFixed(1);
+    });
+
+    // Hero Animation State
+    const currentHeroIndex = ref(0);
+    const showOutcome = ref(false);
+    const currentHeroPair = computed(() => HERO_PAIRS[currentHeroIndex.value]);
+
+    let heroInterval = null;
+    let outcomeInTimeout = null;
+    let outcomeOutTimeout = null;
+
+    const startHeroAnimation = () => {
+      clearInterval(heroInterval);
+      heroInterval = setInterval(() => {
+        currentHeroIndex.value = (currentHeroIndex.value + 1) % HERO_PAIRS.length;
+        showOutcome.value = false;
+
+        clearTimeout(outcomeInTimeout);
+        clearTimeout(outcomeOutTimeout);
+
+        outcomeInTimeout = setTimeout(() => {
+          showOutcome.value = true;
+        }, 300);
+
+        outcomeOutTimeout = setTimeout(() => {
+          showOutcome.value = false;
+        }, 2100);
+      }, 2500);
+    };
+
+    const pauseHero = () => {
+      clearInterval(heroInterval);
+      clearTimeout(outcomeInTimeout);
+      clearTimeout(outcomeOutTimeout);
+      showOutcome.value = true; 
+    };
+
+    const resumeHero = () => {
+      startHeroAnimation(); 
+    };
+
+    // Templates State
+    const activeCat = ref('all');
+    const searchQuery = ref('');
+    const isTemplateModalOpen = ref(false);
+    const currentTemplate = ref(null);
+
+    // Wizard State
+    const isWizardOpen = ref(false);
+    const wizStep = ref(1);
+    const schemaFields = ref([]);
+    const onInvalid = ref('block');
+    const applyToFlows = ref({});
+    const autoApply = ref(true);
+
+    // Toast State
+    const toastVisible = ref(false);
+    const toastMsg = ref('');
+
+    // Navigation
+    const nav = (view, flowId = null) => {
+      currentView.value = view;
+      if (view === 'flow-detail') currentFlowId.value = flowId;
+    };
+
+    const currentFlow = computed(() => state.flows.find(f => f.id === currentFlowId.value));
+    const currentFlowHasValidation = computed(() => currentFlow.value?.nodes.some(n => n.type === 'validation'));
+
+    // UI Helpers
+    const nodeIcon = (type) => {
+      const icons = { source:'bx bx-hexagon', transform:'bx bx-cog', filter:'bx bx-filter-alt', mapping:'bx bx-transfer', dest:'bx bxs-star', validation:'bx bx-check-shield' };
+      return icons[type] || 'bx bx-cube';
+    };
+
+    const categoryLabel = (cat) => {
+      const labels = { conversion:'Conversion', audience:'Audience', analytics:'Analytics', quality:'Data Quality', enrichment:'Enrichment', privacy:'Privacy' };
+      return labels[cat] || cat;
+    };
+
+    const nodeLabel = (type, template) => {
+      const labels = { source:'Source', transform:'Transform', filter:'Consent Filter', mapping:'Mapping', validation:'Schema Validation' };
+      return type === 'dest' ? (template.dl || 'Destination') : labels[type];
+    };
+
+    // Debug Actions
+    const resetFlows = () => {
+      if (confirm("Réinitialiser la démo ? Les modifications (ex: schema validation) seront perdues.")) {
+        localStorage.removeItem(SK);
+        Object.assign(state, getInitialState(true));
+        if (state.flows.length === 0) {
+          nav('home');
+        } else {
+          nav('flows');
+        }
+      }
+    };
+
+    const clearAllFlows = () => {
+      state.flows.splice(0, state.flows.length);
+      nav('home');
+      triggerToast("Tous les flows ont été supprimés.");
+    };
+
+    // Templates Logic
+    const setCategory = (cat) => activeCat.value = cat;
+
+    const filteredTemplates = computed(() => {
+      const s = searchQuery.value.toLowerCase();
+      return TMPLS.filter(t => {
+        const catMatch = activeCat.value === 'all' || t.cats.includes(activeCat.value);
+        const searchMatch = !s || t.title.toLowerCase().includes(s) || t.desc.toLowerCase().includes(s);
+        return catMatch && searchMatch;
+      });
+    });
+
+    const templateGroups = computed(() => {
+      if (activeCat.value !== 'all' || searchQuery.value) {
+        return [{ label: '', items: filteredTemplates.value }];
+      }
+      return [
+        { key: 'conversion', label: '🎯 Conversion Tracking' },
+        { key: 'audience', label: '👥 Audience' },
+        { key: 'analytics', label: '📊 Analytics' },
+        { key: 'quality', label: '✅ Data Quality' },
+        { key: 'enrichment', label: '💎 Enrichment' },
+        { key: 'privacy', label: '🔒 Privacy' }
+      ].map(g => ({
+        ...g,
+        items: filteredTemplates.value.filter(t => t.cats[0] === g.key)
+      })).filter(g => g.items.length > 0);
+    });
+
+    // Template Modal Details
+    const openTemplateDetail = (t) => {
+      currentTemplate.value = t;
+      isTemplateModalOpen.value = true;
+    };
+
+    const activeChecklist = computed(() => {
+      if (!currentTemplate.value) return [];
+      const t = currentTemplate.value;
+      const hasVal = state.flows.find(f => f.id === 'fb-capi')?.nodes.some(n => n.type === 'validation');
+      
+      const predefined = {
+        1: [{l:'Source Web Container',s:'ready',i:'Configurée'},{l:'Filtre consentement',s:'ready',i:'Actif'},{l:'Meta Business Manager',s:'ready',i:'Compte connecté'},{l:'Pixel ID + API token',s:'ready',i:'Token valide'},{l:'Mapping purchase → Purchase',s:'ready',i:'Configuré et testé'}],
+        4: [{l:'Source Web Container',s:'ready',i:'Déjà configurée',fr:'FB CAPI — Purchase'},{l:'Filtre consentement publicitaire',s:'ready',i:'Déjà configuré',fr:'FB CAPI — Purchase'},{l:'Compte Snapchat Business',s:'needed',i:'Accès Snap Business Manager requis'},{l:'Snap Pixel ID + API token',s:'needed',i:'Disponible dans Snap Events Manager'},{l:'Mapping purchase → PURCHASE',s:'needed',i:'Format Snapchat spécifique'},{l:'Déduplication Snap Pixel JS',s:'opt',i:'Recommandé si pixel client-side actif'}],
+        13:[{l:'Source Web Container',s:'ready',i:'Configurée'},{l:'GA4 Measurement ID',s:'ready',i:'G-8XK42ZP01 configuré'},{l:'API Secret',s:'ready',i:'Secret actif'},{l:'Mapping événements GA4',s:'ready',i:'page_view, purchase, add_to_cart'}],
+        29: hasVal 
+          ? [{l:'Source Web Container',s:'ready',i:'Configurée',fr:'FB CAPI — Purchase'},{l:'Schéma de validation',s:'ready',i:'Déjà appliqué au flow FB CAPI'},{l:'Règles de quarantaine',s:'ready',i:'Configurées'}] 
+          : [{l:'Source Web Container',s:'ready',i:'Configurée',fr:'FB CAPI — Purchase'},{l:'Schéma de validation JSON',s:'needed',i:'Définir les champs requis et leurs types'},{l:'Configuration des alertes',s:'needed',i:'Slack / email pour les anomalies'},{l:'Stratégie quarantaine ou log-only',s:'needed',i:'Que faire des events invalides ?'}]
+      };
+      
+      if (predefined[t.id]) return predefined[t.id];
+      
+      const src = t.cats.includes('conversion') || t.cats.includes('analytics') 
+        ? {l:'Source Web Container',s:'ready',i:'Déjà configurée',fr:'FB CAPI — Purchase'} 
+        : {l:'Source Web Container',s:'needed',i:'Sélectionner la source d\'événements'};
+        
+      return [src, {l:'Credentials plateforme',s:'needed',i:'API token / Pixel ID'}, {l:'Mapping des événements',s:'needed',i:'Associer vos événements au schéma destination'}];
+    });
+
+    const activeChecklistReadyCount = computed(() => activeChecklist.value.filter(i => i.s === 'ready').length);
+    const activeChecklistRequiredCount = computed(() => activeChecklist.value.filter(i => i.s !== 'opt').length);
+    const activeChecklistProgress = computed(() => activeChecklistRequiredCount.value === 0 ? 0 : Math.round((activeChecklistReadyCount.value / activeChecklistRequiredCount.value) * 100));
+
+    const handleTemplateCTA = () => {
+      if (currentTemplate.value.isSchemaWizard) {
+        isTemplateModalOpen.value = false;
+        startWizard();
+      } else {
+        isTemplateModalOpen.value = false;
+        alert(`→ Wizard de configuration pour "${currentTemplate.value.title}"`);
+      }
+    };
+
+    // Wizard Logic
+    const startWizard = () => {
+      wizStep.value = 1;
+      schemaFields.value = [
+        { name:'event_name', type:'string', required:true },
+        { name:'value', type:'number', required:true },
+        { name:'currency', type:'string', required:true },
+        { name:'user_id', type:'string', required:false },
+      ];
+      onInvalid.value = 'block';
+      applyToFlows.value = { 'fb-capi': true, 'ga4': true };
+      autoApply.value = true;
+      isWizardOpen.value = true;
+    };
+
+    const sourceFlows = computed(() => state.flows.filter(f => f.sourceId === 'wc-main'));
+
+    const addField = () => schemaFields.value.push({ name:'', type:'string', required:false });
+
+    const handleWizardNext = () => {
+      if (wizStep.value === 1) {
+        if (!schemaFields.value.some(f => f.name.trim())) {
+          triggerToast('⚠ Ajoutez au moins un champ au schéma.');
+          return;
+        }
+        wizStep.value = 2;
+      } else {
+        applySchema();
+      }
+    };
+
+    const applySchema = () => {
+      const selectedFlowIds = Object.keys(applyToFlows.value).filter(id => applyToFlows.value[id]);
+      selectedFlowIds.forEach(fid => {
+        const flow = state.flows.find(f => f.id === fid);
+        if (!flow || flow.nodes.some(n => n.type === 'validation')) return;
+        
+        const srcIdx = flow.nodes.findIndex(n => n.type === 'source');
+        flow.nodes.splice(srcIdx + 1, 0, {
+          id: 'val-' + Date.now(),
+          type: 'validation',
+          label: 'Schema Validation',
+          detail: `${schemaFields.value.filter(f => f.required).length} required fields`,
+          stats: onInvalid.value === 'block' ? 'Block mode' : 'Log mode',
+          isNew: true
+        });
+      });
+      
+      isWizardOpen.value = false;
+      const names = selectedFlowIds.map(id => state.flows.find(f => f.id === id)?.name).filter(Boolean).join(', ');
+      triggerToast(`✦ Schema validation ajouté à : ${names}`);
+      
+      setTimeout(() => {
+        if (confirm(`✓ Schéma appliqué !\n\nAller voir les scénarios mis à jour dans "Scenarios" ?`)) {
+          nav('flows');
+        }
+      }, 500);
+    };
+
+    const triggerToast = (msg) => {
+      toastMsg.value = msg;
+      toastVisible.value = true;
+      setTimeout(() => toastVisible.value = false, 3500);
+    };
+
+    onMounted(() => {
+      if (location.hash === '#templates') nav('templates');
+
+      // Initial outcome trigger
+      outcomeInTimeout = setTimeout(() => showOutcome.value = true, 300);
+      outcomeOutTimeout = setTimeout(() => showOutcome.value = false, 2100);
+
+      startHeroAnimation();
+
+      // Initialisation du drag & drop pour le menu
+      if (typeof Sortable !== 'undefined' && sortableMenu.value) {
+        Sortable.create(sortableMenu.value, {
+          animation: 250, 
+          easing: "cubic-bezier(0.2, 0, 0, 1)",
+          ghostClass: 'sortable-ghost',
+          dragClass: 'sortable-drag',
+          forceFallback: true, 
+          fallbackClass: 'sortable-fallback',
+          fallbackTolerance: 3, 
+          onStart: () => {
+            document.body.style.cursor = 'grabbing';
+          },
+          onEnd: (evt) => {
+            document.body.style.cursor = '';
+            if (evt.oldIndex === evt.newIndex) return;
+
+            // Extraire tous les éléments triables actuels
+            const draggableIds = pinnedItems.value.filter(id => id !== 'home' && id !== 'admin');
+            const movedItemId = draggableIds[evt.oldIndex];
+
+            // Mise à jour de l'ordre
+            draggableIds.splice(evt.oldIndex, 1);
+            draggableIds.splice(evt.newIndex, 0, movedItemId);
+
+            // Reconstitution avec 'home' au début et 'admin' potentiellement à la fin
+            let newPinned = ['home', ...draggableIds];
+            if (pinnedItems.value.includes('admin')) {
+              newPinned.push('admin');
+            }
+            pinnedItems.value = newPinned;
+          }
+        });
+      }
+    });
+
+    onUnmounted(() => {
+      clearInterval(heroInterval);
+      clearTimeout(outcomeInTimeout);
+      clearTimeout(outcomeOutTimeout);
+    });
+
+    return {
+      currentView, nav, state, currentFlow, currentFlowId, currentFlowHasValidation, emptySections,
+      totalEventsPerHour, averageDeliveryRate,
+      pinnedItems, sortablePinnedItems, unpinnedMenuItems, togglePin, isPlusOpen, openPlusMenu, closePlusMenu, sortableMenu,
+      currentHeroIndex, showOutcome, currentHeroPair, pauseHero, resumeHero,
+      activeCat, setCategory, searchQuery, templateGroups, filteredTemplates,
+      isTemplateModalOpen, currentTemplate, openTemplateDetail, handleTemplateCTA,
+      activeChecklist, activeChecklistReadyCount, activeChecklistRequiredCount, activeChecklistProgress,
+      isWizardOpen, wizStep, schemaFields, onInvalid, applyToFlows, autoApply, sourceFlows, handleWizardNext, addField,
+      nodeIcon, categoryLabel, nodeLabel, resetFlows, clearAllFlows,
+      toastVisible, toastMsg
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
