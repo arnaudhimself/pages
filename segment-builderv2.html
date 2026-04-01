@@ -272,8 +272,8 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 .entry-shortcut { display:inline-flex; align-items:center; padding:5px 12px; border-radius:100px; background:var(--ca-white); border:1px solid var(--ca-gray-200); color:var(--ca-gray-600); font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; }
 .entry-shortcut:hover { background:var(--ca-primary); color:white; border-color:var(--ca-primary); }
 .entry-ai-textarea { width:100%; padding:12px 14px; border:2px solid rgba(124,58,237,.3); border-radius:var(--ca-radius); font-size:13px; font-family:'DM Sans',sans-serif; background:rgba(124,58,237,.02); resize:none; outline:none; }
-.entry-secondary { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1.5px solid var(--ca-gray-200); border-radius:var(--ca-radius-lg); background:var(--ca-white); cursor:pointer; transition:all .15s; }
-.entry-secondary:hover { border-color:var(--ca-gray-300); background:var(--ca-gray-100); box-shadow:var(--shadow-sm); }
+.entry-secondary { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1.5px solid var(--ca-gray-200); border-radius:var(--ca-radius-lg); background:var(--ca-white); cursor:pointer; transition:all .2s; }
+.entry-secondary:hover { border-color:var(--ca-gray-300); background:var(--ca-gray-100); box-shadow:var(--shadow-md); transform:translateY(-2px); }
 .entry-nlp-chip { display:inline-flex; align-items:center; padding:3px 10px; border-radius:100px; background:var(--ca-white); border:1px solid rgba(124,58,237,.18); color:var(--ca-purple); font-size:11px; cursor:pointer; transition:all .15s; white-space:nowrap; }
 .entry-nlp-chip:hover { background:var(--ca-purple); color:white; border-color:var(--ca-purple); }
 
@@ -315,7 +315,13 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 .seg-group-header { padding:16px 20px; font-weight:600; font-size:16px; color:#111827; display:flex; align-items:center; gap:8px; border-bottom:1px solid #e5e7eb; }
 .seg-group-header i { font-size:20px; color:#4b5563; }
 .seg-table { width:100%; border-collapse:collapse; }
-.seg-table th { padding:12px 20px; font-size:13px; font-weight:600; color:#111827; text-align:left; border-bottom:1px solid #e5e7eb; }
+.seg-table th { padding:12px 20px; font-size:13px; font-weight:600; color:#111827; text-align:left; border-bottom:1px solid #e5e7eb; cursor:pointer; user-select:none; white-space:nowrap; }
+.seg-table th:hover { background:#f9fafb; }
+.seg-table th .sort-icon { margin-left:4px; font-size:12px; opacity:.4; }
+.seg-table th.sort-active .sort-icon { opacity:1; color:var(--ca-primary); }
+.seg-action-btn { width:28px; height:28px; border-radius:6px; border:none; background:transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:15px; color:var(--ca-gray-400); transition:all .15s; }
+.seg-action-btn:hover { background:var(--ca-gray-100); color:var(--ca-gray-700); }
+.seg-action-btn.danger:hover { background:#fff0f0; color:var(--ca-red); }
 .seg-table td { padding:16px 20px; font-size:14px; color:#4b5563; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
 .seg-table tr:last-child td { border-bottom:none; }
 .seg-table td.seg-name { font-weight:600; color:#1f2937; }
@@ -327,13 +333,25 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 .tag-dormant { background-color:#e5e7eb; color:#4b5563; }
 .status-badge { display:inline-flex; padding:4px 12px; border-radius:100px; font-size:12px; font-weight:600; }
 .status-Active { background-color:#dcfce7; color:#166534; }
-.status-Dormant { background-color:#e5e7eb; color:#4b5563; }
-.status-Test { background-color:#f3e8ff; color:#7e22ce; }
+.status-Inactive { background-color:#e5e7eb; color:#4b5563; }
+.status-Draft { background-color:#f3e8ff; color:#7e22ce; }
 .dest-bubbles { display:flex; align-items:center; position:relative; }
 .dest-bubble { width:26px; height:26px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; background:white; border:2px solid white; box-shadow:0 0 0 1px #e5e7eb; margin-right:-8px; position:relative; z-index:1; }
 .dest-bubble:last-child { margin-right:0; }
 .dest-T { background-color:#4f46e5; color:white; border-color:white; box-shadow:0 0 0 1px #4f46e5; }
 .dest-count { background-color:#f3f4f6; color:#4b5563; font-weight:500; }
+/* ===== TAB BUTTON ===== */
+.lib-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:7px; cursor:pointer; transition:background .12s; margin-bottom:1px; }
+.lib-item:hover { background:var(--ca-primary-light); }
+.lib-item:hover .lib-add-btn { opacity:1; }
+.lib-add-btn { opacity:0; display:inline-flex; align-items:center; padding:2px 8px; border-radius:100px; background:var(--ca-primary); color:white; border:none; font-size:11px; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all .12s; white-space:nowrap; flex-shrink:0; }
+.lib-add-btn:hover { background:#2a45df; }
+
+.ca-tab-btn { background:transparent; border:none; border-bottom:2px solid transparent; border-radius:0; padding:10px 6px; font-size:14px; font-family:'DM Sans',sans-serif; cursor:pointer; color:var(--ca-gray-500); transition:all .15s; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+.ca-tab-btn:hover { color:var(--ca-gray-700); }
+.ca-tab-btn.active { border-bottom-color:var(--ca-primary); color:var(--ca-primary); font-weight:500; }
+.ca-tab-select { border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; outline:none; padding:0; appearance:none; -webkit-appearance:none; color:inherit; font-weight:inherit; }
+
 @keyframes loadingBar { 0%,100% { opacity:.5; transform:scaleX(.8); transform-origin:left; } 50% { opacity:1; transform:scaleX(1); } }
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
@@ -465,19 +483,38 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
               </div>
             </div>
           </div>
-          <div class="row g-3">
+          <div class="row g-3" style="align-items:stretch;">
             <div class="col-md-6">
-              <div class="entry-secondary" @click="navigate('template')">
-                <i class='bx bx-library' style="font-size:26px;color:var(--ca-gray-600);flex-shrink:0;"></i>
-                <div class="flex-fill">
-                  <div style="font-size:14px;font-weight:600;color:var(--ca-gray-600);margin-bottom:2px;">Segments prédéfinis</div>
-                  <div style="font-size:12px;color:var(--ca-gray-400);">20+ modèles préconfigurés classés par cas d'usage.</div>
+              <div class="entry-secondary" style="flex-direction:column;align-items:flex-start;gap:12px;cursor:default;height:100%;" @click.stop>
+                <div class="d-flex align-items-center gap-3 w-100" style="cursor:pointer;" @click="navigate('template')">
+                  <i class='bx bx-library' style="font-size:26px;color:var(--ca-gray-600);flex-shrink:0;"></i>
+                  <div class="flex-fill">
+                    <div style="font-size:14px;font-weight:600;color:var(--ca-gray-600);margin-bottom:2px;">Segments prédéfinis</div>
+                    <div style="font-size:12px;color:var(--ca-gray-400);">20+ modèles préconfigurés classés par cas d'usage.</div>
+                  </div>
+                  <i class='bx bx-chevron-right' style="color:var(--ca-gray-300);font-size:18px;flex-shrink:0;"></i>
                 </div>
-                <i class='bx bx-chevron-right' style="color:var(--ca-gray-300);font-size:18px;"></i>
+                <div class="d-flex flex-wrap gap-2" style="border-top:1px solid var(--ca-gray-100);padding-top:10px;width:100%;">
+                  <span v-for="t in entryTemplateShortcuts.slice(0,3)" :key="t.id"
+                    class="d-inline-flex align-items-center gap-1"
+                    style="padding:4px 11px;border-radius:100px;border:1px solid var(--ca-gray-200);background:var(--ca-white);font-size:12px;color:var(--ca-gray-600);cursor:pointer;transition:all .15s;white-space:nowrap;"
+                    @click.stop="quickApplyTemplate(t.id)"
+                    @mouseenter="$event.currentTarget.style.borderColor='var(--ca-primary)';$event.currentTarget.style.color='var(--ca-primary)';$event.currentTarget.style.background='var(--ca-primary-light)'"
+                    @mouseleave="$event.currentTarget.style.borderColor='var(--ca-gray-200)';$event.currentTarget.style.color='var(--ca-gray-600)';$event.currentTarget.style.background='var(--ca-white)'">
+                    <span>{{ t.icon }}</span> {{ t.name }}
+                  </span>
+                  <span class="d-inline-flex align-items-center"
+                    style="padding:4px 11px;border-radius:100px;border:1px solid var(--ca-gray-200);background:var(--ca-white);font-size:12px;color:var(--ca-gray-400);cursor:pointer;transition:all .15s;"
+                    @click.stop="navigate('template')"
+                    @mouseenter="$event.currentTarget.style.borderColor='var(--ca-primary)';$event.currentTarget.style.color='var(--ca-primary)';$event.currentTarget.style.background='var(--ca-primary-light)'"
+                    @mouseleave="$event.currentTarget.style.borderColor='var(--ca-gray-200)';$event.currentTarget.style.color='var(--ca-gray-400)';$event.currentTarget.style.background='var(--ca-white)'">
+                    +17
+                  </span>
+                </div>
               </div>
             </div>
             <div class="col-md-6">
-              <div class="entry-secondary" @click="navigate('builder')">
+              <div class="entry-secondary" style="height:100%;cursor:pointer;" @click="navigate('builder')">
                 <i class='bx bx-wrench' style="font-size:26px;color:var(--ca-gray-600);flex-shrink:0;"></i>
                 <div class="flex-fill">
                   <div style="font-size:14px;font-weight:600;color:var(--ca-gray-600);margin-bottom:2px;">Mode manuel</div>
@@ -745,41 +782,58 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
           </div>
 
           <div class="builder-shell">
-            <!-- LEFT: library -->
-            <div class="builder-left">
-              <div class="p-2 border-bottom">
-                <input v-model="conditionSearch" class="ca-input" style="font-size:13px;" placeholder="Rechercher une condition…" />
+            <!-- LEFT: condition library — redesigned -->
+            <div class="builder-left" style="width:260px;">
+              <!-- Header -->
+              <div style="padding:12px 14px 10px;border-bottom:1px solid var(--ca-gray-100);">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <i class='bx bx-bolt-circle' style="color:var(--ca-primary);font-size:15px;"></i>
+                  <span style="font-size:11px;font-weight:600;color:var(--ca-primary);letter-spacing:.02em;">Ajout instantané au segment</span>
+                </div>
+                <div style="font-size:15px;font-weight:700;color:var(--ca-gray-800);">Ajouter une condition</div>
               </div>
+              <!-- Search -->
+              <div style="padding:8px 10px;border-bottom:1px solid var(--ca-gray-100);">
+                <div style="display:flex;align-items:center;gap:7px;background:var(--ca-gray-100);border-radius:7px;padding:6px 10px;">
+                  <i class='bx bx-search' style="color:var(--ca-gray-400);font-size:15px;flex-shrink:0;"></i>
+                  <input v-model="conditionSearch" style="border:none;background:transparent;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ca-gray-700);width:100%;" placeholder="Rechercher une condition…" />
+                </div>
+              </div>
+              <!-- Categories -->
               <div class="builder-left-inner">
-                <div v-for="cat in conditionCategories" :key="cat.label" class="mb-3">
-                  <div class="section-title" style="cursor:pointer;display:flex;align-items:center;" @click="toggleCatExpand(cat.label)">
-                    <i :class="expandedCats.includes(cat.label)?'bx bx-chevron-down':'bx bx-chevron-right'" style="margin-right:4px;font-size:14px;"></i>
-                    {{ cat.label }}
+                <div v-for="cat in allLibCategories" :key="cat.label" style="margin-bottom:4px;">
+                  <div @click="toggleCatExpand(cat.label)" style="display:flex;align-items:center;gap:4px;padding:8px 4px 4px;cursor:pointer;user-select:none;">
+                    <i :class="expandedCats.includes(cat.label)?'bx bx-chevron-down':'bx bx-chevron-right'" style="font-size:14px;color:var(--ca-gray-400);flex-shrink:0;"></i>
+                    <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ca-gray-500);">
+                      {{ cat.label }} ({{ cat.items.length }} éléments)
+                    </span>
                   </div>
                   <div v-if="expandedCats.includes(cat.label)">
-                    <div v-for="item in cat.items.filter(i => !conditionSearch || i.label.toLowerCase().includes(conditionSearch.toLowerCase()))" :key="item.label"
-                         class="d-flex align-items-center gap-2 p-2 rounded mb-1"
-                         style="font-size:13px;color:var(--ca-gray-600);cursor:pointer;transition:background .1s;"
-                         @mouseenter="$event.currentTarget.style.background='var(--ca-gray-100)'"
-                         @mouseleave="$event.currentTarget.style.background='transparent'"
-                         @click="addConditionFromLib(item,'include')">
-                      <i :class="item.icon" :style="`color:${item.color};font-size:14px;`"></i>
-                      {{ item.label }}
+                    <div v-for="item in cat.items.filter(i => !conditionSearch || i.label.toLowerCase().includes(conditionSearch.toLowerCase())).slice(0,4)" :key="item.label"
+                         class="lib-item" @click="addConditionFromLib(item,'include')">
+                      <div style="width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" :style="`background:${item.color}18;`">
+                        <i :class="item.icon" :style="`color:${item.color};font-size:13px;`"></i>
+                      </div>
+                      <span style="flex:1;font-size:13px;color:var(--ca-gray-700);">{{ item.label }}</span>
+                      <button class="lib-add-btn" @click.stop="addConditionFromLib(item,'include')"><i class='bx bx-plus' style="font-size:12px;"></i> Ajouter</button>
                     </div>
-                    <div class="d-flex align-items-center gap-1 p-2 rounded" style="font-size:12px;color:var(--ca-primary);cursor:pointer;transition:background .1s;"
-                         @mouseenter="$event.currentTarget.style.background='var(--ca-primary-light)'"
-                         @mouseleave="$event.currentTarget.style.background='transparent'"
-                         @click="showAddCondition('include', activeIncludeGroupIdx)">
-                      <i class='bx bx-plus-circle' style="font-size:13px;"></i> Voir plus…
+                    <div class="lib-item" style="color:var(--ca-primary);" @click="showAddCondition('include', activeIncludeGroupIdx)">
+                      <i class='bx bx-dots-horizontal-rounded' style="font-size:15px;color:var(--ca-primary);"></i>
+                      <span style="font-size:12px;font-weight:500;color:var(--ca-primary);">Voir plus…</span>
                     </div>
                   </div>
                 </div>
-                <div class="section-title mt-2">Règles sauvegardées</div>
-                <div v-for="sr in savedRules" :key="sr.label" class="d-flex align-items-center gap-2 p-2 rounded mb-1"
-                     style="font-size:13px;color:var(--ca-gray-600);cursor:pointer;transition:background .1s;"
-                     @mouseenter="$event.currentTarget.style.background='var(--ca-gray-100)'"
-                     @mouseleave="$event.currentTarget.style.background='transparent'">
-                  <i class='bx bx-bookmark' style="color:var(--ca-orange);font-size:14px;"></i> {{ sr.label }}
+
+                <!-- Saved rules -->
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--ca-gray-100);">
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ca-gray-500);padding:4px 4px 6px;">Règles sauvegardées</div>
+                  <div v-for="sr in savedRules" :key="sr.label" class="lib-item">
+                    <div style="width:22px;height:22px;border-radius:5px;background:var(--ca-orange-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                      <i class='bx bx-bookmark' style="color:var(--ca-orange);font-size:13px;"></i>
+                    </div>
+                    <span style="flex:1;font-size:13px;color:var(--ca-gray-700);">{{ sr.label }}</span>
+                    <button class="lib-add-btn" @click.stop="addConditionFromLib({label:sr.label,icon:'bx bx-bookmark',color:'#f07d30',operators:['≥'],valueType:'number',value:1,summary:sr.label},'include')"><i class='bx bx-plus' style="font-size:12px;"></i> Ajouter</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1067,52 +1121,145 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 
         <!-- ======= SCREEN: PREVIEW ======= -->
         <div v-if="currentScreen === 'preview'" class="ca-page screen-enter">
-          <div class="ca-card p-3 mb-4">
-            <div class="row g-3 text-center">
-              <div class="col"><div class="stat-card"><div class="stat-card-value" style="font-size:22px;">{{ formattedAudienceSize }}</div><div class="stat-card-label">Profils inclus</div></div></div>
-              <div class="col"><div class="stat-card"><div class="stat-card-value" style="font-size:22px;color:var(--ca-red);">{{ formatNum(excludedCount) }}</div><div class="stat-card-label">Profils exclus</div></div></div>
-              <div class="col"><div class="stat-card"><div class="stat-card-value" style="font-size:22px;">{{ audiencePct }}%</div><div class="stat-card-label">% base totale</div></div></div>
-              <div class="col"><div class="stat-card"><div class="stat-card-value" style="font-size:22px;">{{ totalConditions }}</div><div class="stat-card-label">Conditions</div></div></div>
-            </div>
+
+          <div class="ca-page-header">
+            <h1>Aperçu de l'audience</h1>
+            <p>Visualisez les profils correspondant aux conditions définies avant de finaliser.</p>
           </div>
-          <div class="row g-4">
+
+          <div class="row g-4 mb-4">
+            <!-- LEFT col: overlap + table -->
             <div class="col-md-8">
-              <div class="ca-card p-3 mb-3">
-                <div class="section-title mb-3">Impact par règle</div>
-                <div v-for="imp in ruleImpacts" :key="imp.label" class="impact-bar-row">
-                  <div class="impact-bar-label">
-                    <span style="font-size:13px;color:var(--ca-gray-600);">{{ imp.label }}</span>
-                    <span style="font-size:13px;font-weight:500;" :style="{ color: imp.neg?'var(--ca-red)':'var(--ca-primary)' }">{{ imp.neg?'-':'+' }}{{ imp.count.toLocaleString('fr-FR') }}</span>
+
+              <!-- Coverage card with tabs -->
+              <div class="ca-card mb-4" style="overflow:hidden;position:relative;">
+                <!-- Tab bar — simple buttons, no inline dropdown -->
+                <div class="d-flex align-items-center px-3 pt-2" style="border-bottom:1px solid var(--ca-gray-200);">
+                  <button @click="coverageTab='coverage'" class="ca-tab-btn me-3" :class="{ active: coverageTab==='coverage' }">Couverture</button>
+                  <button @click="coverageTab='overlap'" class="ca-tab-btn me-3" :class="{ active: coverageTab==='overlap' }">Overlap</button>
+                </div>
+
+                <!-- Tab: Couverture (containment circles) -->
+                <div v-if="coverageTab==='coverage'" style="min-height:220px;position:relative;">
+                  <svg width="100%" height="220" viewBox="0 0 560 220" preserveAspectRatio="xMidYMid meet" style="overflow:visible;display:block;">
+                    <defs>
+                      <marker id="arrowGrey" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L8,3 z" fill="#9aa0b2"/>
+                      </marker>
+                    </defs>
+                    <!-- Grey circle pushed down (cy=50) so more is visible -->
+                    <circle cx="340" cy="50" r="150" fill="#d1d5de" fill-opacity="0.45"/>
+                    <!-- Text: far left, vertically centered in visible grey area -->
+                    <text x="75" y="100" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ca-gray-700)" font-family="DM Sans,sans-serif">{{ formatNum(564000 - audienceSize) }}</text>
+                    <text x="75" y="118" text-anchor="middle" font-size="12" fill="var(--ca-gray-500)" font-family="DM Sans,sans-serif">profils hors segment</text>
+                    <text x="75" y="134" text-anchor="middle" font-size="12" fill="var(--ca-gray-400)" font-family="DM Sans,sans-serif">{{ 100 - audiencePct }}% de la base</text>
+                    <!-- Arrow from text to grey circle left edge (at y=110, circle left ≈ 340-sqrt(150²-(110-50)²) ≈ 195) -->
+                    <line x1="135" y1="112" x2="191" y2="112"
+                      stroke="#9aa0b2" stroke-width="1.5" stroke-dasharray="4 2"
+                      marker-end="url(#arrowGrey)"/>
+                    <!-- Blue circle: proportional, tangent to bottom of grey (cy = 50+150-R) -->
+                    <circle :cx="340" :cy="50 + 150 - Math.max(38, Math.round(150 * Math.pow(audiencePct/100, 0.38)))" :r="Math.max(38, Math.round(150 * Math.pow(audiencePct/100, 0.38)))" fill="var(--ca-primary)"/>
+                    <text x="340" :y="50 + 150 - Math.max(38, Math.round(150 * Math.pow(audiencePct/100, 0.38))) - 8" text-anchor="middle" font-size="20" font-weight="700" fill="white" font-family="DM Sans,sans-serif">{{ formattedAudienceSize }}</text>
+                    <text x="340" :y="50 + 150 - Math.max(38, Math.round(150 * Math.pow(audiencePct/100, 0.38))) + 12" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.85)" font-family="DM Sans,sans-serif">{{ audiencePct }}% de la base</text>
+                  </svg>
+                </div>
+
+                <!-- Tab: Overlap (Venn) -->
+                <div v-if="coverageTab==='overlap' && overlapData" style="padding:16px 20px 8px;">
+                  <!-- Dropdown inside tab content, right-aligned -->
+                  <div class="d-flex align-items-center justify-content-end mb-2">
+                    <span style="font-size:13px;color:var(--ca-gray-500);margin-right:8px;">Comparer avec :</span>
+                    <select class="ca-select" v-model="compareSegmentId" style="font-size:13px;">
+                      <option v-for="c in compareOptions" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
                   </div>
-                  <div class="impact-bar-track"><div class="impact-bar-fill" :class="imp.neg?'negative':''" :style="{ width: imp.pct+'%' }"></div></div>
+                  <svg width="100%" height="220" viewBox="0 0 500 240" preserveAspectRatio="xMidYMid meet" style="display:block;">
+                    <circle cx="195" cy="108" r="90" fill="var(--ca-primary)" fill-opacity="0.85"/>
+                    <circle cx="305" cy="108" r="90" fill="#c8cbd6" fill-opacity="0.75"/>
+                    <circle cx="305" cy="108" r="90" fill="var(--ca-primary)" fill-opacity="0.22"/>
+                    <text x="148" y="102" text-anchor="middle" font-size="18" font-weight="700" fill="white" font-family="DM Sans,sans-serif">{{ formatNum(overlapData.segUnique) }}</text>
+                    <text x="250" y="102" text-anchor="middle" font-size="18" font-weight="700" fill="white" font-family="DM Sans,sans-serif">{{ formatNum(overlapData.overlap) }}</text>
+                    <text x="352" y="102" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ca-gray-700)" font-family="DM Sans,sans-serif">{{ formatNum(overlapData.compUnique) }}</text>
+                    <text x="195" y="218" text-anchor="middle" font-size="12" fill="var(--ca-gray-500)" font-family="DM Sans,sans-serif">Nouveau segment</text>
+                    <text x="305" y="218" text-anchor="middle" font-size="12" fill="var(--ca-gray-500)" font-family="DM Sans,sans-serif">{{ overlapData.compName }}</text>
+                  </svg>
+                  <div style="text-align:center;padding:4px 0 12px;">
+                    <div style="font-size:14px;font-weight:600;color:var(--ca-gray-800);margin-bottom:4px;">{{ overlapData.pct }}% du nouveau segment est déjà présent dans "{{ overlapData.compName }}"</div>
+                    <div style="font-size:13px;color:var(--ca-gray-400);">Risque de doublon partiel pour certaines activations.</div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Profile table -->
               <div class="ca-card p-0">
-                <div class="d-flex border-bottom px-3">
-                  <button v-for="tab in ['Inclus','Exclus']" :key="tab" class="btn-ca-ghost me-2"
-                    :style="previewTab===tab?'border-bottom:2px solid var(--ca-primary);border-radius:0;color:var(--ca-primary);':'border:none;border-bottom:2px solid transparent;border-radius:0;'"
-                    style="padding:10px 4px;font-size:14px;" @click="previewTab=tab">
-                    {{ tab }}
-                    <span class="ca-badge ms-1" :class="tab==='Inclus'?'ca-badge-green':'ca-badge-red'" style="font-size:10px;">{{ tab==='Inclus'?formattedAudienceSize:formatNum(excludedCount) }}</span>
+                <!-- Tabs -->
+                <div class="d-flex align-items-center border-bottom px-3">
+                  <button v-for="tab in previewTabs" :key="tab.key"
+                    class="ca-tab-btn me-2" :class="{ active: previewTab===tab.key }"
+                    @click="previewTab=tab.key;previewPage=1">
+                    {{ tab.label }}
+                    <span class="ca-badge ms-1" :class="tab.key==='match'?'ca-badge-blue':'ca-badge-gray'" style="font-size:10px;">{{ tab.key==='match'?formattedAudienceSize:formatNum(564000-audienceSize) }}</span>
                   </button>
                 </div>
+
+                <!-- Table -->
                 <div style="overflow-x:auto;">
                   <table class="profile-table">
-                    <thead><tr><th>Profil</th><th>Score RFM</th><th>Dernier achat</th><th>LTV</th><th>Canal pref.</th><th>Statut</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Profil</th><th>Score RFM</th><th>Dernier achat</th><th>LTV</th><th>Canal pref.</th>
+                        <th v-if="previewTab==='match'">Correspondance</th>
+                        <th v-else>Raison hors segment</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr v-for="p in previewProfiles" :key="p.name">
-                        <td><div class="d-flex align-items-center gap-2"><div class="profile-mini-avatar" :style="{ background: p.color, width:'28px', height:'28px', fontSize:'10px' }">{{ p.initials }}</div><div><div style="font-size:14px;font-weight:500;">{{ p.name }}</div><div class="text-muted-sm">{{ p.email }}</div></div></div></td>
+                      <tr v-for="p in paginatedProfiles" :key="p.name">
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <div class="profile-mini-avatar" :style="{ background: p.color, width:'30px', height:'30px', fontSize:'11px', flexShrink:0 }">{{ p.initials }}</div>
+                            <div>
+                              <div style="font-size:14px;font-weight:500;color:var(--ca-gray-800);">{{ p.name }}</div>
+                              <div class="text-muted-sm">{{ p.email }}</div>
+                            </div>
+                          </div>
+                        </td>
                         <td><span class="ca-badge" :class="rfmBadge(p.rfm)">{{ p.rfm }}</span></td>
                         <td class="text-muted-sm">{{ p.lastBuy }}</td>
                         <td style="font-weight:500;">{{ p.ltv }}</td>
                         <td class="text-muted-sm">{{ p.channel }}</td>
-                        <td><span class="ca-badge" :class="statusBadge(p.status)">{{ p.status }}</span></td>
+                        <td v-if="previewTab==='match'">
+                          <div class="d-flex align-items-center gap-1">
+                            <i class='bx bx-check-circle' style="color:var(--ca-green);font-size:15px;"></i>
+                            <span style="font-size:12px;color:var(--ca-green);font-weight:500;">Match</span>
+                          </div>
+                        </td>
+                        <td v-else>
+                          <span style="font-size:12px;color:var(--ca-gray-400);">{{ p.reason }}</span>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+
+                <!-- Pagination -->
+                <div class="d-flex align-items-center justify-content-between px-4 py-3 border-top" style="font-size:13px;">
+                  <span style="color:var(--ca-gray-500);">
+                    {{ (previewPage-1)*previewPageSize+1 }}–{{ Math.min(previewPage*previewPageSize, currentProfiles.length) }} sur {{ currentProfiles.length }} profils affichés
+                  </span>
+                  <div class="d-flex align-items-center gap-1">
+                    <button class="btn-ca-ghost" style="padding:4px 10px;font-size:13px;" :disabled="previewPage===1" @click="previewPage--">&lsaquo; Préc.</button>
+                    <span v-for="p in previewTotalPages" :key="p">
+                      <button class="btn-ca-ghost" style="padding:4px 10px;font-size:13px;min-width:34px;"
+                        :style="previewPage===p?'background:var(--ca-primary);color:white;border-color:var(--ca-primary);':''"
+                        @click="previewPage=p">{{ p }}</button>
+                    </span>
+                    <button class="btn-ca-ghost" style="padding:4px 10px;font-size:13px;" :disabled="previewPage===previewTotalPages" @click="previewPage++">Suiv. &rsaquo;</button>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- RIGHT col -->
             <div class="col-md-4">
               <div class="ca-card p-3 mb-3">
                 <div class="section-title mb-3">Distribution RFM</div>
@@ -1136,6 +1283,64 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
               </div>
             </div>
           </div>
+
+          <!-- Entrées / Sorties chart -->
+          <div class="ca-card p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <div>
+                <div class="section-title mb-1">Dynamique du segment</div>
+                <p style="font-size:13px;color:var(--ca-gray-400);margin:0;">Entrées et sorties de profils après activation. Disponible une fois le segment enregistré.</p>
+              </div>
+              <div class="d-flex gap-2">
+                <span v-for="r in ['7j','30j','90j']" :key="r" class="ca-chip" :class="chartRange===r?'active':''" @click="chartRange=r" style="font-size:12px;">{{ r }}</span>
+              </div>
+            </div>
+
+            <!-- Zero-state chart SVG -->
+            <div style="position:relative;">
+              <svg width="100%" height="180" viewBox="0 0 800 180" preserveAspectRatio="none" style="display:block;">
+                <!-- Grid lines -->
+                <line x1="0" y1="45" x2="800" y2="45" stroke="#f0f0f0" stroke-width="1"/>
+                <line x1="0" y1="90" x2="800" y2="90" stroke="#f0f0f0" stroke-width="1"/>
+                <line x1="0" y1="135" x2="800" y2="135" stroke="#f0f0f0" stroke-width="1"/>
+                <!-- Zero baseline -->
+                <line x1="0" y1="162" x2="800" y2="162" stroke="#e0e0e0" stroke-width="1"/>
+                <!-- Flat lines at zero (segment not yet created) -->
+                <polyline points="0,162 800,162" stroke="var(--ca-primary)" stroke-width="2" fill="none" stroke-dasharray="6 4" opacity="0.4"/>
+                <polyline points="0,162 800,162" stroke="var(--ca-red)" stroke-width="2" fill="none" stroke-dasharray="6 4" opacity="0.4"/>
+              </svg>
+
+              <!-- Y-axis labels -->
+              <div style="position:absolute;top:0;left:0;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:0 0 18px;pointer-events:none;">
+                <span style="font-size:11px;color:var(--ca-gray-400);">+1000</span>
+                <span style="font-size:11px;color:var(--ca-gray-400);">+500</span>
+                <span style="font-size:11px;color:var(--ca-gray-400);">0</span>
+                <span style="font-size:11px;color:var(--ca-gray-400);">-500</span>
+              </div>
+
+              <!-- Zero-state overlay -->
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:var(--ca-gray-100);display:flex;align-items:center;justify-content:center;">
+                  <i class='bx bx-line-chart' style="font-size:22px;color:var(--ca-gray-300);"></i>
+                </div>
+                <div style="font-size:13px;font-weight:500;color:var(--ca-gray-500);">Données disponibles après activation</div>
+                <div style="font-size:12px;color:var(--ca-gray-400);">Les entrées et sorties seront tracées dès que le segment sera enregistré et actif.</div>
+              </div>
+            </div>
+
+            <!-- Chart legend -->
+            <div class="d-flex justify-content-center gap-4 mt-3">
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:20px;height:3px;background:var(--ca-primary);border-radius:2px;"></div>
+                <span style="font-size:12px;color:var(--ca-gray-500);">Entrées dans le segment</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:20px;height:3px;background:var(--ca-red);border-radius:2px;"></div>
+                <span style="font-size:12px;color:var(--ca-gray-500);">Sorties du segment</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- ======= SCREEN: REVIEW ======= -->
@@ -1233,7 +1438,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="text-dark fw-medium" style="font-size:14px;">Status</span>
-              <select class="seg-select" v-model="segListFilter"><option value="All">All</option><option value="Active">Active</option><option value="Dormant">Dormant</option><option value="Test">Test</option></select>
+              <select class="seg-select" v-model="segListFilter"><option value="All">All</option><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Draft">Draft</option></select>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="text-dark fw-medium" style="font-size:14px;">Destinations</span>
@@ -1273,13 +1478,26 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                 <table class="seg-table">
                   <thead>
                     <tr>
-                      <th style="width:25%;">Name</th><th style="width:12%;">ID</th><th style="width:20%;">Tags</th>
-                      <th style="width:12%;">Nb users</th><th style="width:15%;">Associated destinations</th>
-                      <th style="width:10%;">Last update</th><th style="width:6%;">Status</th>
+                      <th style="width:22%;" @click="setSegSort('name')" :class="segSort.col==='name'?'sort-active':''">
+                        Name <i class='bx' :class="segSort.col==='name'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='name'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:11%;">ID</th>
+                      <th style="width:18%;">Tags</th>
+                      <th style="width:11%;" @click="setSegSort('nbUsers')" :class="segSort.col==='nbUsers'?'sort-active':''">
+                        Nb users <i class='bx' :class="segSort.col==='nbUsers'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='nbUsers'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:14%;">Associated destinations</th>
+                      <th style="width:10%;" @click="setSegSort('lastUpdate')" :class="segSort.col==='lastUpdate'?'sort-active':''">
+                        Last update <i class='bx' :class="segSort.col==='lastUpdate'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='lastUpdate'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:7%;" @click="setSegSort('status')" :class="segSort.col==='status'?'sort-active':''">
+                        Status <i class='bx' :class="segSort.col==='status'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='status'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:7%;text-align:right;">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="seg in getFilteredSegmentsByFolder(folder.id)" :key="seg.id">
+                    <tr v-for="seg in getSortedSegmentsByFolder(folder.id)" :key="seg.id">
                       <td class="seg-name">{{ seg.name }}</td>
                       <td class="seg-id">{{ seg.stringId }}</td>
                       <td><div class="d-flex gap-1 flex-wrap"><span v-for="(tag,idx) in seg.tags" :key="idx" class="tag-pill" :class="'tag-'+(tag.type||'default')">{{ tag.text }}</span></div></td>
@@ -1287,9 +1505,15 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                       <td><div class="dest-bubbles"><span v-for="(d,idx) in seg.dests" :key="idx" class="dest-bubble" :class="getDestClass(d)">{{ d }}</span></div></td>
                       <td class="text-dark fw-medium" style="font-size:13px;">{{ seg.lastUpdate }}</td>
                       <td><span class="status-badge" :class="'status-'+seg.status">{{ seg.status }}</span></td>
+                      <td style="text-align:right;white-space:nowrap;">
+                        <button class="seg-action-btn" title="Prévisualiser" @click="navigate('preview')"><i class='bx bx-show'></i></button>
+                        <button class="seg-action-btn" title="Éditer" @click="navigate('builder')"><i class='bx bx-edit'></i></button>
+                        <button class="seg-action-btn" title="Dupliquer" @click="duplicateSegment(seg)"><i class='bx bx-copy'></i></button>
+                        <button class="seg-action-btn danger" title="Supprimer" @click="deleteSegmentById(seg.id)"><i class='bx bx-trash'></i></button>
+                      </td>
                     </tr>
-                    <tr v-if="getFilteredSegmentsByFolder(folder.id).length===0">
-                      <td colspan="7" class="text-center text-muted py-4">{{ activeGlobalTag?`Aucun segment avec le tag "${activeGlobalTag}" dans ce dossier.`:'Aucun segment dans ce dossier.' }}</td>
+                    <tr v-if="getSortedSegmentsByFolder(folder.id).length===0">
+                      <td colspan="8" class="text-center text-muted py-4">{{ activeGlobalTag?`Aucun segment avec le tag "${activeGlobalTag}" dans ce dossier.`:'Aucun segment dans ce dossier.' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1462,6 +1686,35 @@ createApp({
       'Visiteurs haute intention sans conversion',
       'VIP potentiels avec score RFM > 7'
     ];
+    const entryTemplateShortcuts = [
+      { id:'t1', icon:'🛒', name:'Panier abandonné' },
+      { id:'t4', icon:'⚠️', name:'Risque de churn' },
+      { id:'t5', icon:'😴', name:'Inactifs 60j' },
+      { id:'rfm1', icon:'🏆', name:'Champions RFM' },
+      { id:'t8', icon:'👑', name:'VIP fidèles' },
+      { id:'t6', icon:'🛡️', name:'Consentement RGPD' },
+    ];
+
+    const quickApplyTemplate = (id) => {
+      selectedTemplateId.value = id;
+      const t = templates.find(x => x.id === id);
+      if (!t) { return; }
+      segmentName.value = t.name;
+      includeGroups.value = [makeGroup('include',[])];
+      excludeGroups.value = [makeGroup('exclude',[])];
+      const allItems = conditionCategories.flatMap(cat => cat.items);
+      t.logic.forEach(rule => {
+        const keyword = rule.label.toLowerCase().split(' ')[0];
+        const match = allItems.find(item => item.label.toLowerCase().includes(keyword) || item.summary.toLowerCase().includes(keyword)) || allItems[0];
+        const section = rule.type === 'exclude' ? 'exclude' : 'include';
+        const card = makeCard({...match, summary: rule.label.length < 60 ? rule.label : match.summary}, section);
+        getGroups(section).value[0].conditions.push(card);
+      });
+      updateEstimate();
+      showToast(`Template "${t.name}" chargé`, 'success');
+      navigate('builder');
+    };
+
     const entryNlpChips = [
       'Acheteurs VIP inactifs depuis 60 jours',
       'Visiteurs France sans achat en 14 jours',
@@ -1590,19 +1843,9 @@ createApp({
     };
     const makeGroup = (section, conditions = []) => ({ id: ++cardId, innerConnector: 'AND', conditions });
 
-    // Pre-populated groups
-    const includeGroups = ref([
-      makeGroup('include', [
-        makeCard(conditionCategories[0].items[2], 'include'),  // Page produit vue
-        makeCard(conditionCategories[1].items[0], 'include'),  // Pays
-        makeCard(conditionCategories[2].items[0], 'include')   // Score RFM
-      ])
-    ]);
-    const excludeGroups = ref([
-      makeGroup('exclude', [
-        makeCard(conditionCategories[0].items[0], 'exclude')   // Achat réalisé
-      ])
-    ]);
+    // Pre-populated groups — empty so audience stays at default 8%
+    const includeGroups = ref([ makeGroup('include', []) ]);
+    const excludeGroups = ref([ makeGroup('exclude', []) ]);
 
     const activeIncludeGroupIdx = ref(0);
     const activeExcludeGroupIdx = ref(0);
@@ -1610,10 +1853,73 @@ createApp({
     const expandedCards = ref([]);
     const expandedCats = ref(['Événements','Attributs profil','Scores & Modèles']);
     const conditionSearch = ref('');
-    const previewTab = ref('Inclus');
+    const previewTab = ref('match');
+    const previewPage = ref(1);
+    const previewPageSize = 5;
+    const chartRange = ref('30j');
+
+    // Coverage card tabs + comparison
+    const coverageTab = ref('coverage');
+    const compareSegmentId = ref('cmp1');
+    const compareOptions = [
+      { id:'cmp1', name:'Clients fidèles CRM',  size: 53100,  overlapPct: 0.74 },
+      { id:'cmp2', name:'Newsletter actifs',     size: 120000, overlapPct: 0.45 },
+      { id:'cmp3', name:'VIP Champions',         size: 8200,   overlapPct: 0.12 },
+      { id:'cmp4', name:'Inactifs 60j',          size: 67000,  overlapPct: 0.08 },
+      { id:'cmp5', name:'Panier abandonné',      size: 34000,  overlapPct: 0.31 },
+    ];
+    const overlapData = computed(() => {
+      const cmp = compareOptions.find(c => c.id === compareSegmentId.value);
+      if (!cmp) { return null; }
+      const segSize = audienceSize.value;
+      // Cap intersect so compUnique always stays positive
+      const intersect = Math.min(
+        Math.round(segSize * cmp.overlapPct),
+        Math.round(cmp.size * 0.85)
+      );
+      return {
+        segUnique: Math.max(500, segSize - intersect),
+        overlap: Math.max(200, intersect),
+        compUnique: Math.max(500, cmp.size - intersect),
+        pct: Math.round(intersect / segSize * 100),
+        compName: cmp.name
+      };
+    });
     const addCondSearch = ref('');
     const addCondModalCat = ref('Tous');
     const addModalSection = ref('include');
+
+    const previewTabs = [
+      { key: 'match', label: 'Dans le segment' },
+      { key: 'outside', label: 'Hors du segment' }
+    ];
+
+    const matchProfiles = [
+      { name:'Sophie Lambert', initials:'SL', email:'s.lambert@mail.fr', color:'#7c3aed', rfm:'Champion', lastBuy:'il y a 45j', ltv:'312 €', channel:'Email', reason:'' },
+      { name:'Marc Dufort', initials:'MD', email:'m.dufort@mail.fr', color:'#3655f5', rfm:'Loyal', lastBuy:'il y a 38j', ltv:'198 €', channel:'Email', reason:'' },
+      { name:'Isabelle Renard', initials:'IR', email:'i.renard@mail.be', color:'#0d9e6e', rfm:'Champion', lastBuy:'il y a 52j', ltv:'445 €', channel:'SMS', reason:'' },
+      { name:'Claire Fontaine', initials:'CF', email:'c.fontaine@mail.fr', color:'#e63946', rfm:'Potentiel', lastBuy:'il y a 29j', ltv:'127 €', channel:'Display', reason:'' },
+      { name:'Pierre Garnier', initials:'PG', email:'p.garnier@mail.fr', color:'#f07d30', rfm:'Loyal', lastBuy:'il y a 61j', ltv:'289 €', channel:'Email', reason:'' },
+      { name:'Lucie Bernard', initials:'LB', email:'l.bernard@mail.fr', color:'#7c3aed', rfm:'Champion', lastBuy:'il y a 14j', ltv:'521 €', channel:'SMS', reason:'' },
+      { name:'Antoine Morel', initials:'AM', email:'a.morel@mail.fr', color:'#3655f5', rfm:'Potentiel', lastBuy:'il y a 33j', ltv:'178 €', channel:'Email', reason:'' },
+      { name:'Camille Dupont', initials:'CD', email:'c.dupont@mail.be', color:'#0d9e6e', rfm:'Loyal', lastBuy:'il y a 72j', ltv:'356 €', channel:'Paid', reason:'' },
+    ];
+
+    const outsideProfiles = [
+      { name:'Thomas Mercier', initials:'TM', email:'t.mercier@mail.fr', color:'#9aa0b2', rfm:'À risque', lastBuy:'il y a 3j', ltv:'89 €', channel:'Email', reason:'Score RFM trop bas' },
+      { name:'Julie Martin', initials:'JM', email:'j.martin@mail.fr', color:'#9aa0b2', rfm:'Perdu', lastBuy:'il y a 210j', ltv:'22 €', channel:'Email', reason:'Inactivité > seuil' },
+      { name:'Kevin Lebrun', initials:'KL', email:'k.lebrun@mail.fr', color:'#9aa0b2', rfm:'Perdu', lastBuy:'jamais', ltv:'0 €', channel:'—', reason:'Aucun achat historique' },
+      { name:'Marie Tissot', initials:'MT', email:'m.tissot@mail.de', color:'#9aa0b2', rfm:'Potentiel', lastBuy:'il y a 11j', ltv:'55 €', channel:'Display', reason:'Pays hors filtre' },
+      { name:'Alexis Roux', initials:'AR', email:'a.roux@mail.fr', color:'#9aa0b2', rfm:'À risque', lastBuy:'il y a 95j', ltv:'134 €', channel:'Email', reason:'Consentement expiré' },
+      { name:'Nathalie Simon', initials:'NS', email:'n.simon@mail.fr', color:'#9aa0b2', rfm:'Perdu', lastBuy:'il y a 400j', ltv:'18 €', channel:'Email', reason:'Inactivité > seuil' },
+    ];
+
+    const currentProfiles = computed(() => previewTab.value === 'match' ? matchProfiles : outsideProfiles);
+    const previewTotalPages = computed(() => Math.ceil(currentProfiles.value.length / previewPageSize));
+    const paginatedProfiles = computed(() => {
+      const start = (previewPage.value - 1) * previewPageSize;
+      return currentProfiles.value.slice(start, start + previewPageSize);
+    });
     const showAddModal = ref(false);
     const showAiModal = ref(false);
 
@@ -1691,21 +1997,6 @@ createApp({
       { name:'Isabelle Renard', initials:'IR', meta:'€445 LTV · BE', color:'#0d9e6e' },
       { name:'Thomas Mercier', initials:'TM', meta:'€89 LTV · FR', color:'#f07d30' }
     ];
-    const previewProfiles = computed(() => {
-      if (previewTab.value==='Inclus') {
-        return [
-          { name:'Sophie Lambert', initials:'SL', email:'s.lambert@mail.fr', color:'#7c3aed', rfm:'Champion', lastBuy:'il y a 45j', ltv:'312 €', channel:'Email', status:'Inclus' },
-          { name:'Marc Dufort', initials:'MD', email:'m.dufort@mail.fr', color:'#3655f5', rfm:'Loyal', lastBuy:'il y a 38j', ltv:'198 €', channel:'Email', status:'Inclus' },
-          { name:'Isabelle Renard', initials:'IR', email:'i.renard@mail.be', color:'#0d9e6e', rfm:'Champion', lastBuy:'il y a 52j', ltv:'445 €', channel:'SMS', status:'Inclus' },
-          { name:'Claire Fontaine', initials:'CF', email:'c.fontaine@mail.fr', color:'#e63946', rfm:'Potentiel', lastBuy:'il y a 29j', ltv:'127 €', channel:'Display', status:'Inclus' }
-        ];
-      } else {
-        return [
-          { name:'Thomas Mercier', initials:'TM', email:'t.mercier@mail.fr', color:'#f07d30', rfm:'À risque', lastBuy:'il y a 3j', ltv:'89 €', channel:'Email', status:'Exclus' },
-          { name:'Julie Martin', initials:'JM', email:'j.martin@mail.fr', color:'#6b7285', rfm:'Perdu', lastBuy:'il y a 1j', ltv:'22 €', channel:'Email', status:'Exclus' }
-        ];
-      }
-    });
     const channelFit = [
       { name:'Email', icon:'bx bx-envelope', color:'#3655f5', pct:94 },
       { name:'Display', icon:'bx bx-desktop', color:'#7c3aed', pct:78 },
@@ -1733,6 +2024,22 @@ createApp({
       { emoji:'🚫', label:'Exclure acheteurs < 7 jours', desc:'Évite la répétition inutile des messages', impact:'-8% volume', section:'exclude', condItem:{ label:'Achat réalisé', icon:'bx bx-shopping-bag', color:'#e63946', operators:['≥'], valueType:'number2', value:7, summary:'Achat dans les 7 derniers jours' } },
       { emoji:'⏱️', label:'Limiter aux profils actifs (30j)', desc:'Concentre sur l\'audience la plus réactive', impact:'-22% volume', section:'include', condItem:{ label:'Inactivité depuis', icon:'bx bx-time', color:'#f07d30', operators:['<'], valueType:'number2', value:30, summary:'Inactif depuis < 30 jours' } }
     ];
+    // Segments-as-conditions category (uses existing segments as audience conditions)
+    const segmentConditionsItems = [
+      { label:'KS_Bestandskunde_Aktiv', icon:'bx bx-group', color:'#3655f5', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : KS_Bestandskunde_Aktiv' },
+      { label:'INT_Damen_Stark', icon:'bx bx-group', color:'#7c3aed', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : INT_Damen_Stark' },
+      { label:'KS_Neukunde_30Tage', icon:'bx bx-group', color:'#0d9e6e', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : KS_Neukunde_30Tage' },
+      { label:'CV_Negativ_Kunden_Testgruppe', icon:'bx bx-group', color:'#f07d30', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : CV_Negativ_Kunden' },
+    ];
+
+    const allLibCategories = computed(() => {
+      const cats = [...conditionCategories];
+      // Insert Segments after Attributs profil (index 2)
+      const segCat = { label:'Segments', items: segmentConditionsItems };
+      cats.splice(2, 0, segCat);
+      return cats;
+    });
+
     const savedRules = [
       { label:'Email valide + consentement' },
       { label:'France + langue FR' },
@@ -1962,6 +2269,42 @@ createApp({
     // ===== SEGMENTS LIST =====
     const segListSearch = ref('');
     const segListFilter = ref('All');
+    const segSort = reactive({ col: 'lastUpdate', asc: false });
+
+    const setSegSort = (col) => {
+      if (segSort.col === col) { segSort.asc = !segSort.asc; }
+      else { segSort.col = col; segSort.asc = true; }
+    };
+
+    const getSortedSegmentsByFolder = (folderId) => {
+      let list = getFilteredSegmentsByFolder(folderId);
+      const { col, asc } = segSort;
+      list = list.slice().sort((a, b) => {
+        let va = a[col] || '';
+        let vb = b[col] || '';
+        if (col === 'nbUsers') {
+          va = parseFloat(String(va).replace(/[^0-9.]/g, '')) || 0;
+          vb = parseFloat(String(vb).replace(/[^0-9.]/g, '')) || 0;
+        }
+        if (va < vb) { return asc ? -1 : 1; }
+        if (va > vb) { return asc ? 1 : -1; }
+        return 0;
+      });
+      return list;
+    };
+
+    const deleteSegmentById = (id) => {
+      if (confirm('Supprimer ce segment ?')) {
+        savedSegments.value = savedSegments.value.filter(s => s.id !== id);
+        showToast('Segment supprimé', 'info');
+      }
+    };
+
+    const duplicateSegment = (seg) => {
+      const copy = { ...seg, id: 'seg_' + Date.now(), name: seg.name + ' (copie)', status: 'Inactive' };
+      savedSegments.value.unshift(copy);
+      showToast('Segment dupliqué', 'success');
+    };
 
     const folders = ref([
       { id:'f1', name:'Lifecycle', icon:'bx bx-time-five', baseCount:21 },
@@ -1969,23 +2312,23 @@ createApp({
       { id:'f3', name:'Interests', icon:'bx bxs-purchase-tag', baseCount:28 },
       { id:'f4', name:'Triggers', icon:'bx bx-bolt-circle', baseCount:8 },
       { id:'f5', name:'Omnichannel', icon:'bx bx-share-alt', baseCount:12 },
-      { id:'f6', name:'Tests', icon:'bx bx-test-tube', baseCount:3 },
+      { id:'f6', name:'Drafts', icon:'bx bx-edit', baseCount:3 },
       { id:'f7', name:'Technical', icon:'bx bx-cog', baseCount:10 }
     ]);
     const selectedFolderTab = ref('All');
     const showFolderManager = ref(false);
     const folderManagerEditId = ref(null);
-    const globalTagsList = ['Paid','CRM','Onsite','App','SAP','Meta','Google','DE','AT','NL','Active','Dormant','Test','Control'];
+    const globalTagsList = ['Paid','CRM','Onsite','App','SAP','Meta','Google','DE','AT','NL','Active','Inactive','Draft','Control'];
     const activeGlobalTag = ref(null);
 
     const savedSegments = ref([
       { id:'s1', folderId:'f1', name:'KS_Neukunde_30Tage', stringId:'A1F4C9B2', tags:[{text:'CRM'},{text:'Onsite'},{text:'+2'}], nbUsers:'1.8M', pct:'(< 1%)', dests:['M','G','+3'], lastUpdate:'2 months', status:'Active' },
       { id:'s2', folderId:'f1', name:'KS_Bestandskunde_Aktiv', stringId:'B2D5E8F1', tags:[{text:'App'},{text:'Active',type:'active'}], nbUsers:'714k', pct:'(3%)', dests:['M','S','+1'], lastUpdate:'7 days', status:'Active' },
-      { id:'s3', folderId:'f1', name:'KS_Verlorener_Kunde', stringId:'C3E6G9H4', tags:[{text:'Dormant',type:'dormant'}], nbUsers:'209k', pct:'(< 1%)', dests:['G','+2'], lastUpdate:'9 hours', status:'Dormant' },
+      { id:'s3', folderId:'f1', name:'KS_Verlorener_Kunde', stringId:'C3E6G9H4', tags:[{text:'Inactive',type:'dormant'}], nbUsers:'209k', pct:'(< 1%)', dests:['G','+2'], lastUpdate:'9 hours', status:'Inactive' },
       { id:'s4', folderId:'f3', name:'INT_Damen_Stark', stringId:'D4F7H0J5', tags:[{text:'Onsite'},{text:'Active',type:'active'}], nbUsers:'550k', pct:'(2%)', dests:['M','+4'], lastUpdate:'2 days', status:'Active' },
-      { id:'s5', folderId:'f3', name:'INT_Neu_TW_Leicht', stringId:'E5G8I1K6', tags:[{text:'Test',type:'test'}], nbUsers:'120k', pct:'(< 1%)', dests:['G','T'], lastUpdate:'4 weeks', status:'Test' },
-      { id:'s6', folderId:'f6', name:'CV_Negativ_Kunden_Testgruppe', stringId:'F6H9J2L7', tags:[{text:'Test',type:'test'},{text:'Control'}], nbUsers:'80k', pct:'(< 1%)', dests:['M','+2'], lastUpdate:'1 week', status:'Test' },
-      { id:'s7', folderId:'f6', name:'PERF_OnlineOnly_Meta_Google_Testgruppe', stringId:'G7I0K3M8', tags:[{text:'Paid'},{text:'Test',type:'test'}], nbUsers:'150k', pct:'(< 1%)', dests:['M','G'], lastUpdate:'5 days', status:'Test' }
+      { id:'s5', folderId:'f3', name:'INT_Neu_TW_Leicht', stringId:'E5G8I1K6', tags:[{text:'Draft',type:'test'}], nbUsers:'120k', pct:'(< 1%)', dests:['G','T'], lastUpdate:'4 weeks', status:'Draft' },
+      { id:'s6', folderId:'f6', name:'CV_Negativ_Kunden_Testgruppe', stringId:'F6H9J2L7', tags:[{text:'Draft',type:'test'},{text:'Control'}], nbUsers:'80k', pct:'(< 1%)', dests:['M','+2'], lastUpdate:'1 week', status:'Draft' },
+      { id:'s7', folderId:'f6', name:'PERF_OnlineOnly_Meta_Google_Testgruppe', stringId:'G7I0K3M8', tags:[{text:'Paid'},{text:'Draft',type:'test'}], nbUsers:'150k', pct:'(< 1%)', dests:['M','G'], lastUpdate:'5 days', status:'Draft' }
     ]);
 
     const visibleFolders = computed(() => {
@@ -2027,12 +2370,12 @@ createApp({
         folderId: segmentFolderId.value,
         name: segmentName.value,
         stringId: Math.random().toString(36).substring(2,10).toUpperCase(),
-        tags: segmentTags.value.map(t=>({text:t})).concat([{text:activate?'Active':'Dormant',type:activate?'active':'dormant'}]),
+        tags: segmentTags.value.map(t=>({text:t})).concat([{text:activate?'Active':'Inactive',type:activate?'active':'dormant'}]),
         nbUsers: (audienceSize.value/1000).toFixed(1)+'k',
         pct: `(${audiencePct.value}%)`,
         dests: destinations.value.filter(d=>d.active).map(d=>d.name.charAt(0).toUpperCase()),
         lastUpdate: 'À l\'instant',
-        status: activate ? 'Active' : 'Dormant'
+        status: activate ? 'Active' : 'Inactive'
       };
       savedSegments.value.unshift(newSeg);
       segmentName.value = '';
@@ -2065,21 +2408,24 @@ createApp({
       segmentName, segmentDescription, segmentFolderId, segmentTags, updateFreq,
       audienceSize, audiencePct, formattedAudienceSize, audienceDeltaFormatted, audienceDeltaPositive,
       summaryFlash, computedSummary, totalConditions, allConditionsFlat, excludedCount,
-      nlpText, nlpLoading, nlpGenerated, nlpSuggestions, entryNlpChips, generateNlp, launchNlp, selectChip,
+      nlpText, nlpLoading, nlpGenerated, nlpSuggestions, entryNlpChips, entryTemplateShortcuts, generateNlp, launchNlp, selectChip, quickApplyTemplate,
       businessGoals, selectedGoalId, selectedGoal, goalFilter, goalFilters, filteredGoals, applyGoal,
       templates, templateCategories, filteredTemplates, templateSearch, templateCat, selectedTemplateId, selectedTemplate, selectTemplate, applyTemplate, insertTemplateConditions, templateInsertMode,
-      conditionCategories, conditionSearch, expandedCats, expandedCards, toggleCatExpand, toggleCard,
+      conditionCategories, allLibCategories, conditionSearch, expandedCats, expandedCards, toggleCatExpand, toggleCard,
       includeGroups, excludeGroups, connectors, activeIncludeGroupIdx, activeExcludeGroupIdx,
       addCondGroup, removeCondGroup, toggleGroupInnerConnector, removeCondFromGroup, duplicateCondInGroup,
       addConditionFromLib, addConditionFromModal, showAddCondition, toggleConnector,
       showAddModal, showAiModal, addCondSearch, addCondModalCat, addModalSection,
-      showAiHelper, applyAiSuggestion, aiSuggestions, savedRules, previewTab,
-      updateEstimate, sampleProfiles, channelFit, ruleImpacts, rfmDistribution, previewProfiles,
+      showAiHelper, applyAiSuggestion, aiSuggestions, savedRules,
+      previewTab, previewPage, previewPageSize, previewTabs, previewTotalPages, paginatedProfiles, currentProfiles, chartRange,
+      coverageTab, compareSegmentId, compareOptions, overlapData,
+      updateEstimate, sampleProfiles, channelFit, ruleImpacts, rfmDistribution,
       expertGroups, expertWarnings, expertLogicSummary,
       toggleGroupConnector, toggleGroupInner, duplicateGroup, removeGroup, addExpertCond, removeExpertCond, addExpertGroup,
       destinations, removeTag, addTag, saveSegment,
       folders, selectedFolderTab, showFolderManager, folderManagerEditId,
       savedSegments, visibleFolders, globalTagsList, activeGlobalTag, segListSearch, segListFilter,
+      segSort, setSegSort, getSortedSegmentsByFolder, deleteSegmentById, duplicateSegment,
       getFilteredSegmentsByFolder, getFolderCount, getDestClass, toggleGlobalTag,
       createFolder, deleteFolder,
       formatNum, rfmBadge, statusBadge, categoryBadge, complexityBadge
