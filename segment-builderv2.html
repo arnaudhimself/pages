@@ -325,6 +325,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 .seg-table td { padding:16px 20px; font-size:14px; color:#4b5563; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
 .seg-table tr:last-child td { border-bottom:none; }
 .seg-table td.seg-name { font-weight:600; color:#1f2937; }
+.seg-table td.seg-name:hover { color:var(--ca-primary); text-decoration:underline; }
 .seg-table td.seg-id { font-family:'DM Mono',monospace; font-size:13px; }
 .tag-pill { display:inline-flex; align-items:center; padding:2px 10px; border-radius:100px; font-size:12px; font-weight:500; }
 .tag-default { background-color:#f3f4f6; color:#374151; }
@@ -1122,9 +1123,15 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
         <!-- ======= SCREEN: PREVIEW ======= -->
         <div v-if="currentScreen === 'preview'" class="ca-page screen-enter">
 
-          <div class="ca-page-header">
-            <h1>Aperçu de l'audience</h1>
-            <p>Visualisez les profils correspondant aux conditions définies avant de finaliser.</p>
+          <div class="ca-page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div>
+              <h1>Aperçu de l'audience</h1>
+              <p>Visualisez les profils correspondant aux conditions définies avant de finaliser.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn-ca-secondary" @click="navigate('builder')"><i class='bx bx-edit'></i> Modifier</button>
+              <button class="btn-ca-primary" @click="navigate('review')">Finaliser <i class='bx bx-right-arrow-alt'></i></button>
+            </div>
           </div>
 
           <div class="row g-4 mb-4">
@@ -1276,10 +1283,6 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                   <div class="channel-fit-bar-track"><div class="channel-fit-bar-fill" :style="{ width: ch.pct+'%', background: ch.color }"></div></div>
                   <span class="channel-fit-pct">{{ ch.pct }}%</span>
                 </div>
-              </div>
-              <div class="d-flex flex-column gap-2">
-                <button class="btn-ca-primary" @click="navigate('review')">Finaliser le segment <i class='bx bx-right-arrow-alt'></i></button>
-                <button class="btn-ca-secondary" @click="navigate('builder')"><i class='bx bx-edit'></i> Modifier les conditions</button>
               </div>
             </div>
           </div>
@@ -1498,7 +1501,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                   </thead>
                   <tbody>
                     <tr v-for="seg in getSortedSegmentsByFolder(folder.id)" :key="seg.id">
-                      <td class="seg-name">{{ seg.name }}</td>
+                      <td class="seg-name" style="cursor:pointer;" @click="navigate('preview')" title="Voir l'aperçu">{{ seg.name }}</td>
                       <td class="seg-id">{{ seg.stringId }}</td>
                       <td><div class="d-flex gap-1 flex-wrap"><span v-for="(tag,idx) in seg.tags" :key="idx" class="tag-pill" :class="'tag-'+(tag.type||'default')">{{ tag.text }}</span></div></td>
                       <td><span class="text-dark fw-semibold">{{ seg.nbUsers }}</span><span class="text-muted" style="font-size:13px;margin-left:4px;">{{ seg.pct }}</span></td>
