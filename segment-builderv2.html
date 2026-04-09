@@ -1370,7 +1370,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                     <span class="ca-chip" @click="addTag()"><i class='bx bx-plus'></i> Ajouter</span>
                   </div>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" style="display:none">
                   <label style="font-size:14px;font-weight:500;display:block;margin-bottom:5px;">Fréquence de mise à jour</label>
                   <select class="ca-select" v-model="updateFreq" style="width:200px;">
                     <option>Temps réel</option><option>Toutes les heures</option><option>Quotidien</option><option>Hebdomadaire</option>
@@ -2368,8 +2368,8 @@ createApp({
       { id:'f3', name:'Interests', icon:'bx bxs-purchase-tag', baseCount:28 },
       { id:'f4', name:'Triggers', icon:'bx bx-bolt-circle', baseCount:8 },
       { id:'f5', name:'Omnichannel', icon:'bx bx-share-alt', baseCount:12 },
-      { id:'f6', name:'Tests', icon:'bx bx-medical-flask', baseCount:3 },
-      { id:'f7', name:'Technical', icon:'bx bx-analyze', baseCount:10 }
+      { id:'f6', name:'Tests', icon:'bx bx-test-tube', baseCount:3 },
+      { id:'f7', name:'Technical', icon:'bx bx-filter', baseCount:10 }
     ]);
     const selectedFolderTab = ref('All');
     const showFolderManager = ref(false);
@@ -2437,23 +2437,23 @@ createApp({
   // ─── f1 · Lifecycle ──────────────────────────────────────────────────────────
  
   { id:'s1',  folderId:'f1', name:'KS_Neukunde_DE',                     stringId:'65',   tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'87k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
-  { id:'s2',  folderId:'f1', name:'KS_Neukunde_Aktiv',                  stringId:'75',   tags:[{text:'Meta'},{text:'Active',type:'active'}],               nbUsers:'210k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
-  { id:'s3',  folderId:'f1', name:'KS_Neukunde_Inaktiv',                stringId:'76',   tags:[{text:'Meta'},{text:'Active',type:'active'}],               nbUsers:'145k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s2',  folderId:'f1', name:'KS_Neukunde_Aktiv',                  stringId:'75',   tags:[{text:'Meta'}],               nbUsers:'210k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s3',  folderId:'f1', name:'KS_Neukunde_Inaktiv',                stringId:'76',   tags:[{text:'Meta'}],               nbUsers:'145k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
   { id:'s4',  folderId:'f1', name:'KS_Neukunde_30-90Tage',              stringId:'946',  tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'178k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
   { id:'s5',  folderId:'f1', name:'KS_Neukunde_90-365Tage',             stringId:'919',  tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'392k', pct:'(2%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
   { id:'s6',  folderId:'f1', name:'KS_Online-Neukunde',                 stringId:'947',  tags:[{text:'Online'},{text:'Meta'}],                            nbUsers:'156k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
   { id:'s7',  folderId:'f1', name:'KS_Online-Neukunde_30Tage_AT',       stringId:'917',  tags:[{text:'Online'},{text:'AT'}],                              nbUsers:'32k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
   { id:'s8',  folderId:'f1', name:'KS_Online-Neukunde_30-90Tage',       stringId:'918',  tags:[{text:'Online'},{text:'DE'}],                              nbUsers:'68k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
-  { id:'s9',  folderId:'f1', name:'KS_Interessent_Aktiv',               stringId:'138',  tags:[{text:'Prospect'},{text:'Active',type:'active'}],           nbUsers:'520k', pct:'(2%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
-  { id:'s10', folderId:'f1', name:'KS_Bestandskunde_Aktiv',             stringId:'920',  tags:[{text:'CRM'},{text:'Active',type:'active'}],               nbUsers:'2.1M', pct:'(9%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s9',  folderId:'f1', name:'KS_Interessent_Aktiv',               stringId:'138',  tags:[{text:'Prospect'}],           nbUsers:'520k', pct:'(2%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s10', folderId:'f1', name:'KS_Bestandskunde_Aktiv',             stringId:'920',  tags:[{text:'CRM'}],               nbUsers:'2.1M', pct:'(9%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
   { id:'s11', folderId:'f1', name:'KS_Bestandskunde_Inaktiv',           stringId:'921',  tags:[{text:'Inactive',type:'dormant'},{text:'CRM'}],             nbUsers:'890k', pct:'(4%)',   dests:['M','G'],         lastUpdate:'18 months', status:'Inactive' },
-  { id:'s12', folderId:'f1', name:'KS_Crosschannel_DE',                 stringId:'1226', tags:[{text:'Omnichannel'},{text:'Active',type:'active'}],        nbUsers:'340k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s12', folderId:'f1', name:'KS_Crosschannel_DE',                 stringId:'1226', tags:[{text:'Omnichannel'}],        nbUsers:'340k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
  
   // ─── f2 · Value & RFM ────────────────────────────────────────────────────────
  
   { id:'s13', folderId:'f2', name:'RFM_Top_Kunden',                     stringId:'605',  tags:[{text:'RFM'},{text:'VIP'}],                                nbUsers:'95k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
   { id:'s14', folderId:'f2', name:'RFM_Loyale_Kunden',                  stringId:'621',  tags:[{text:'RFM'},{text:'Loyalty'}],                            nbUsers:'215k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
-  { id:'s15', folderId:'f2', name:'RFM_Potenzielle_Kunden',             stringId:'1233', tags:[{text:'RFM'},{text:'Active',type:'active'}],               nbUsers:'310k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s15', folderId:'f2', name:'RFM_Potenzielle_Kunden',             stringId:'1233', tags:[{text:'RFM'}],               nbUsers:'310k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
   { id:'s16', folderId:'f2', name:'RFM_Beinahe_Verlorene_Kunden_DE',   stringId:'619',  tags:[{text:'RFM'},{text:'Churn Risk'}],                         nbUsers:'128k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'3 months', status:'Active' },
   { id:'s17', folderId:'f2', name:'RFM_Beinahe_Verlorene_Top',         stringId:'1234', tags:[{text:'RFM'},{text:'VIP'}],                                nbUsers:'42k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
  
@@ -2476,10 +2476,10 @@ createApp({
   { id:'s31', folderId:'f3', name:'AFF_Waesche_Damen_Premium_DE',       stringId:'1148', tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'41k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
  
   // INT — Interest intensity
-  { id:'s32', folderId:'f3', name:'INT_Damen_Stark',                    stringId:'646',  tags:[{text:'Onsite'},{text:'Active',type:'active'}],             nbUsers:'550k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s32', folderId:'f3', name:'INT_Damen_Stark',                    stringId:'646',  tags:[{text:'Onsite'}],             nbUsers:'550k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
   { id:'s33', folderId:'f3', name:'INT_Damen_Leicht',                   stringId:'648',  tags:[{text:'Onsite'}],                                          nbUsers:'820k', pct:'(4%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
   { id:'s34', folderId:'f3', name:'INT_Gina_Mama',                      stringId:'1079', tags:[{text:'Onsite'},{text:'Brand'}],                           nbUsers:'92k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
-  { id:'s35', folderId:'f3', name:'INT_Kinder_Stark',                   stringId:'1238', tags:[{text:'Onsite'},{text:'Active',type:'active'}],             nbUsers:'430k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s35', folderId:'f3', name:'INT_Kinder_Stark',                   stringId:'1238', tags:[{text:'Onsite'}],             nbUsers:'430k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
   { id:'s36', folderId:'f3', name:'INT_Neu_TW_Leicht',                  stringId:'1242', tags:[],                               nbUsers:'120k', pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
  
   // ─── f4 · Triggers (WCA — Wiederkauf-Automatisierung) ────────────────────────
