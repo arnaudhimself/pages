@@ -353,6 +353,8 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 .ca-tab-btn.active { border-bottom-color:var(--ca-primary); color:var(--ca-primary); font-weight:500; }
 .ca-tab-select { border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; outline:none; padding:0; appearance:none; -webkit-appearance:none; color:inherit; font-weight:inherit; }
 
+.hover-bg-gray:hover { background-color: var(--ca-gray-200) !important; color: var(--ca-gray-800) !important; }
+
 @keyframes loadingBar { 0%,100% { opacity:.5; transform:scaleX(.8); transform-origin:left; } 50% { opacity:1; transform:scaleX(1); } }
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
@@ -1586,22 +1588,80 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
   </div>
 
   <!-- ===== FOLDER MANAGER OFFCANVAS ===== -->
-  <div v-if="showFolderManager" class="offcanvas-backdrop fade show" style="z-index:9998;" @click="showFolderManager=false"></div>
+  <div v-if="showFolderManager" class="offcanvas-backdrop fade show" style="z-index:9998;" @click="showFolderManager=false; isCreatingFolder=false; showIconDropdown=false;"></div>
   <div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showFolderManager }" style="z-index:9999;visibility:visible;transition:transform .3s ease-in-out;" :style="{ transform: showFolderManager?'translateX(0)':'translateX(100%)' }">
     <div class="offcanvas-header border-bottom">
       <h5 class="offcanvas-title fw-bold"><i class="bx bx-folder text-muted me-2"></i>Gérer les dossiers</h5>
-      <button type="button" class="btn-close" @click="showFolderManager=false"></button>
+      <button type="button" class="btn-close" @click="showFolderManager=false; isCreatingFolder=false; showIconDropdown=false;"></button>
     </div>
+    
     <div class="offcanvas-body">
-      <p class="text-muted small mb-4">Renommez, supprimez ou ajoutez de nouveaux dossiers de segmentation.</p>
-      <div v-for="f in folders" :key="f.id" class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
-        <i :class="f.icon" class="fs-4 text-secondary"></i>
-        <input v-if="folderManagerEditId===f.id" v-model="f.name" class="form-control form-control-sm" @keyup.enter="folderManagerEditId=null" @blur="folderManagerEditId=null" autofocus>
-        <span v-else class="flex-fill fw-medium" style="font-size:14px;">{{ f.name }}</span>
-        <button class="btn btn-sm btn-white border" @click="folderManagerEditId=f.id"><i class="bx bx-edit text-muted"></i></button>
-        <button v-if="f.id!=='f1'" class="btn btn-sm btn-white border text-danger" @click="deleteFolder(f.id)"><i class="bx bx-trash"></i></button>
+      <!-- VUE: LISTE DES DOSSIERS -->
+      <div v-if="!isCreatingFolder">
+        <p class="text-muted small mb-4">Renommez, supprimez ou ajoutez de nouveaux dossiers de segmentation.</p>
+        <div v-for="f in folders" :key="f.id" class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
+          <i :class="f.icon" class="fs-4 text-secondary"></i>
+          <input v-if="folderManagerEditId===f.id" v-model="f.name" class="form-control form-control-sm" @keyup.enter="folderManagerEditId=null" @blur="folderManagerEditId=null" autofocus>
+          <span v-else class="flex-fill fw-medium" style="font-size:14px;">{{ f.name }}</span>
+          <button class="btn btn-sm btn-white border" @click="folderManagerEditId=f.id"><i class="bx bx-edit text-muted"></i></button>
+          <button v-if="f.id!=='f1'" class="btn btn-sm btn-white border text-danger" @click="deleteFolder(f.id)"><i class="bx bx-trash"></i></button>
+        </div>
+        <button class="btn btn-outline-primary w-100 mt-4 fw-medium" @click="isCreatingFolder = true"><i class="bx bx-plus"></i> Nouveau dossier</button>
       </div>
-      <button class="btn btn-outline-primary w-100 mt-4 fw-medium" @click="createFolder()"><i class="bx bx-plus"></i> Nouveau dossier</button>
+      
+      <!-- VUE: CRÉATION D'UN DOSSIER -->
+      <div v-else>
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <button class="btn btn-sm btn-light border" @click="isCreatingFolder = false"><i class='bx bx-left-arrow-alt'></i> Retour</button>
+          <h6 class="m-0 fw-bold">Créer un dossier</h6>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;">Nom du dossier</label>
+          <input v-model="newFolderName" type="text" class="form-control" placeholder="Ex: Campagnes Été">
+        </div>
+
+        <div class="mb-4 position-relative">
+          <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;">Icône</label>
+          <!-- Custom Icon Dropdown -->
+          <div class="form-control d-flex align-items-center gap-2" style="cursor:pointer;" @click="showIconDropdown = !showIconDropdown">
+            <i :class="newFolderIcon" class="fs-5 text-primary"></i>
+            <span style="font-size:14px;">Choisir une icône...</span>
+            <i class='bx bx-chevron-down ms-auto'></i>
+          </div>
+          
+          <!-- Dropdown Grid -->
+          <div v-if="showIconDropdown" class="position-absolute bg-white border rounded p-2 shadow-sm w-100" style="z-index:10; top:100%; margin-top:4px;">
+            <div class="d-flex flex-wrap gap-2">
+              <div v-for="ico in selectableIcons" :key="ico"
+                   class="d-flex align-items-center justify-content-center rounded"
+                   :class="newFolderIcon === ico ? 'bg-primary text-white' : 'bg-light text-muted hover-bg-gray'"
+                   style="width:36px; height:36px; cursor:pointer; transition:all 0.15s;"
+                   @click="newFolderIcon = ico; showIconDropdown = false">
+                <i :class="ico" class="fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100 fw-medium mb-4" :disabled="!newFolderName.trim()" @click="confirmCreateFolder()">Créer le dossier</button>
+
+        <hr class="text-muted opacity-25">
+
+        <h6 class="fw-bold mb-3" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ca-gray-500);">Dossiers suggérés</h6>
+        <div class="d-flex flex-column gap-2">
+          <div v-for="sug in suggestedFolders" :key="sug.name"
+               class="d-flex align-items-center gap-2 p-2 border rounded"
+               style="cursor:pointer; transition:all 0.2s;"
+               @click="applySuggestedFolder(sug)"
+               @mouseenter="$event.currentTarget.classList.add('bg-light')"
+               @mouseleave="$event.currentTarget.classList.remove('bg-light')">
+            <i :class="sug.icon" class="fs-4 text-secondary"></i>
+            <span class="fw-medium text-dark" style="font-size:14px;">{{ sug.name }}</span>
+            <i class='bx bx-plus ms-auto text-muted'></i>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1618,7 +1678,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
 <script>
-const { createApp, ref, computed, reactive } = Vue;
+const { createApp, ref, computed, reactive, watch } = Vue;
 
 createApp({
   setup() {
@@ -1730,14 +1790,12 @@ createApp({
       setTimeout(() => { nlpLoading.value = false; nlpGenerated.value = true; }, 1800);
     };
 
-    // Navigate to NLP screen AND auto-trigger generation immediately
     const launchNlp = (text) => {
       if (text) { nlpText.value = text; }
       if (!nlpText.value.trim()) { return; }
       nlpLoading.value = false;
       nlpGenerated.value = false;
       navigate('nlp');
-      // Trigger on next tick so the screen is mounted
       setTimeout(() => { generateNlp(); }, 50);
     };
 
@@ -1846,7 +1904,7 @@ createApp({
     };
     const makeGroup = (section, conditions = []) => ({ id: ++cardId, innerConnector: 'AND', conditions });
 
-    // Pre-populated groups — empty so audience stays at default 8%
+    // Pre-populated groups
     const includeGroups = ref([ makeGroup('include', []) ]);
     const excludeGroups = ref([ makeGroup('exclude', []) ]);
 
@@ -1861,7 +1919,6 @@ createApp({
     const previewPageSize = 5;
     const chartRange = ref('30j');
 
-    // Coverage card tabs + comparison
     const coverageTab = ref('coverage');
     const compareSegmentId = ref('cmp1');
     const compareOptions = [
@@ -1875,7 +1932,6 @@ createApp({
       const cmp = compareOptions.find(c => c.id === compareSegmentId.value);
       if (!cmp) { return null; }
       const segSize = audienceSize.value;
-      // Cap intersect so compUnique always stays positive
       const intersect = Math.min(
         Math.round(segSize * cmp.overlapPct),
         Math.round(cmp.size * 0.85)
@@ -2027,7 +2083,6 @@ createApp({
       { emoji:'🚫', label:'Exclure acheteurs < 7 jours', desc:'Évite la répétition inutile des messages', impact:'-8% volume', section:'exclude', condItem:{ label:'Achat réalisé', icon:'bx bx-shopping-bag', color:'#e63946', operators:['≥'], valueType:'number2', value:7, summary:'Achat dans les 7 derniers jours' } },
       { emoji:'⏱️', label:'Limiter aux profils actifs (30j)', desc:'Concentre sur l\'audience la plus réactive', impact:'-22% volume', section:'include', condItem:{ label:'Inactivité depuis', icon:'bx bx-time', color:'#f07d30', operators:['<'], valueType:'number2', value:30, summary:'Inactif depuis < 30 jours' } }
     ];
-    // Segments-as-conditions category (uses existing segments as audience conditions)
     const segmentConditionsItems = [
       { label:'KS_Bestandskunde_Aktiv', icon:'bx bx-group', color:'#3655f5', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : KS_Bestandskunde_Aktiv' },
       { label:'INT_Damen_Stark', icon:'bx bx-group', color:'#7c3aed', operators:['est dans','n\'est pas dans'], valueType:'none', value:'', summary:'Dans : INT_Damen_Stark' },
@@ -2037,7 +2092,6 @@ createApp({
 
     const allLibCategories = computed(() => {
       const cats = [...conditionCategories];
-      // Insert Segments after Attributs profil (index 2)
       const segCat = { label:'Segments', items: segmentConditionsItems };
       cats.splice(2, 0, segCat);
       return cats;
@@ -2150,8 +2204,7 @@ createApp({
       setTimeout(()=>{ summaryFlash.value=false; audienceDelta.value=0; },2000);
     };
 
-    // ===== GOAL & TEMPLATE ACTIONS =====
-    const templateInsertMode = ref(false); // true = insert into existing groups, false = replace
+    const templateInsertMode = ref(false); 
 
     const applyGoal = () => {
       if (!selectedGoalId.value) { return; }
@@ -2269,7 +2322,7 @@ createApp({
       return 'ca-badge-gray';
     };
 
-    // ===== SEGMENTS LIST =====
+    // ===== SEGMENTS LIST & FOLDERS =====
     const segListSearch = ref('');
     const segListFilter = ref('All');
     const segSort = reactive({ col: 'lastUpdate', asc: false });
@@ -2324,15 +2377,144 @@ createApp({
     const globalTagsList = ['Paid','CRM','Onsite','App','SAP','Meta','Google','DE','AT','NL','Active','Inactive','Draft','Control'];
     const activeGlobalTag = ref(null);
 
+    // NEW LOGIC FOR INLINE FOLDER CREATION
+    const isCreatingFolder = ref(false);
+    const newFolderName = ref('');
+    const newFolderIcon = ref('bx bx-folder');
+    const showIconDropdown = ref(false);
+
+    // List of standard boxicons icons to present in the dropdown grid
+    const selectableIcons = [
+      'bx bx-folder', 'bx bx-time-five', 'bx bx-line-chart', 'bx bxs-purchase-tag',
+      'bx bx-bolt-circle', 'bx bx-share-alt', 'bx bx-edit', 'bx bx-cog',
+      'bx bx-group', 'bx bx-envelope', 'bx bx-bell', 'bx bx-star',
+      'bx bx-target-lock', 'bx bx-pie-chart-alt-2', 'bx bx-calendar', 'bx bx-map'
+    ];
+
+    // Read the list of suggested folders from the default `folders` data
+    const suggestedFolders = [
+      { name: 'Lifecycle', icon: 'bx bx-time-five' },
+      { name: 'Value & RFM', icon: 'bx bx-line-chart' },
+      { name: 'Interests', icon: 'bx bxs-purchase-tag' },
+      { name: 'Triggers', icon: 'bx bx-bolt-circle' },
+      { name: 'Omnichannel', icon: 'bx bx-share-alt' },
+      { name: 'Drafts', icon: 'bx bx-edit' },
+      { name: 'Technical', icon: 'bx bx-cog' }
+    ];
+
+    const confirmCreateFolder = () => {
+      if (!newFolderName.value.trim()) return;
+      folders.value.push({ 
+        id: 'f' + Date.now(), 
+        name: newFolderName.value.trim(), 
+        icon: newFolderIcon.value, 
+        baseCount: 0 
+      });
+      showToast(`Dossier "${newFolderName.value.trim()}" créé avec succès`, 'success');
+      newFolderName.value = '';
+      newFolderIcon.value = 'bx bx-folder';
+      isCreatingFolder.value = false;
+    };
+
+    const applySuggestedFolder = (sug) => {
+      newFolderName.value = sug.name;
+      newFolderIcon.value = sug.icon;
+      // Auto-creates to save user steps
+      confirmCreateFolder();
+    };
+
+    const deleteFolder = (id) => {
+      if (confirm('Voulez-vous vraiment supprimer ce dossier ?')) {
+        folders.value = folders.value.filter(f=>f.id!==id);
+        savedSegments.value.forEach(s=>{ if (s.folderId===id) { s.folderId='f1'; } });
+        if (selectedFolderTab.value===id) { selectedFolderTab.value='All'; }
+        if (segmentFolderId.value===id) { segmentFolderId.value='f1'; }
+      }
+    };
+
     const savedSegments = ref([
-      { id:'s1', folderId:'f1', name:'KS_Neukunde_30Tage', stringId:'A1F4C9B2', tags:[{text:'CRM'},{text:'Onsite'},{text:'+2'}], nbUsers:'1.8M', pct:'(< 1%)', dests:['M','G','+3'], lastUpdate:'2 months', status:'Active' },
-      { id:'s2', folderId:'f1', name:'KS_Bestandskunde_Aktiv', stringId:'B2D5E8F1', tags:[{text:'App'},{text:'Active',type:'active'}], nbUsers:'714k', pct:'(3%)', dests:['M','S','+1'], lastUpdate:'7 days', status:'Active' },
-      { id:'s3', folderId:'f1', name:'KS_Verlorener_Kunde', stringId:'C3E6G9H4', tags:[{text:'Inactive',type:'dormant'}], nbUsers:'209k', pct:'(< 1%)', dests:['G','+2'], lastUpdate:'9 hours', status:'Inactive' },
-      { id:'s4', folderId:'f3', name:'INT_Damen_Stark', stringId:'D4F7H0J5', tags:[{text:'Onsite'},{text:'Active',type:'active'}], nbUsers:'550k', pct:'(2%)', dests:['M','+4'], lastUpdate:'2 days', status:'Active' },
-      { id:'s5', folderId:'f3', name:'INT_Neu_TW_Leicht', stringId:'E5G8I1K6', tags:[{text:'Draft',type:'test'}], nbUsers:'120k', pct:'(< 1%)', dests:['G','T'], lastUpdate:'4 weeks', status:'Draft' },
-      { id:'s6', folderId:'f6', name:'CV_Negativ_Kunden_Testgruppe', stringId:'F6H9J2L7', tags:[{text:'Draft',type:'test'},{text:'Control'}], nbUsers:'80k', pct:'(< 1%)', dests:['M','+2'], lastUpdate:'1 week', status:'Draft' },
-      { id:'s7', folderId:'f6', name:'PERF_OnlineOnly_Meta_Google_Testgruppe', stringId:'G7I0K3M8', tags:[{text:'Paid'},{text:'Draft',type:'test'}], nbUsers:'150k', pct:'(< 1%)', dests:['M','G'], lastUpdate:'5 days', status:'Draft' }
-    ]);
+ 
+  // ─── f1 · Lifecycle ──────────────────────────────────────────────────────────
+ 
+  { id:'s1',  folderId:'f1', name:'KS_Neukunde_DE',                     stringId:'65',   tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'87k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s2',  folderId:'f1', name:'KS_Neukunde_Aktiv',                  stringId:'75',   tags:[{text:'Meta'},{text:'Active',type:'active'}],               nbUsers:'210k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s3',  folderId:'f1', name:'KS_Neukunde_Inaktiv',                stringId:'76',   tags:[{text:'Meta'},{text:'Active',type:'active'}],               nbUsers:'145k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s4',  folderId:'f1', name:'KS_Neukunde_30-90Tage',              stringId:'946',  tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'178k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s5',  folderId:'f1', name:'KS_Neukunde_90-365Tage',             stringId:'919',  tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'392k', pct:'(2%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s6',  folderId:'f1', name:'KS_Online-Neukunde',                 stringId:'947',  tags:[{text:'Online'},{text:'Meta'}],                            nbUsers:'156k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s7',  folderId:'f1', name:'KS_Online-Neukunde_30Tage_AT',       stringId:'917',  tags:[{text:'Online'},{text:'AT'}],                              nbUsers:'32k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s8',  folderId:'f1', name:'KS_Online-Neukunde_30-90Tage',       stringId:'918',  tags:[{text:'Online'},{text:'DE'}],                              nbUsers:'68k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s9',  folderId:'f1', name:'KS_Interessent_Aktiv',               stringId:'138',  tags:[{text:'Prospect'},{text:'Active',type:'active'}],           nbUsers:'520k', pct:'(2%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s10', folderId:'f1', name:'KS_Bestandskunde_Aktiv',             stringId:'920',  tags:[{text:'CRM'},{text:'Active',type:'active'}],               nbUsers:'2.1M', pct:'(9%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s11', folderId:'f1', name:'KS_Bestandskunde_Inaktiv',           stringId:'921',  tags:[{text:'Inactive',type:'dormant'},{text:'CRM'}],             nbUsers:'890k', pct:'(4%)',   dests:['M','G'],         lastUpdate:'18 months', status:'Inactive' },
+  { id:'s12', folderId:'f1', name:'KS_Crosschannel_DE',                 stringId:'1226', tags:[{text:'Omnichannel'},{text:'Active',type:'active'}],        nbUsers:'340k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+ 
+  // ─── f2 · Value & RFM ────────────────────────────────────────────────────────
+ 
+  { id:'s13', folderId:'f2', name:'RFM_Top_Kunden',                     stringId:'605',  tags:[{text:'RFM'},{text:'VIP'}],                                nbUsers:'95k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s14', folderId:'f2', name:'RFM_Loyale_Kunden',                  stringId:'621',  tags:[{text:'RFM'},{text:'Loyalty'}],                            nbUsers:'215k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s15', folderId:'f2', name:'RFM_Potenzielle_Kunden',             stringId:'1233', tags:[{text:'RFM'},{text:'Active',type:'active'}],               nbUsers:'310k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s16', folderId:'f2', name:'RFM_Beinahe_Verlorene_Kunden_DE',   stringId:'619',  tags:[{text:'RFM'},{text:'Churn Risk'}],                         nbUsers:'128k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'3 months', status:'Active' },
+  { id:'s17', folderId:'f2', name:'RFM_Beinahe_Verlorene_Top',         stringId:'1234', tags:[{text:'RFM'},{text:'VIP'}],                                nbUsers:'42k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+ 
+  // ─── f3 · Interests ──────────────────────────────────────────────────────────
+ 
+  // AFF — Product Affinity
+  { id:'s18', folderId:'f3', name:'AFF_Damen_DE',                       stringId:'247',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'620k', pct:'(3%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s19', folderId:'f3', name:'AFF_Kinder_DE',                      stringId:'468',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'540k', pct:'(2%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s20', folderId:'f3', name:'AFF_Baby_DE',                        stringId:'472',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'210k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s21', folderId:'f3', name:'AFF_Herren_DE',                      stringId:'478',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'180k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s22', folderId:'f3', name:'AFF_Waesche_Damen_DE',               stringId:'482',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'155k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s23', folderId:'f3', name:'AFF_Waesche_Kinder_DE',              stringId:'488',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'98k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s24', folderId:'f3', name:'AFF_Deko_MyHome_DE',                 stringId:'500',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'245k', pct:'(1%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+  { id:'s25', folderId:'f3', name:'AFF_Topomini_DE',                    stringId:'504',  tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'112k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s26', folderId:'f3', name:'AFF_Gina_Mama_DE',                   stringId:'508',  tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'88k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s27', folderId:'f3', name:'AFF_Damen_AT',                       stringId:'575',  tags:[{text:'Affinity'},{text:'AT'}],                            nbUsers:'95k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s28', folderId:'f3', name:'AFF_Grosse_Groessen_DE',             stringId:'977',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'175k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s29', folderId:'f3', name:'AFF_Jonas_Nielsen_Kinder',           stringId:'1144', tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'67k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s30', folderId:'f3', name:'AFF_Jonas_Nielsen_Damen',            stringId:'1145', tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'54k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s31', folderId:'f3', name:'AFF_Waesche_Damen_Premium_DE',       stringId:'1148', tags:[{text:'Affinity'},{text:'Brand'}],                         nbUsers:'41k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+ 
+  // INT — Interest intensity
+  { id:'s32', folderId:'f3', name:'INT_Damen_Stark',                    stringId:'646',  tags:[{text:'Onsite'},{text:'Active',type:'active'}],             nbUsers:'550k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s33', folderId:'f3', name:'INT_Damen_Leicht',                   stringId:'648',  tags:[{text:'Onsite'}],                                          nbUsers:'820k', pct:'(4%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s34', folderId:'f3', name:'INT_Gina_Mama',                      stringId:'1079', tags:[{text:'Onsite'},{text:'Brand'}],                           nbUsers:'92k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s35', folderId:'f3', name:'INT_Kinder_Stark',                   stringId:'1238', tags:[{text:'Onsite'},{text:'Active',type:'active'}],             nbUsers:'430k', pct:'(2%)',   dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s36', folderId:'f3', name:'INT_Neu_TW_Leicht',                  stringId:'1242', tags:[],                               nbUsers:'120k', pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+ 
+  // ─── f4 · Triggers (WCA — Wiederkauf-Automatisierung) ────────────────────────
+ 
+  { id:'s37', folderId:'f4', name:'WCA_Kauf_Online_1-30Tage',           stringId:'WCA01', tags:[{text:'Trigger'},{text:'Online'}],                        nbUsers:'145k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s38', folderId:'f4', name:'WCA_Kauf_Online_31-90Tage',          stringId:'WCA02', tags:[{text:'Trigger'},{text:'Online'}],                        nbUsers:'310k', pct:'(1%)',   dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s39', folderId:'f4', name:'WCA_Kauf_App_1-30Tage',              stringId:'WCA03', tags:[{text:'Trigger'},{text:'App'}],                           nbUsers:'88k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Active' },
+  { id:'s40', folderId:'f4', name:'WCA_Warenkorb_Abbrecher',            stringId:'WCA04', tags:[{text:'Trigger'},{text:'Cart'}],                          nbUsers:'62k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+  { id:'s41', folderId:'f4', name:'WCA_Kauf_Offline_1-30Tage',         stringId:'WCA05', tags:[{text:'Trigger'},{text:'Offline'}],                        nbUsers:'190k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+ 
+  // ─── f5 · Omnichannel ────────────────────────────────────────────────────────
+ 
+  { id:'s42', folderId:'f5', name:'PERF_Alle_Kauefer_Online_Google_DE', stringId:'518',  tags:[{text:'Paid'},{text:'Google'}],                            nbUsers:'1.4M', pct:'(6%)',   dests:['G','Y'],         lastUpdate:'8 months', status:'Active' },
+  { id:'s43', folderId:'f5', name:'PERF_Alle_Kauefer_Online_Google_AT', stringId:'518b', tags:[{text:'Paid'},{text:'AT'}],                                nbUsers:'210k', pct:'(< 1%)', dests:['G'],             lastUpdate:'8 months', status:'Active' },
+  { id:'s44', folderId:'f5', name:'PERF_Alle_Kauefer_Online_Offline_DE',stringId:'520',  tags:[{text:'Paid'},{text:'Omnichannel'}],                       nbUsers:'2.8M', pct:'(12%)',  dests:['G','Y'],         lastUpdate:'8 months', status:'Active' },
+ 
+  // ─── f6 · Drafts ─────────────────────────────────────────────────────────────
+ 
+  { id:'s45', folderId:'f6', name:'CV_Negativ_Testgruppe',              stringId:'1128', tags:[{text:'Control'}],              nbUsers:'75k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'18 months', status:'Inactive' },
+  { id:'s46', folderId:'f6', name:'CV_Negativ_Kontrollgruppe',          stringId:'1129', tags:[{text:'Control'}],              nbUsers:'75k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'18 months', status:'Inactive' },
+  { id:'s47', folderId:'f6', name:'PERF_OnlineOnly_Meta_Google_TG_DE',  stringId:'1068', tags:[{text:'Paid'}],                 nbUsers:'130k', pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Draft' },
+  { id:'s48', folderId:'f6', name:'PERF_OfflineOnly_Meta_Google_TG_DE', stringId:'1072', tags:[{text:'Paid'}],                 nbUsers:'155k', pct:'(< 1%)', dests:['M'],             lastUpdate:'4 months', status:'Draft' },
+  { id:'s49', folderId:'f6', name:'Test_Theresa_KS_Test_Fuer_Mann',     stringId:'1287', tags:[{text:'CRM'}],                  nbUsers:'48k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'1 week', status:'Draft' },
+  { id:'s50', folderId:'f6', name:'Test_Theresa_KS_Test_AFF_MyHome',    stringId:'1304', tags:[],                              nbUsers:'22k',  pct:'(< 1%)', dests:['M'],             lastUpdate:'1 week', status:'Draft' },
+  { id:'s51', folderId:'f6', name:'test-myhome',                        stringId:'1305', tags:[],                              nbUsers:'—',    pct:'',        dests:[],                lastUpdate:'1 week', status:'Draft' },
+ 
+  // ─── f7 · Technical ──────────────────────────────────────────────────────────
+ 
+  { id:'s52', folderId:'f7', name:'PERF_GDN_MidFunnel_Kinder',          stringId:'1178', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'310k', pct:'(1%)',   dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+  { id:'s53', folderId:'f7', name:'PERF_GDN_MidFunnel_Damen',           stringId:'1181', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'540k', pct:'(2%)',   dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+  { id:'s54', folderId:'f7', name:'PERF_GDN_MidFunnel_Deko',            stringId:'1182', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'195k', pct:'(< 1%)', dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+  { id:'s55', folderId:'f7', name:'PERF_GDN_MidFunnel_Baby',            stringId:'1183', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'145k', pct:'(< 1%)', dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+  { id:'s56', folderId:'f7', name:'PERF_GDN_MidFunnel_Allgemein',       stringId:'1184', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'780k', pct:'(3%)',   dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+  { id:'s57', folderId:'f7', name:'Temp_Kundenlöschung',                 stringId:'987',  tags:[{text:'Technical'},{text:'RGPD'}],                         nbUsers:'—',    pct:'',        dests:[],                lastUpdate:'1 week', status:'Active' },
+]);
 
     const visibleFolders = computed(() => {
       let foldersToDisplay = folders.value;
@@ -2392,19 +2574,6 @@ createApp({
       navigate('segments');
     };
 
-    const createFolder = () => {
-      const name = prompt('Nom du nouveau dossier :');
-      if (name&&name.trim()) { folders.value.push({ id:'f'+Date.now(), name:name.trim(), icon:'bx bx-folder', baseCount:0 }); }
-    };
-    const deleteFolder = (id) => {
-      if (confirm('Voulez-vous vraiment supprimer ce dossier ?')) {
-        folders.value = folders.value.filter(f=>f.id!==id);
-        savedSegments.value.forEach(s=>{ if (s.folderId===id) { s.folderId='f1'; } });
-        if (selectedFolderTab.value===id) { selectedFolderTab.value='All'; }
-        if (segmentFolderId.value===id) { segmentFolderId.value='f1'; }
-      }
-    };
-
     return {
       currentScreen, navigate, goBack, breadcrumbLabel, toasts,
       stepDone, stepActive,
@@ -2427,10 +2596,10 @@ createApp({
       toggleGroupConnector, toggleGroupInner, duplicateGroup, removeGroup, addExpertCond, removeExpertCond, addExpertGroup,
       destinations, removeTag, addTag, saveSegment,
       folders, selectedFolderTab, showFolderManager, folderManagerEditId,
+      isCreatingFolder, newFolderName, newFolderIcon, showIconDropdown, selectableIcons, suggestedFolders, confirmCreateFolder, applySuggestedFolder, deleteFolder,
       savedSegments, visibleFolders, globalTagsList, activeGlobalTag, segListSearch, segListFilter,
       segSort, setSegSort, getSortedSegmentsByFolder, deleteSegmentById, duplicateSegment,
       getFilteredSegmentsByFolder, getFolderCount, getDestClass, toggleGlobalTag,
-      createFolder, deleteFolder,
       formatNum, rfmBadge, statusBadge, categoryBadge, complexityBadge
     };
   }
