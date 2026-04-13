@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commanders Act — Segments</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ca-navy: #1e2580; --ca-navy-dark: #161c65; --ca-red: #e63946;
+  --ca-primary: #3655f5; --ca-primary-light: #eef0ff;
+  --ca-bg: #f4f5f7; --ca-sidebar-w: 220px; --ca-white: #ffffff;
+  --ca-gray-100: #f4f5f7; --ca-gray-200: #e9ebf0; --ca-gray-300: #d1d5de;
+  --ca-gray-400: #9aa0b2; --ca-gray-500: #6b7285; --ca-gray-600: #4a5068;
+  --ca-gray-700: #343a52; --ca-gray-800: #1f2337;
+  --ca-green: #0d9e6e; --ca-green-light: #e6f7f2;
+  --ca-orange: #f07d30; --ca-orange-light: #fff0e6;
+  --ca-purple: #7c3aed; --ca-purple-light: #f0ebff;
+  --ca-topbar-h: 48px; --ca-radius: 8px; --ca-radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.08);
+  --seg-cyan: #00b4d8;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca-gray-700); font-size:16px; line-height:1.5; overflow:hidden; height:100vh; }
+.ca-shell { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+/* TOPBAR */
+.ca-topbar { height:var(--ca-topbar-h); background:var(--ca-navy); display:flex; align-items:center; padding:0 16px; gap:16px; flex-shrink:0; z-index:100; }
+.ca-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.ca-logo-icon { width:28px; height:28px; background:var(--ca-red); clip-path:polygon(50% 0%,85% 15%,100% 50%,85% 85%,50% 100%,15% 85%,0% 50%,15% 15%); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:white; }
+.ca-logo-text { font-size:12px; font-weight:700; color:white; letter-spacing:.08em; text-transform:uppercase; line-height:1.2; opacity:.9; }
+.ca-topbar-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.ca-topbar-btn { width:30px; height:30px; border-radius:6px; border:none; background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; font-size:17px; }
+.ca-topbar-btn:hover { background:rgba(255,255,255,.2); color:white; }
+.ca-avatar { width:30px; height:30px; border-radius:50%; background:var(--ca-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; cursor:pointer; }
+
+/* BODY */
+.ca-body { display:flex; flex:1; overflow:hidden; }
+
+/* SIDEBAR */
+.ca-sidebar { width:var(--ca-sidebar-w); background:var(--ca-white); border-right:1px solid var(--ca-gray-200); overflow-y:auto; flex-shrink:0; padding:12px 0; }
+.ca-sidebar::-webkit-scrollbar { width:4px; }
+.ca-sidebar::-webkit-scrollbar-thumb { background:var(--ca-gray-300); border-radius:2px; }
+.ca-sidebar-section { padding:8px 16px 4px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ca-gray-400); }
+.ca-sidebar-item { display:flex; align-items:center; gap:8px; padding:7px 16px; color:var(--ca-gray-600); cursor:pointer; border-radius:0; transition:all .15s; font-size:14px; border-left:3px solid transparent; text-decoration:none; }
+.ca-sidebar-item i { font-size:17px; color:var(--ca-gray-400); flex-shrink:0; transition:color .15s; }
+.ca-sidebar-item:hover { background:var(--ca-gray-100); color:var(--ca-gray-800); }
+.ca-sidebar-item:hover i { color:var(--ca-gray-600); }
+.ca-sidebar-item.active { color:var(--ca-red); background:#fff5f5; border-left-color:var(--ca-red); font-weight:500; }
+.ca-sidebar-item.active i { color:var(--ca-red); }
+
+/* MAIN */
+.ca-main { flex:1; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; }
+.ca-main::-webkit-scrollbar { width:6px; }
+.ca-main::-webkit-scrollbar-thumb { background:var(--ca-gray-300); border-radius:3px; }
+
+/* PAGE */
+.ca-page { padding:28px 32px; flex:1; }
+
+/* BADGE */
+.ca-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:100px; font-size:12px; font-weight:500; }
+.ca-badge-blue { background:var(--ca-primary-light); color:var(--ca-primary); }
+.ca-badge-gray { background:var(--ca-gray-100); color:var(--ca-gray-500); }
+.ca-badge-green { background:var(--ca-green-light); color:var(--ca-green); }
+
+/* BUTTONS */
+.btn-ca-primary { background:var(--ca-primary); color:white; border:none; padding:8px 18px; border-radius:var(--ca-radius); font-size:14px; font-weight:500; font-family:'DM Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
+.btn-ca-primary:hover { background:#2a45df; transform:translateY(-1px); box-shadow:var(--shadow-sm); }
+.btn-ca-secondary { background:var(--ca-white); color:var(--ca-gray-600); border:1px solid var(--ca-gray-300); padding:8px 18px; border-radius:var(--ca-radius); font-size:14px; font-weight:500; font-family:'DM Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
+.btn-ca-secondary:hover { background:var(--ca-gray-100); border-color:var(--ca-gray-400); color:var(--ca-gray-700); }
+.btn-ca-ghost { background:transparent; color:var(--ca-gray-500); border:1px solid var(--ca-gray-200); padding:6px 12px; border-radius:var(--ca-radius); font-size:13px; font-family:'DM Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all .15s; }
+.btn-ca-ghost:hover { background:var(--ca-gray-100); color:var(--ca-gray-700); border-color:var(--ca-gray-300); }
+
+/* FORMS */
+.ca-input { width:100%; padding:8px 12px; border:1px solid var(--ca-gray-300); border-radius:var(--ca-radius); font-size:14px; font-family:'DM Sans',sans-serif; color:var(--ca-gray-700); background:var(--ca-white); transition:all .15s; outline:none; }
+.ca-input:focus { border-color:var(--ca-primary); box-shadow:0 0 0 3px rgba(54,85,245,.1); }
+.ca-input::placeholder { color:var(--ca-gray-400); }
+.ca-select { padding:7px 10px; border:1px solid var(--ca-gray-300); border-radius:var(--ca-radius); font-size:13px; font-family:'DM Sans',sans-serif; color:var(--ca-gray-600); background:var(--ca-white); outline:none; cursor:pointer; transition:all .15s; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239aa0b2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; padding-right:28px; }
+.ca-select:focus { border-color:var(--ca-primary); }
+
+/* CHIP */
+.ca-chip { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:100px; border:1px solid var(--ca-gray-300); background:var(--ca-white); font-size:13px; color:var(--ca-gray-600); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.ca-chip:hover { border-color:var(--ca-primary); color:var(--ca-primary); background:var(--ca-primary-light); }
+.ca-chip.active { border-color:var(--ca-primary); color:var(--ca-primary); background:var(--ca-primary-light); font-weight:500; }
+
+/* MODAL */
+.ca-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; display:flex; align-items:center; justify-content:center; animation:fadeIn .15s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.ca-modal { background:var(--ca-white); border-radius:var(--ca-radius-lg); box-shadow:var(--shadow-lg); width:560px; max-height:82vh; display:flex; flex-direction:column; animation:modalIn .2s ease; }
+@keyframes modalIn { from { opacity:0;transform:scale(.96) translateY(-8px); } to { opacity:1;transform:scale(1) translateY(0); } }
+.ca-modal-header { display:flex; align-items:center; gap:10px; padding:16px 20px; border-bottom:1px solid var(--ca-gray-200); flex-shrink:0; }
+.ca-modal-header h5 { font-size:16px; font-weight:600; color:var(--ca-gray-800); flex:1; margin:0; }
+.ca-modal-close { width:28px; height:28px; border-radius:6px; border:none; background:var(--ca-gray-100); color:var(--ca-gray-500); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; transition:all .15s; }
+.ca-modal-close:hover { background:var(--ca-gray-200); color:var(--ca-gray-700); }
+.ca-modal-body { padding:20px; overflow-y:auto; flex:1; }
+.ca-modal-footer { padding:14px 20px; border-top:1px solid var(--ca-gray-200); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; }
+
+/* CONTEXT MENU */
+.context-menu { position:fixed; background:var(--ca-white); border:1px solid var(--ca-gray-200); border-radius:var(--ca-radius); box-shadow:var(--shadow-lg); z-index:9500; min-width:180px; overflow:hidden; animation:contextMenuIn .12s ease; max-height:90vh; overflow-y:auto; }
+@keyframes contextMenuIn { from { opacity:0; transform:scale(.95) translateY(-4px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.context-menu-item { display:flex; align-items:center; gap:10px; padding:10px 14px; font-size:13px; color:var(--ca-gray-700); cursor:pointer; transition:all .1s; border:none; background:transparent; width:100%; text-align:left; white-space:nowrap; }
+.context-menu-item:hover { background:var(--ca-gray-100); color:var(--ca-gray-800); }
+.context-menu-item.danger { color:var(--ca-red); }
+.context-menu-item.danger:hover { background:#fff0f0; }
+.context-menu-item i { font-size:15px; flex-shrink:0; color:currentColor; }
+
+/* SEGMENTS VIEW */
+.seg-header-title { font-size:22px; font-weight:700; color:#111827; }
+.seg-search-wrapper { background-color:#f1f3f5; border-radius:6px; padding:6px 12px; display:flex; align-items:center; gap:8px; flex:1; }
+.seg-search-input { border:none; background:transparent; outline:none; font-size:14px; color:#495057; width:100%; }
+.seg-search-input::placeholder { color:#adb5bd; }
+.seg-select { border:1px solid #dee2e6; background-color:white; border-radius:6px; padding:6px 32px 6px 12px; font-size:14px; color:#495057; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; background-size:18px; }
+.btn-create-cyan { background-color:#00b4d8; color:white; border:none; border-radius:6px; padding:8px 16px; font-size:14px; font-weight:500; cursor:pointer; transition:background .2s; }
+.btn-create-cyan:hover { background-color:#0096b4; }
+
+.folder-tabs-row { display:flex; align-items:center; gap:12px; overflow-x:auto; padding-bottom:12px; margin-bottom:16px; }
+.folder-tabs-row::-webkit-scrollbar { display:none; }
+.folder-tab-btn { display:inline-flex; align-items:center; gap:6px; background:transparent; border:none; color:#4b5563; font-size:15px; font-weight:500; cursor:pointer; padding:6px 10px; border-radius:6px; white-space:nowrap; transition:all .2s; }
+.folder-tab-btn:hover { background-color:#f3f4f6; }
+.folder-tab-btn.active-cyan { background-color:#00b4d8; color:white; }
+.folder-tab-btn.active-cyan span.count { color:rgba(255,255,255,.8); }
+.folder-tab-btn span.count { color:#9ca3af; font-weight:400; }
+
+.global-tags-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px; }
+.global-tag { background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:100px; padding:4px 14px; font-size:13px; color:#374151; cursor:pointer; transition:all .15s; }
+.global-tag:hover { background-color:#e5e7eb; }
+.global-tag.active-global-tag { background-color:var(--seg-cyan); color:white; border-color:var(--seg-cyan); }
+
+.seg-group-card { background:white; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:24px; overflow:hidden; }
+.seg-group-header { padding:16px 20px; font-weight:600; font-size:16px; color:#111827; display:flex; align-items:center; gap:8px; border-bottom:1px solid #e5e7eb; }
+.seg-group-header i { font-size:20px; color:#4b5563; }
+
+.seg-table { width:100%; border-collapse:collapse; }
+.seg-table th { padding:12px 20px; font-size:13px; font-weight:600; color:#111827; text-align:left; border-bottom:1px solid #e5e7eb; cursor:pointer; user-select:none; white-space:nowrap; }
+.seg-table th:hover { background:#f9fafb; }
+.seg-table th .sort-icon { margin-left:4px; font-size:12px; opacity:.4; }
+.seg-table th.sort-active .sort-icon { opacity:1; color:var(--ca-primary); }
+.seg-table td { padding:16px 20px; font-size:14px; color:#4b5563; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+.seg-table tr:last-child td { border-bottom:none; }
+.seg-table td.seg-name { font-weight:600; color:#1f2937; cursor:pointer; }
+.seg-table td.seg-name:hover { color:var(--ca-primary); text-decoration:underline; }
+.seg-table td.seg-id { font-family:'DM Mono',monospace; font-size:13px; }
+
+.tag-pill { display:inline-flex; align-items:center; padding:2px 10px; border-radius:100px; font-size:12px; font-weight:500; }
+.tag-default { background-color:#f3f4f6; color:#374151; }
+.tag-active { background-color:#dcfce7; color:#166534; }
+.tag-test { background-color:#e9d5ff; color:#6b21a8; }
+.tag-dormant { background-color:#e5e7eb; color:#4b5563; }
+
+.status-badge { display:inline-flex; padding:4px 12px; border-radius:100px; font-size:12px; font-weight:600; }
+.status-Active { background-color:#dcfce7; color:#166534; }
+.status-Inactive { background-color:#e5e7eb; color:#4b5563; }
+.status-Draft { background-color:#f3e8ff; color:#7e22ce; }
+
+.dest-bubbles { display:flex; align-items:center; position:relative; }
+.dest-bubble { width:26px; height:26px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; background:white; border:2px solid white; box-shadow:0 0 0 1px #e5e7eb; margin-right:-8px; position:relative; z-index:1; }
+.dest-bubble:last-child { margin-right:0; }
+.dest-T { background-color:#4f46e5; color:white; border-color:white; box-shadow:0 0 0 1px #4f46e5; }
+.dest-count { background-color:#f3f4f6; color:#4b5563; font-weight:500; }
+
+.seg-action-btn { width:28px; height:28px; border-radius:6px; border:none; background:transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:17px; color:var(--ca-gray-400); transition:all .15s; }
+.seg-action-btn:hover { background:var(--ca-gray-100); color:var(--ca-gray-700); }
+
+/* MISC */
+.text-muted-sm { font-size:13px; color:var(--ca-gray-400); }
+.section-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--ca-gray-400); margin-bottom:8px; }
+
+/* TOASTS */
+.ca-toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.ca-toast { background:var(--ca-gray-800); color:white; padding:10px 16px; border-radius:var(--ca-radius); font-size:14px; display:flex; align-items:center; gap:8px; box-shadow:var(--shadow-lg); animation:toastIn .2s ease; min-width:260px; }
+.ca-toast.success { border-left:3px solid var(--ca-green); }
+.ca-toast.error { border-left:3px solid var(--ca-red); }
+.ca-toast.info { border-left:3px solid var(--ca-primary); }
+@keyframes toastIn { from { opacity:0;transform:translateX(20px); } to { opacity:1;transform:translateX(0); } }
+
+@keyframes loadingBar { 0%,100% { opacity:.5; transform:scaleX(.8); transform-origin:left; } 50% { opacity:1; transform:scaleX(1); } }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--ca-gray-300); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--ca-gray-400); }
+
+.hover-bg-gray:hover { background-color: var(--ca-gray-200) !important; color: var(--ca-gray-800) !important; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="ca-shell">
+
+    <!-- TOPBAR -->
+    <div class="ca-topbar">
+      <a class="ca-logo" href="#">
+        <div class="ca-logo-icon">CA</div>
+        <div class="ca-logo-text">Commanders<br>Act</div>
+      </a>
+      <div class="ca-topbar-right">
+        <button class="ca-topbar-btn"><i class='bx bx-bell'></i></button>
+        <button class="ca-topbar-btn"><i class='bx bx-help-circle'></i></button>
+        <div class="ca-avatar">AL</div>
+      </div>
+    </div>
+
+    <div class="ca-body">
+      <!-- SIDEBAR -->
+      <div class="ca-sidebar">
+        <div class="ca-sidebar-section">Integrations</div>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-git-merge'></i> Sources</a>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-transfer'></i> Destinations</a>
+        <hr class="ca-sidebar-divider" style="margin:8px 0; border:none; border-top:1px solid var(--ca-gray-200);">
+        <div class="ca-sidebar-section">Customers</div>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-user'></i> Profiles</a>
+        <a class="ca-sidebar-item active" href="#"><i class='bx bx-group'></i> Segments</a>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-bar-chart-alt-2'></i> Analytics</a>
+        <hr class="ca-sidebar-divider" style="margin:8px 0; border:none; border-top:1px solid var(--ca-gray-200);">
+        <div class="ca-sidebar-section">Explore</div>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-compass'></i> Insights</a>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-line-chart'></i> Reports</a>
+        <hr class="ca-sidebar-divider" style="margin:8px 0; border:none; border-top:1px solid var(--ca-gray-200);">
+        <div class="ca-sidebar-section">Configure</div>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-cog'></i> Settings</a>
+        <a class="ca-sidebar-item" href="#"><i class='bx bx-shield'></i> Consent</a>
+      </div>
+
+      <!-- MAIN -->
+      <div class="ca-main">
+        <!-- PAGE: ALL SEGMENTS -->
+        <div class="ca-page" style="padding:28px 32px;background-color:#f8f9fa;">
+
+          <!-- Title -->
+          <div class="mb-3">
+            <h1 class="seg-header-title m-0">Segments</h1>
+          </div>
+
+          <!-- Search / filter bar -->
+          <div class="bg-white p-3 rounded mb-3 d-flex align-items-center gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #e5e7eb;">
+            <div class="seg-search-wrapper" style="flex:1;max-width:400px;">
+              <i class="bx bx-search fs-5 text-muted"></i>
+              <input type="text" class="seg-search-input" v-model="segListSearch" placeholder="Search segments...">
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-dark fw-medium" style="font-size:14px;">Destinations</span>
+              <select class="seg-select" v-model="segListDestFilter"><option value="All">All</option><option value="Meta">Meta</option><option value="Google">Google</option><option value="Email">Email</option></select>
+            </div>
+            <button class="btn-create-cyan ms-auto" @click="openCreateModal()">Create segment</button>
+          </div>
+
+          <!-- Big white card: tabs + tags + sub-cards -->
+          <div class="bg-white rounded" style="box-shadow:4px 4px 16px rgba(0,0,0,.07);border:1px solid #e5e7eb;">
+            <!-- Folder tabs -->
+            <div class="folder-tabs-row position-relative" style="padding:14px 20px 12px;margin-bottom:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <button class="folder-tab-btn" :class="selectedFolderTab==='All'?'active-cyan':''" @click="selectedFolderTab='All'">All</button>
+              <button v-for="f in folders" :key="f.id" class="folder-tab-btn" :class="selectedFolderTab===f.id?'active-cyan':''" @click="selectedFolderTab=f.id">
+                <i :class="f.icon"></i> {{ f.name }} <span class="count">({{ getFolderCount(f.id) }})</span>
+              </button>
+              <button class="btn btn-light d-flex align-items-center justify-content-center" style="width:32px;height:32px;border-radius:6px;border:1px solid #e5e7eb;padding:0;flex-shrink:0;" @click="openFolderManager()" title="Manage folders">
+                <i class="bx bx-cog text-muted" style="font-size:18px;"></i>
+              </button>
+            </div>
+
+            <!-- Global tags -->
+            <div style="padding:4px 20px 14px;margin-bottom:0;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+              <span v-for="t in globalTagsList" :key="t" class="global-tag" :class="activeGlobalTag===t?'active-global-tag':''" @click="toggleGlobalTag(t)">
+                {{ t }}<i v-if="activeGlobalTag===t" class='bx bx-x ms-1' style="font-size:12px;vertical-align:middle;"></i>
+              </span>
+              <button class="btn btn-light d-flex align-items-center justify-content-center" style="width:32px;height:32px;border-radius:6px;border:1px solid #e5e7eb;padding:0;flex-shrink:0;" @click="openTagsManager()" title="Manage tags">
+                <i class="bx bx-cog text-muted" style="font-size:18px;"></i>
+              </button>
+            </div>
+
+            <!-- Sub-cards: one per folder -->
+            <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
+              <div v-for="folder in visibleFolders" :key="folder.id" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:white;">
+                <div style="padding:14px 20px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6;">
+                  <i :class="folder.icon" style="font-size:19px;color:#4b5563;"></i>
+                  <span style="font-weight:600;font-size:15px;color:#111827;">{{ folder.name }}</span>
+                </div>
+                <table class="seg-table">
+                  <thead>
+                    <tr>
+                      <th style="width:22%;" @click="setSegSort('name')" :class="segSort.col==='name'?'sort-active':''">
+                        Name <i class='bx' :class="segSort.col==='name'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='name'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:11%;">ID</th>
+                      <th style="width:18%;">Tags</th>
+                      <th style="width:11%;" @click="setSegSort('nbUsers')" :class="segSort.col==='nbUsers'?'sort-active':''">
+                        Nb users <i class='bx' :class="segSort.col==='nbUsers'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='nbUsers'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:14%;">Associated destinations</th>
+                      <th style="width:10%;" @click="setSegSort('lastUpdate')" :class="segSort.col==='lastUpdate'?'sort-active':''">
+                        Last update <i class='bx' :class="segSort.col==='lastUpdate'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='lastUpdate'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:7%;" @click="setSegSort('status')" :class="segSort.col==='status'?'sort-active':''">
+                        Status <i class='bx' :class="segSort.col==='status'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='status'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
+                      </th>
+                      <th style="width:7%;text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="seg in getSortedSegmentsByFolder(folder.id)" :key="seg.id">
+                      <td class="seg-name">{{ seg.name }}</td>
+                      <td class="seg-id">{{ seg.stringId }}</td>
+                      <td><div class="d-flex gap-1 flex-wrap"><span v-for="(tag,idx) in seg.tags" :key="idx" class="tag-pill" :class="'tag-'+(tag.type||'default')">{{ tag.text }}</span></div></td>
+                      <td><span class="text-dark fw-semibold">{{ seg.nbUsers }}</span><span class="text-muted" style="font-size:13px;margin-left:4px;">{{ seg.pct }}</span></td>
+                      <td><div class="dest-bubbles"><span v-for="(d,idx) in seg.dests" :key="idx" class="dest-bubble" :class="getDestClass(d)">{{ d }}</span></div></td>
+                      <td class="text-dark fw-medium" style="font-size:13px;">{{ seg.lastUpdate }}</td>
+                      <td><span class="status-badge" :class="'status-'+seg.status">{{ seg.status }}</span></td>
+                      <td style="text-align:right;white-space:nowrap;">
+                        <button class="seg-action-btn" @click="openContextMenu($event, seg)"><i class='bx bx-dots-vertical-rounded'></i></button>
+                      </td>
+                    </tr>
+                    <tr v-if="getSortedSegmentsByFolder(folder.id).length===0">
+                      <td colspan="8" class="text-center text-muted py-4">{{ activeGlobalTag?`No segments with tag "${activeGlobalTag}" in this folder.`:'No segments in this folder.' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div><!-- /big white card -->
+
+        </div>
+
+      </div><!-- /ca-main -->
+    </div><!-- /ca-body -->
+  </div><!-- /ca-shell -->
+
+  <!-- ===== MODAL: CREATE SEGMENT ===== -->
+  <div v-if="showCreateModal" class="ca-modal-overlay" @click.self="closeCreateModal()">
+    <div class="ca-modal">
+      <div class="ca-modal-header">
+        <h5>Create New Segment</h5>
+        <button class="ca-modal-close" @click="closeCreateModal()"><i class='bx bx-x'></i></button>
+      </div>
+      <div class="ca-modal-body">
+        <div class="mb-4">
+          <label style="font-size:14px;font-weight:500;display:block;margin-bottom:8px;">Segment Name *</label>
+          <input v-model="newSegmentName" class="ca-input" placeholder="Enter segment name">
+        </div>
+        <div class="mb-4">
+          <label style="font-size:14px;font-weight:500;display:block;margin-bottom:8px;">Folder</label>
+          <select v-model="newSegmentFolderId" class="ca-select w-100">
+            <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label style="font-size:14px;font-weight:500;display:block;margin-bottom:8px;">Tags</label>
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <span v-for="tag in newSegmentTags" :key="tag" class="ca-chip active" style="font-size:12px;">
+              {{ tag }}
+              <i class='bx bx-x' @click="removeNewTag(tag)" style="cursor:pointer;margin-left:4px;"></i>
+            </span>
+          </div>
+          <select v-model="selectedTagToAdd" class="ca-select w-100">
+            <option value="">+ Add a tag</option>
+            <option v-for="t in availableTags" :key="t" :value="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="ca-modal-footer">
+        <button class="btn-ca-secondary" @click="closeCreateModal()">Cancel</button>
+        <button class="btn-ca-primary" @click="createSegment()" :disabled="!newSegmentName.trim()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONTEXT MENU ===== -->
+  <div v-if="contextMenu.visible" class="context-menu" :style="contextMenuPosition">
+    <button class="context-menu-item" @click="editConditions(contextMenu.segment)"><i class='bx bxs-edit'></i> Edit conditions</button>
+    <button class="context-menu-item" @click="renameSegment(contextMenu.segment)"><i class='bx bxs-pencil'></i> Rename</button>
+    <button class="context-menu-item" @click="openMoveToFolderModal(contextMenu.segment)"><i class='bx bxs-folder'></i> Move to folder</button>
+    <button class="context-menu-item" @click="openEditTagsModal(contextMenu.segment)"><i class='bx bxs-purchase-tag'></i> Edit tags</button>
+    <button class="context-menu-item" @click="duplicateSegment(contextMenu.segment)"><i class='bx bxs-copy'></i> Duplicate</button>
+    <button class="context-menu-item danger" @click="deleteSegment(contextMenu.segment)"><i class='bx bxs-trash'></i> Delete</button>
+  </div>
+
+  <!-- ===== MODAL: MOVE TO FOLDER ===== -->
+  <div v-if="showMoveToFolderModal" class="ca-modal-overlay" @click.self="closeMoveToFolderModal()">
+    <div class="ca-modal">
+      <div class="ca-modal-header">
+        <h5>Move to Folder</h5>
+        <button class="ca-modal-close" @click="closeMoveToFolderModal()"><i class='bx bx-x'></i></button>
+      </div>
+      <div class="ca-modal-body">
+        <p class="text-muted-sm mb-3">Select a destination folder for "<strong>{{ moveToFolderSegment?.name }}</strong>"</p>
+        <div class="d-flex flex-column gap-2">
+          <button v-for="f in folders" :key="f.id" 
+                  class="d-flex align-items-center gap-3 p-3 border rounded"
+                  :style="moveToFolderSegment?.folderId === f.id ? 'border-color: var(--ca-primary); background: var(--ca-primary-light);' : ''"
+                  @click="moveToFolderSegment.folderId = f.id"
+                  style="background: white; cursor: pointer; transition: all 0.15s; text-align: left;">
+            <i :class="f.icon" style="font-size: 18px; color: #4b5563; flex-shrink: 0;"></i>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 500; color: #111827;">{{ f.name }}</div>
+              <div class="text-muted-sm">{{ getFolderCount(f.id) }} segments</div>
+            </div>
+            <i v-if="moveToFolderSegment?.folderId === f.id" class='bx bx-check' style="font-size: 18px; color: var(--ca-primary);"></i>
+          </button>
+        </div>
+      </div>
+      <div class="ca-modal-footer">
+        <button class="btn-ca-secondary" @click="closeMoveToFolderModal()">Cancel</button>
+        <button class="btn-ca-primary" @click="confirmMoveToFolder()">Move</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: EDIT TAGS ===== -->
+  <div v-if="showEditTagsModal" class="ca-modal-overlay" @click.self="closeEditTagsModal()">
+    <div class="ca-modal">
+      <div class="ca-modal-header">
+        <h5>Edit Tags</h5>
+        <button class="ca-modal-close" @click="closeEditTagsModal()"><i class='bx bx-x'></i></button>
+      </div>
+      <div class="ca-modal-body">
+        <p class="text-muted-sm mb-4">Manage tags for "<strong>{{ editTagsSegment?.name }}</strong>"</p>
+        
+        <!-- Current tags -->
+        <div class="mb-4">
+          <div class="section-title mb-2">Current Tags</div>
+          <div class="d-flex flex-wrap gap-2">
+            <span v-for="tag in editTagsSegment?.tags || []" :key="tag.text" class="ca-chip active" style="font-size: 12px;">
+              {{ tag.text }}
+              <i class='bx bx-x' @click="removeEditTag(tag.text)" style="cursor: pointer; margin-left: 4px;"></i>
+            </span>
+            <span v-if="(!editTagsSegment?.tags || editTagsSegment.tags.length === 0)" class="text-muted-sm" style="font-size: 13px;">No tags yet</span>
+          </div>
+        </div>
+
+        <!-- Available tags to add -->
+        <div class="mb-4">
+          <div class="section-title mb-2">Available Tags</div>
+          <div class="row g-2">
+            <div v-for="t in availableTagsForEdit" :key="t" class="col-md-6">
+              <button class="d-flex align-items-center justify-content-between w-100 p-2 border rounded"
+                      style="background: white; cursor: pointer; transition: all 0.15s; font-size: 13px;"
+                      @click="addEditTag(t)">
+                <span>{{ t }}</span>
+                <i class='bx bx-plus' style="font-size: 16px; color: var(--ca-gray-400);"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ca-modal-footer">
+        <button class="btn-ca-secondary" @click="closeEditTagsModal()">Cancel</button>
+        <button class="btn-ca-primary" @click="confirmEditTags()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAGS MANAGER OFFCANVAS ===== -->
+  <div v-if="showTagsManager" class="offcanvas-backdrop fade show" style="z-index:9998;" @click="closeTagsManager()"></div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showTagsManager }" style="z-index:9999;visibility:visible;transition:transform .3s ease-in-out;" :style="{ transform: showTagsManager?'translateX(0)':'translateX(100%)' }">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title fw-bold"><i class="bx bxs-purchase-tag text-muted me-2"></i>Manage Tags</h5>
+      <button type="button" class="btn-close" @click="closeTagsManager()"></button>
+    </div>
+    
+    <div class="offcanvas-body d-flex flex-column" style="padding:0;height:calc(100% - 56px);">
+      <!-- VIEW: TAGS LIST -->
+      <div v-if="!isCreatingTag" class="d-flex flex-column h-100">
+        <!-- Header with description and button -->
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+          <p class="text-muted small mb-0">You have {{ globalTagsList.length }} tag{{ globalTagsList.length !== 1 ? 's' : '' }}</p>
+        </div>
+
+        <!-- Search input -->
+        <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-0" style="border-radius:6px 0 0 6px;"><i class='bx bx-search' style="font-size:16px;color:#9ca3af;"></i></span>
+            <input v-model="tagsSearchFilter" type="text" class="form-control" placeholder="Search tags..." style="border-radius:0 6px 6px 0;">
+          </div>
+        </div>
+
+        <!-- Scrollable tags list -->
+        <div style="flex:1;overflow-y:auto;padding:12px 16px;gap:8px;display:flex;flex-direction:column;">
+          <div v-for="t in filteredTagsForManager" :key="t" class="d-flex align-items-center justify-content-between p-3 border rounded" style="background:white;border-color:#e5e7eb;transition:all 0.15s;">
+            <span class="fw-medium" style="font-size:14px;color:#374151;">{{ t }}</span>
+            <button class="btn btn-sm" style="padding:4px 8px;color:#dc2626;border:1px solid #fecaca;background:#fff5f5;border-radius:4px;transition:all 0.15s;" @click="deleteTag(t)" @mouseenter="$event.currentTarget.style.backgroundColor='#fee2e2'" @mouseleave="$event.currentTarget.style.backgroundColor='#fff5f5'">
+              <i class="bx bx-trash" style="font-size:14px;"></i>
+            </button>
+          </div>
+          <div v-if="filteredTagsForManager.length === 0" class="text-center py-5" style="color:#9ca3af;">
+            <i class='bx bx-search' style="font-size:32px;display:block;margin-bottom:8px;"></i>
+            <p class="small" style="margin:0;">No tags match your search</p>
+          </div>
+        </div>
+
+        <!-- Create button (sticky at bottom) -->
+        <div style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;">
+          <button class="btn btn-outline-primary w-100 fw-medium" style="font-size:14px;" @click="isCreatingTag = true"><i class="bx bx-plus"></i> New Tag</button>
+        </div>
+      </div>
+      
+      <!-- VIEW: CREATE TAG -->
+      <div v-else class="d-flex flex-column h-100">
+        <!-- Header -->
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+          <button class="btn btn-sm btn-light border" style="font-size:13px;margin-bottom:12px;" @click="isCreatingTag = false"><i class='bx bx-left-arrow-alt'></i> Back</button>
+          <h6 class="m-0 fw-bold" style="font-size:15px;">Create New Tag</h6>
+        </div>
+
+        <!-- Form (scrollable) -->
+        <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;margin-bottom:8px;">Tag Name *</label>
+            <input v-model="newTagName" type="text" class="form-control" placeholder="e.g., High Priority" @keyup.enter="confirmCreateTag()" style="font-size:14px;border-radius:6px;">
+          </div>
+
+          <div v-if="globalTagsList.includes(newTagName.trim()) && newTagName.trim()" class="alert alert-warning" style="font-size:12px;margin:0;padding:10px 12px;border-radius:6px;">
+            <i class='bx bx-exclamation-circle' style="vertical-align:middle;margin-right:6px;"></i> This tag already exists
+          </div>
+
+          <div style="padding:12px;background:#f3f4f6;border-radius:6px;border-left:3px solid #3b82f6;">
+            <p style="font-size:12px;color:#4b5563;margin:0;line-height:1.5;">
+              <strong>Tip:</strong> Use clear, descriptive names like "High Priority", "Q4 Campaign", or "Test Segment" to keep your tags organized.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action buttons (sticky at bottom) -->
+        <div style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;display:flex;gap:8px;">
+          <button class="btn btn-light flex-fill" style="font-size:13px;" @click="isCreatingTag = false">Cancel</button>
+        <button class="btn btn-primary w-100 fw-medium" style="font-size:13px;" :disabled="!newTagName.trim() || globalTagsList.includes(newTagName.trim()) || globalTagsList.length >= 20" @click="confirmCreateTag()">Create Tag</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOLDER MANAGER OFFCANVAS ===== -->
+  <div v-if="showFolderManager" class="offcanvas-backdrop fade show" style="z-index:9998;" @click="closeFolderManager()"></div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showFolderManager }" style="z-index:9999;visibility:visible;transition:transform .3s ease-in-out;" :style="{ transform: showFolderManager?'translateX(0)':'translateX(100%)' }">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title fw-bold"><i class="bx bx-folder text-muted me-2"></i>Manage Folders</h5>
+      <button type="button" class="btn-close" @click="closeFolderManager()"></button>
+    </div>
+    
+    <div class="offcanvas-body">
+      <!-- VIEW: FOLDER LIST -->
+      <div v-if="!isCreatingFolder">
+        <p class="text-muted small mb-4">Rename, delete or add new segmentation folders.</p>
+        <div v-for="f in folders" :key="f.id" class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
+          <i :class="f.icon" class="fs-4 text-secondary"></i>
+          <input v-if="folderManagerEditId===f.id" v-model="f.name" class="form-control form-control-sm" @keyup.enter="folderManagerEditId=null" @blur="folderManagerEditId=null" autofocus>
+          <span v-else class="flex-fill fw-medium" style="font-size:14px;">{{ f.name }}</span>
+          <button class="btn btn-sm btn-white border" @click="folderManagerEditId=f.id"><i class="bx bx-edit text-muted"></i></button>
+          <button v-if="f.id!=='f1'" class="btn btn-sm btn-white border text-danger" @click="deleteFolder(f.id)"><i class="bx bx-trash"></i></button>
+        </div>
+        <button class="btn btn-outline-primary w-100 mt-4 fw-medium" @click="isCreatingFolder = true"><i class="bx bx-plus"></i> New Folder</button>
+      </div>
+      
+      <!-- VIEW: CREATE FOLDER -->
+      <div v-else>
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <button class="btn btn-sm btn-light border" @click="isCreatingFolder = false"><i class='bx bx-left-arrow-alt'></i> Back</button>
+          <h6 class="m-0 fw-bold">Create Folder</h6>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;">Folder Name</label>
+          <input v-model="newFolderName" type="text" class="form-control" placeholder="e.g., Summer Campaigns">
+        </div>
+
+        <div class="mb-4 position-relative">
+          <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;">Icon</label>
+          <div class="form-control d-flex align-items-center gap-2" style="cursor:pointer;" @click="showIconDropdown = !showIconDropdown">
+            <i :class="newFolderIcon" class="fs-5 text-primary"></i>
+            <span style="font-size:14px;">Choose an icon...</span>
+            <i class='bx bx-chevron-down ms-auto'></i>
+          </div>
+          
+          <!-- Icon Dropdown Grid -->
+          <div v-if="showIconDropdown" class="position-absolute bg-white border rounded p-2 shadow-sm w-100" style="z-index:10; top:100%; margin-top:4px;">
+            <div class="d-flex flex-wrap gap-2">
+              <div v-for="ico in selectableIcons" :key="ico"
+                   class="d-flex align-items-center justify-content-center rounded"
+                   :class="newFolderIcon === ico ? 'bg-primary text-white' : 'bg-light text-muted'"
+                   style="width:36px; height:36px; cursor:pointer; transition:all 0.15s; user-select: none;"
+                   @click="newFolderIcon = ico; showIconDropdown = false"
+                   @mouseenter="$event.currentTarget.style.backgroundColor=newFolderIcon === ico ? 'var(--ca-primary)' : 'var(--ca-gray-200)'"
+                   @mouseleave="$event.currentTarget.style.backgroundColor=newFolderIcon === ico ? 'var(--ca-primary)' : 'var(--ca-gray-100)'">
+                <i :class="ico" class="fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100 fw-medium mb-4" :disabled="!newFolderName.trim() || folders.value.length >= 10" @click="confirmCreateFolder()">Create Folder</button>
+
+        <hr class="text-muted opacity-25">
+
+        <h6 class="fw-bold mb-3" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ca-gray-500);">Suggested Folders</h6>
+        <div v-if="availableSuggestedFolders.length > 0" class="d-flex flex-column gap-2">
+          <div v-for="sug in availableSuggestedFolders" :key="sug.name"
+               class="d-flex align-items-center gap-2 p-2 border rounded"
+               style="cursor:pointer; transition:all 0.2s; user-select: none;"
+               @click="applySuggestedFolder(sug)"
+               @mouseenter="$event.currentTarget.classList.add('bg-light')"
+               @mouseleave="$event.currentTarget.classList.remove('bg-light')">
+            <i :class="sug.icon" class="fs-4 text-secondary"></i>
+            <span class="fw-medium text-dark" style="font-size:14px;">{{ sug.name }}</span>
+            <i class='bx bx-plus ms-auto text-muted'></i>
+          </div>
+        </div>
+        <div v-else class="text-muted small">
+          All suggested folders are already created.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ca-toast-container">
+    <div v-for="t in toasts" :key="t.id" class="ca-toast" :class="t.type">
+      <i class='bx' :class="t.type==='success'?'bx-check-circle':t.type==='error'?'bx-x-circle':'bx-info-circle'" style="font-size:18px;flex-shrink:0;"></i>
+      {{ t.msg }}
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+<script>
+const { createApp, ref, computed, reactive, watch } = Vue;
+
+createApp({
+  setup() {
+    let toastId = 0;
+    const toasts = ref([]);
+
+    const showToast = (msg, type = 'info') => {
+      const id = ++toastId;
+      toasts.value.push({ id, msg, type });
+      setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3200);
+    };
+
+    // ===== SEGMENTS LIST & FOLDERS =====
+    const segListSearch = ref('');
+    const segListFilter = ref('All');
+    const segListDestFilter = ref('All');
+    const segSort = reactive({ col: 'lastUpdate', asc: false });
+
+    const setSegSort = (col) => {
+      if (segSort.col === col) { segSort.asc = !segSort.asc; }
+      else { segSort.col = col; segSort.asc = true; }
+    };
+
+    const folders = ref([
+      { id:'f1', name:'Lifecycle', icon:'bx bx-time-five' },
+      { id:'f2', name:'Value & RFM', icon:'bx bx-line-chart' },
+      { id:'f3', name:'Interests', icon:'bx bxs-purchase-tag' },
+      { id:'f4', name:'Triggers', icon:'bx bx-bolt-circle' },
+      { id:'f5', name:'Omnichannel', icon:'bx bx-share-alt' },
+      { id:'f7', name:'Technical', icon:'bx bx-filter' },
+      { id:'f6', name:'Tests', icon:'bx bx-test-tube' }
+    ]);
+
+    const selectedFolderTab = ref('All');
+    const globalTagsList = ref(['Paid','CRM','Onsite','App','SAP','Meta','Google','DE','AT','NL','Control']);
+    const activeGlobalTag = ref(null);
+
+    const savedSegments = ref([
+      { id:'s1',  folderId:'f1', name:'KS_Neukunde_DE',                     stringId:'65',   tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'87k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s2',  folderId:'f1', name:'KS_Neukunde_Aktiv',                  stringId:'75',   tags:[{text:'Meta'}],               nbUsers:'210k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s3',  folderId:'f1', name:'KS_Neukunde_Inaktiv',                stringId:'76',   tags:[{text:'Meta'}],               nbUsers:'145k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s4',  folderId:'f1', name:'KS_Neukunde_30-90Tage',              stringId:'946',  tags:[{text:'Meta'},{text:'Google'}],                            nbUsers:'178k', pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s13', folderId:'f2', name:'RFM_Top_Kunden',                     stringId:'605',  tags:[{text:'RFM'},{text:'VIP'}],                                nbUsers:'95k',  pct:'(< 1%)', dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s18', folderId:'f3', name:'AFF_Damen_DE',                       stringId:'247',  tags:[{text:'Affinity'},{text:'Paid'}],                          nbUsers:'620k', pct:'(3%)',   dests:['M','G','Y'],     lastUpdate:'4 months', status:'Active' },
+      { id:'s37', folderId:'f4', name:'WCA_Kauf_Online_1-30Tage',           stringId:'WCA01', tags:[{text:'Trigger'},{text:'Online'}],                        nbUsers:'145k', pct:'(< 1%)', dests:['M','G'],         lastUpdate:'4 months', status:'Active' },
+      { id:'s42', folderId:'f5', name:'PERF_Alle_Kauefer_Online_Google_DE', stringId:'518',  tags:[{text:'Paid'},{text:'Google'}],                            nbUsers:'1.4M', pct:'(6%)',   dests:['G','Y'],         lastUpdate:'8 months', status:'Active' },
+      { id:'s45', folderId:'f6', name:'CV_Negativ_Testgruppe',              stringId:'1128', tags:[{text:'Control'}],              nbUsers:'75k',  pct:'(< 1%)', dests:['M','G'],         lastUpdate:'18 months', status:'Inactive' },
+      { id:'s52', folderId:'f7', name:'PERF_GDN_MidFunnel_Kinder',          stringId:'1178', tags:[{text:'Google'},{text:'GDN'}],                             nbUsers:'310k', pct:'(1%)',   dests:['G'],             lastUpdate:'15 months', status:'Inactive' },
+    ]);
+
+    const visibleFolders = computed(() => {
+      let foldersToDisplay = folders.value;
+      if (selectedFolderTab.value !== 'All') {
+        foldersToDisplay = folders.value.filter(f=>f.id===selectedFolderTab.value);
+      } else {
+        foldersToDisplay = folders.value.filter(f=>getFilteredSegmentsByFolder(f.id).length>0);
+      }
+      return foldersToDisplay;
+    });
+
+    const getFilteredSegmentsByFolder = (folderId) => {
+      return savedSegments.value.filter(s => {
+        if (s.folderId !== folderId) { return false; }
+        if (segListFilter.value !== 'All' && s.status !== segListFilter.value) { return false; }
+        if (segListSearch.value && !s.name.toLowerCase().includes(segListSearch.value.toLowerCase())) { return false; }
+        if (activeGlobalTag.value) { return s.tags.some(t=>t.text===activeGlobalTag.value); }
+        return true;
+      });
+    };
+
+    const getSortedSegmentsByFolder = (folderId) => {
+      let list = getFilteredSegmentsByFolder(folderId);
+      const { col, asc } = segSort;
+      list = list.slice().sort((a, b) => {
+        let va = a[col] || '';
+        let vb = b[col] || '';
+        if (col === 'nbUsers') {
+          va = parseFloat(String(va).replace(/[^0-9.]/g, '')) || 0;
+          vb = parseFloat(String(vb).replace(/[^0-9.]/g, '')) || 0;
+        }
+        if (va < vb) { return asc ? -1 : 1; }
+        if (va > vb) { return asc ? 1 : -1; }
+        return 0;
+      });
+      return list;
+    };
+
+    const getFolderCount = (folderId) => {
+      return savedSegments.value.filter(s=>s.folderId===folderId).length;
+    };
+
+    const getDestClass = (d) => {
+      if (d==='T') { return 'dest-T'; }
+      if (d.startsWith('+')) { return 'dest-count'; }
+      return '';
+    };
+
+    const toggleGlobalTag = (tag) => { activeGlobalTag.value = activeGlobalTag.value===tag ? null : tag; };
+
+    // ===== TAGS MANAGER =====
+    const showTagsManager = ref(false);
+    const isCreatingTag = ref(false);
+    const newTagName = ref('');
+    const tagsSearchFilter = ref('');
+
+    const filteredTagsForManager = computed(() => {
+      if (!tagsSearchFilter.value.trim()) {
+        return globalTagsList.value;
+      }
+      return globalTagsList.value.filter(t => 
+        t.toLowerCase().includes(tagsSearchFilter.value.toLowerCase())
+      );
+    });
+
+    const openTagsManager = () => {
+      isCreatingTag.value = false;
+      showTagsManager.value = true;
+    };
+
+    const closeTagsManager = () => {
+      showTagsManager.value = false;
+      isCreatingTag.value = false;
+      newTagName.value = '';
+      tagsSearchFilter.value = '';
+    };
+
+    const confirmCreateTag = () => {
+      if (!newTagName.value.trim() || globalTagsList.value.includes(newTagName.value.trim())) return;
+      if (globalTagsList.value.length >= 20) {
+        showToast('Maximum 20 tags allowed', 'error');
+        return;
+      }
+      globalTagsList.value.push(newTagName.value.trim());
+      showToast(`Tag "${newTagName.value.trim()}" created successfully`, 'success');
+      newTagName.value = '';
+      isCreatingTag.value = false;
+    };
+
+    const deleteTag = (tag) => {
+      if (confirm(`Delete tag "${tag}"?`)) {
+        globalTagsList.value = globalTagsList.value.filter(t => t !== tag);
+        if (activeGlobalTag.value === tag) { activeGlobalTag.value = null; }
+        showToast(`Tag "${tag}" deleted`, 'info');
+      }
+    };
+
+    // ===== FOLDER MANAGER =====
+    const showFolderManager = ref(false);
+    const isCreatingFolder = ref(false);
+    const folderManagerEditId = ref(null);
+    const newFolderName = ref('');
+    const newFolderIcon = ref('bx bx-folder');
+    const showIconDropdown = ref(false);
+
+    const selectableIcons = [
+      'bx bx-folder', 'bx bx-time-five', 'bx bx-line-chart', 'bx bxs-purchase-tag',
+      'bx bx-bolt-circle', 'bx bx-share-alt', 'bx bx-edit', 'bx bx-cog',
+      'bx bx-group', 'bx bx-envelope', 'bx bx-bell', 'bx bx-star',
+      'bx bx-target-lock', 'bx bx-pie-chart-alt-2', 'bx bx-calendar', 'bx bx-map'
+    ];
+
+    const suggestedFolders = [
+      { name: 'Lifecycle', icon: 'bx bx-time-five' },
+      { name: 'Value & RFM', icon: 'bx bx-line-chart' },
+      { name: 'Interests', icon: 'bx bxs-purchase-tag' },
+      { name: 'Triggers', icon: 'bx bx-bolt-circle' },
+      { name: 'Omnichannel', icon: 'bx bx-share-alt' },
+      { name: 'Technical', icon: 'bx bx-filter' },
+      { name: 'Tests', icon: 'bx bx-test-tube' },
+      { name: 'Behavioral', icon: 'bx bx-trending-up' },
+      { name: 'Campaigns', icon: 'bx bx-megaphone' }
+    ];
+
+    const availableSuggestedFolders = computed(() => {
+      const existingNames = folders.value.map(f => f.name);
+      return suggestedFolders.filter(sug => !existingNames.includes(sug.name));
+    });
+
+    const openFolderManager = () => {
+      isCreatingFolder.value = false;
+      showFolderManager.value = true;
+    };
+
+    const closeFolderManager = () => {
+      showFolderManager.value = false;
+      isCreatingFolder.value = false;
+      folderManagerEditId.value = null;
+      showIconDropdown.value = false;
+    };
+
+    const confirmCreateFolder = () => {
+      if (!newFolderName.value.trim()) return;
+      if (folders.value.length >= 10) {
+        showToast('Maximum 10 folders allowed', 'error');
+        return;
+      }
+      folders.value.push({
+        id: 'f' + Date.now(),
+        name: newFolderName.value.trim(),
+        icon: newFolderIcon.value
+      });
+      showToast(`Folder "${newFolderName.value.trim()}" created successfully`, 'success');
+      newFolderName.value = '';
+      newFolderIcon.value = 'bx bx-folder';
+      isCreatingFolder.value = false;
+    };
+
+    const applySuggestedFolder = (sug) => {
+      newFolderName.value = sug.name;
+      newFolderIcon.value = sug.icon;
+      confirmCreateFolder();
+    };
+
+    const deleteFolder = (id) => {
+      if (confirm('Delete this folder? Associated segments will be moved to Lifecycle.')) {
+        folders.value = folders.value.filter(f => f.id !== id);
+        savedSegments.value.forEach(s => {
+          if (s.folderId === id) { s.folderId = 'f1'; }
+        });
+        if (selectedFolderTab.value === id) { selectedFolderTab.value = 'All'; }
+        showToast('Folder deleted', 'info');
+      }
+    };
+
+    // ===== CREATE SEGMENT MODAL =====
+    const showCreateModal = ref(false);
+    const newSegmentName = ref('');
+    const newSegmentFolderId = ref('f1');
+    const newSegmentTags = ref([]);
+    const selectedTagToAdd = ref('');
+    const availableTags = computed(() => {
+      return globalTagsList.value.filter(t => !newSegmentTags.value.includes(t));
+    });
+
+    // ===== CONTEXT MENU (defined early to avoid undefined errors) =====
+    const contextMenu = reactive({ visible: false, x: 0, y: 0, segment: null });
+
+    const openContextMenu = (event, segment) => {
+      event.stopPropagation();
+      contextMenu.x = event.clientX;
+      contextMenu.y = event.clientY;
+      contextMenu.segment = segment;
+      contextMenu.visible = true;
+      document.addEventListener('click', closeContextMenu);
+    };
+
+    const closeContextMenu = () => {
+      contextMenu.visible = false;
+      document.removeEventListener('click', closeContextMenu);
+    };
+
+    const contextMenuPosition = computed(() => {
+      const menuWidth = 200;
+      const menuHeight = 220;
+      const padding = 10;
+      let x = contextMenu.x;
+      let y = contextMenu.y;
+
+      // Check if menu would go off-screen on the right
+      if (x + menuWidth + padding > window.innerWidth) {
+        x = window.innerWidth - menuWidth - padding;
+      }
+
+      // Check if menu would go off-screen on the bottom
+      if (y + menuHeight + padding > window.innerHeight) {
+        y = window.innerHeight - menuHeight - padding;
+      }
+
+      // Ensure minimum margins
+      if (x < padding) x = padding;
+      if (y < padding) y = padding;
+
+      return {
+        top: y + 'px',
+        left: x + 'px'
+      };
+    });
+
+    watch(selectedTagToAdd, (val) => {
+      if (val) {
+        newSegmentTags.value.push(val);
+        selectedTagToAdd.value = '';
+      }
+    });
+
+    const openCreateModal = () => {
+      newSegmentName.value = '';
+      newSegmentFolderId.value = 'f1';
+      newSegmentTags.value = [];
+      selectedTagToAdd.value = '';
+      showCreateModal.value = true;
+    };
+
+    const closeCreateModal = () => {
+      showCreateModal.value = false;
+    };
+
+    const removeNewTag = (tag) => {
+      newSegmentTags.value = newSegmentTags.value.filter(t => t !== tag);
+    };
+
+    const createSegment = () => {
+      if (!newSegmentName.value.trim()) { return; }
+      const newSeg = {
+        id: 'seg_' + Date.now(),
+        folderId: newSegmentFolderId.value,
+        name: newSegmentName.value,
+        stringId: Math.random().toString(36).substring(2, 10).toUpperCase(),
+        tags: newSegmentTags.value.map(t => ({ text: t })),
+        nbUsers: '0',
+        pct: '(0%)',
+        dests: [],
+        lastUpdate: 'À l\'instant',
+        status: 'Draft'
+      };
+      savedSegments.value.unshift(newSeg);
+      showToast('Segment created successfully', 'success');
+      closeCreateModal();
+    };
+
+    const editConditions = (seg) => {
+      showToast(`Edit conditions for "${seg.name}"`, 'info');
+      closeContextMenu();
+    };
+
+    // ===== MOVE TO FOLDER =====
+    const showMoveToFolderModal = ref(false);
+    const moveToFolderSegment = ref(null);
+
+    const openMoveToFolderModal = (seg) => {
+      moveToFolderSegment.value = seg;
+      showMoveToFolderModal.value = true;
+      closeContextMenu();
+    };
+
+    const closeMoveToFolderModal = () => {
+      showMoveToFolderModal.value = false;
+      moveToFolderSegment.value = null;
+    };
+
+    const confirmMoveToFolder = () => {
+      if (moveToFolderSegment.value) {
+        showToast(`Segment moved to "${folders.value.find(f => f.id === moveToFolderSegment.value.folderId)?.name}"`, 'success');
+        closeMoveToFolderModal();
+      }
+    };
+
+    // ===== EDIT TAGS =====
+    const showEditTagsModal = ref(false);
+    const editTagsSegment = ref(null);
+
+    const availableTagsForEdit = computed(() => {
+      if (!editTagsSegment.value) return [];
+      const currentTags = editTagsSegment.value.tags.map(t => t.text);
+      return globalTagsList.filter(t => !currentTags.includes(t));
+    });
+
+    const openEditTagsModal = (seg) => {
+      editTagsSegment.value = { ...seg };
+      showEditTagsModal.value = true;
+      closeContextMenu();
+    };
+
+    const closeEditTagsModal = () => {
+      showEditTagsModal.value = false;
+      editTagsSegment.value = null;
+    };
+
+    const removeEditTag = (tag) => {
+      if (editTagsSegment.value) {
+        editTagsSegment.value.tags = editTagsSegment.value.tags.filter(t => t.text !== tag);
+      }
+    };
+
+    const addEditTag = (tag) => {
+      if (editTagsSegment.value && !editTagsSegment.value.tags.some(t => t.text === tag)) {
+        editTagsSegment.value.tags.push({ text: tag });
+      }
+    };
+
+    const confirmEditTags = () => {
+      if (editTagsSegment.value) {
+        const originalSeg = savedSegments.value.find(s => s.id === editTagsSegment.value.id);
+        if (originalSeg) {
+          originalSeg.tags = editTagsSegment.value.tags;
+          showToast('Tags updated successfully', 'success');
+          closeEditTagsModal();
+        }
+      }
+    };
+
+    const renameSegment = (seg) => {
+      const newName = prompt('Nouveau nom:', seg.name);
+      if (newName && newName.trim()) {
+        seg.name = newName.trim();
+        showToast('Segment renamed', 'success');
+      }
+      closeContextMenu();
+    };
+
+    const duplicateSegment = (seg) => {
+      const copy = { ...seg, id: 'seg_' + Date.now(), name: seg.name + ' (copy)', status: 'Inactive' };
+      savedSegments.value.unshift(copy);
+      showToast('Segment duplicated', 'success');
+      closeContextMenu();
+    };
+
+    const deleteSegment = (seg) => {
+      if (confirm(`Delete "${seg.name}"?`)) {
+        savedSegments.value = savedSegments.value.filter(s => s.id !== seg.id);
+        showToast('Segment deleted', 'info');
+      }
+      closeContextMenu();
+    };
+
+    return {
+      toasts, showToast,
+      segListSearch, segListFilter, segListDestFilter, segSort, setSegSort,
+      folders, selectedFolderTab, globalTagsList, activeGlobalTag,
+      savedSegments, visibleFolders,
+      getFilteredSegmentsByFolder, getSortedSegmentsByFolder, getFolderCount, getDestClass, toggleGlobalTag,
+      showTagsManager, isCreatingTag, newTagName, tagsSearchFilter, filteredTagsForManager, openTagsManager, closeTagsManager, confirmCreateTag, deleteTag,
+      showFolderManager, isCreatingFolder, folderManagerEditId, newFolderName, newFolderIcon, showIconDropdown,
+      selectableIcons, suggestedFolders, availableSuggestedFolders, openFolderManager, closeFolderManager, confirmCreateFolder, applySuggestedFolder, deleteFolder,
+      showCreateModal, newSegmentName, newSegmentFolderId, newSegmentTags, selectedTagToAdd, availableTags,
+      openCreateModal, closeCreateModal, removeNewTag, createSegment,
+      contextMenu, openContextMenu, closeContextMenu,
+      contextMenuPosition,
+      showMoveToFolderModal, moveToFolderSegment, openMoveToFolderModal, closeMoveToFolderModal, confirmMoveToFolder,
+      showEditTagsModal, editTagsSegment, availableTagsForEdit, openEditTagsModal, closeEditTagsModal, removeEditTag, addEditTag, confirmEditTags,
+      editConditions, renameSegment, duplicateSegment, deleteSegment
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
