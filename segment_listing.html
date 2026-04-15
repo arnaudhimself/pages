@@ -261,7 +261,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
             <button class="btn-create-cyan ms-auto" @click="openCreateModal()">Create segment</button>
           </div>
 
-          <!-- Big white card: tabs + tags + sub-cards -->
+          <!-- Big white card: tabs + labels + sub-cards -->
           <div class="bg-white rounded" style="box-shadow:4px 4px 16px rgba(0,0,0,.07);border:1px solid #e5e7eb;">
             <!-- Folder tabs -->
             <div class="folder-tabs-row position-relative" style="padding:14px 20px 12px;margin-bottom:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -274,12 +274,12 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
               </button>
             </div>
 
-            <!-- Global tags -->
+            <!-- Global labels -->
             <div style="padding:4px 20px 14px;margin-bottom:0;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
               <span v-for="t in globalTagsList" :key="t" class="global-tag" :class="activeGlobalTag===t?'active-global-tag':''" @click="toggleGlobalTag(t)">
                 {{ t }}<i v-if="activeGlobalTag===t" class='bx bx-x ms-1' style="font-size:12px;vertical-align:middle;"></i>
               </span>
-              <button class="btn btn-light d-flex align-items-center justify-content-center" style="width:32px;height:32px;border-radius:6px;border:1px solid #e5e7eb;padding:0;flex-shrink:0;" @click="openTagsManager()" title="Manage tags">
+              <button class="btn btn-light d-flex align-items-center justify-content-center" style="width:32px;height:32px;border-radius:6px;border:1px solid #e5e7eb;padding:0;flex-shrink:0;" @click="openTagsManager()" title="Manage labels">
                 <i class="bx bx-cog text-muted" style="font-size:18px;"></i>
               </button>
             </div>
@@ -298,7 +298,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                         Name <i class='bx' :class="segSort.col==='name'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='name'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
                       </th>
                       <th style="width:11%;">ID</th>
-                      <th style="width:18%;">Tags</th>
+                      <th style="width:18%;">Labels</th>
                       <th style="width:11%;" @click="setSegSort('nbUsers')" :class="segSort.col==='nbUsers'?'sort-active':''">
                         Nb users <i class='bx' :class="segSort.col==='nbUsers'?(segSort.asc?'bx-sort-up':'bx-sort-down'):'bx-sort'" style="margin-left:4px;font-size:13px;" :style="segSort.col==='nbUsers'?'color:var(--ca-primary);opacity:1;':'opacity:.35;'"></i>
                       </th>
@@ -326,7 +326,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                       </td>
                     </tr>
                     <tr v-if="getSortedSegmentsByFolder(folder.id).length===0">
-                      <td colspan="8" class="text-center text-muted py-4">{{ activeGlobalTag?`No segments with tag "${activeGlobalTag}" in this folder.`:'No segments in this folder.' }}</td>
+                      <td colspan="8" class="text-center text-muted py-4">{{ activeGlobalTag?`No segments with label "${activeGlobalTag}" in this folder.`:'No segments in this folder.' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -360,7 +360,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
           </select>
         </div>
         <div class="mb-4">
-          <label style="font-size:14px;font-weight:500;display:block;margin-bottom:8px;">Tags</label>
+          <label style="font-size:14px;font-weight:500;display:block;margin-bottom:8px;">Labels</label>
           <div class="d-flex flex-wrap gap-2 mb-2">
             <span v-for="tag in newSegmentTags" :key="tag" class="ca-chip active" style="font-size:12px;">
               {{ tag }}
@@ -368,7 +368,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
             </span>
           </div>
           <select v-model="selectedTagToAdd" class="ca-select w-100">
-            <option value="">+ Add a tag</option>
+            <option value="">+ Add a label</option>
             <option v-for="t in availableTags" :key="t" :value="t">{{ t }}</option>
           </select>
         </div>
@@ -385,7 +385,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
     <button class="context-menu-item" @click="editConditions(contextMenu.segment)"><i class='bx bxs-edit'></i> Edit conditions</button>
     <button class="context-menu-item" @click="renameSegment(contextMenu.segment)"><i class='bx bxs-pencil'></i> Rename</button>
     <button class="context-menu-item" @click="openMoveToFolderModal(contextMenu.segment)"><i class='bx bxs-folder'></i> Move to folder</button>
-    <button class="context-menu-item" @click="openEditTagsModal(contextMenu.segment)"><i class='bx bxs-purchase-tag'></i> Edit tags</button>
+    <button class="context-menu-item" @click="openEditTagsModal(contextMenu.segment)"><i class='bx bxs-purchase-tag'></i> Edit labels</button>
     <button class="context-menu-item" @click="duplicateSegment(contextMenu.segment)"><i class='bx bxs-copy'></i> Duplicate</button>
     <button class="context-menu-item danger" @click="deleteSegment(contextMenu.segment)"><i class='bx bxs-trash'></i> Delete</button>
   </div>
@@ -425,21 +425,21 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
   <div v-if="showEditTagsModal" class="ca-modal-overlay" @click.self="closeEditTagsModal()">
     <div class="ca-modal">
       <div class="ca-modal-header">
-        <h5>Edit Tags</h5>
+        <h5>Edit Labels</h5>
         <button class="ca-modal-close" @click="closeEditTagsModal()"><i class='bx bx-x'></i></button>
       </div>
       <div class="ca-modal-body">
-        <p class="text-muted-sm mb-4">Manage tags for "<strong>{{ editTagsSegment?.name }}</strong>"</p>
+        <p class="text-muted-sm mb-4">Manage labels for "<strong>{{ editTagsSegment?.name }}</strong>"</p>
         
         <!-- Current tags -->
         <div class="mb-4">
-          <div class="section-title mb-2">Current Tags</div>
+          <div class="section-title mb-2">Current Labels</div>
           <div class="d-flex flex-wrap gap-2">
             <span v-for="tag in editTagsSegment?.tags || []" :key="tag.text" class="ca-chip active" style="font-size: 12px;">
               {{ tag.text }}
               <i class='bx bx-x' @click="removeEditTag(tag.text)" style="cursor: pointer; margin-left: 4px;"></i>
             </span>
-            <span v-if="(!editTagsSegment?.tags || editTagsSegment.tags.length === 0)" class="text-muted-sm" style="font-size: 13px;">No tags yet</span>
+            <span v-if="(!editTagsSegment?.tags || editTagsSegment.tags.length === 0)" class="text-muted-sm" style="font-size: 13px;">No labels yet</span>
           </div>
         </div>
 
@@ -516,7 +516,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
   <div v-if="showTagsManager" class="offcanvas-backdrop fade show" style="z-index:9998;" @click="closeTagsManager()"></div>
   <div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showTagsManager }" style="z-index:9999;visibility:visible;transition:transform .3s ease-in-out;" :style="{ transform: showTagsManager?'translateX(0)':'translateX(100%)' }">
     <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title fw-bold"><i class="bx bxs-purchase-tag text-muted me-2"></i>Manage Tags</h5>
+      <h5 class="offcanvas-title fw-bold"><i class="bx bxs-purchase-tag text-muted me-2"></i>Manage Labels</h5>
       <button type="button" class="btn-close" @click="closeTagsManager()"></button>
     </div>
     
@@ -525,14 +525,14 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
       <div v-if="!isCreatingTag" class="d-flex flex-column h-100">
         <!-- Header with description and button -->
         <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
-          <p class="text-muted small mb-0">You have {{ globalTagsList.length }} tag{{ globalTagsList.length !== 1 ? 's' : '' }}</p>
+          <p class="text-muted small mb-0">You have {{ globalTagsList.length }} label{{ globalTagsList.length !== 1 ? 's' : '' }}</p>
         </div>
 
         <!-- Search input -->
         <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
           <div class="input-group input-group-sm">
             <span class="input-group-text bg-light border-0" style="border-radius:6px 0 0 6px;"><i class='bx bx-search' style="font-size:16px;color:#9ca3af;"></i></span>
-            <input v-model="tagsSearchFilter" type="text" class="form-control" placeholder="Search tags..." style="border-radius:0 6px 6px 0;">
+            <input v-model="tagsSearchFilter" type="text" class="form-control" placeholder="Search labels..." style="border-radius:0 6px 6px 0;">
           </div>
         </div>
 
@@ -546,13 +546,13 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
           </div>
           <div v-if="filteredTagsForManager.length === 0" class="text-center py-5" style="color:#9ca3af;">
             <i class='bx bx-search' style="font-size:32px;display:block;margin-bottom:8px;"></i>
-            <p class="small" style="margin:0;">No tags match your search</p>
+            <p class="small" style="margin:0;">No labels match your search</p>
           </div>
         </div>
 
         <!-- Create button (sticky at bottom) -->
         <div style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;">
-          <button class="btn btn-outline-primary w-100 fw-medium" style="font-size:14px;" @click="isCreatingTag = true"><i class="bx bx-plus"></i> New Tag</button>
+          <button class="btn btn-outline-primary w-100 fw-medium" style="font-size:14px;" @click="isCreatingTag = true"><i class="bx bx-plus"></i> New Label</button>
         </div>
       </div>
       
@@ -561,23 +561,23 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
         <!-- Header -->
         <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
           <button class="btn btn-sm btn-light border" style="font-size:13px;margin-bottom:12px;" @click="isCreatingTag = false"><i class='bx bx-left-arrow-alt'></i> Back</button>
-          <h6 class="m-0 fw-bold" style="font-size:15px;">Create New Tag</h6>
+          <h6 class="m-0 fw-bold" style="font-size:15px;">Create New Label</h6>
         </div>
 
         <!-- Form (scrollable) -->
         <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;">
           <div>
-            <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;margin-bottom:8px;">Tag Name *</label>
+            <label class="form-label small fw-bold text-muted text-uppercase" style="letter-spacing:0.05em;margin-bottom:8px;">Label Name *</label>
             <input v-model="newTagName" type="text" class="form-control" placeholder="e.g., High Priority" @keyup.enter="confirmCreateTag()" style="font-size:14px;border-radius:6px;">
           </div>
 
           <div v-if="globalTagsList.includes(newTagName.trim()) && newTagName.trim()" class="alert alert-warning" style="font-size:12px;margin:0;padding:10px 12px;border-radius:6px;">
-            <i class='bx bx-exclamation-circle' style="vertical-align:middle;margin-right:6px;"></i> This tag already exists
+            <i class='bx bx-exclamation-circle' style="vertical-align:middle;margin-right:6px;"></i> This label already exists
           </div>
 
           <div style="padding:12px;background:#f3f4f6;border-radius:6px;border-left:3px solid #3b82f6;">
             <p style="font-size:12px;color:#4b5563;margin:0;line-height:1.5;">
-              <strong>Tip:</strong> Use clear, descriptive names like "High Priority", "Q4 Campaign", or "Test Segment" to keep your tags organized.
+              <strong>Tip:</strong> Use clear, descriptive names like "High Priority", "Q4 Campaign", or "Test Segment" to keep your labels organized.
             </p>
           </div>
         </div>
@@ -585,7 +585,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
         <!-- Action buttons (sticky at bottom) -->
         <div style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;display:flex;gap:8px;">
           <button class="btn btn-light flex-fill" style="font-size:13px;" @click="isCreatingTag = false">Cancel</button>
-        <button class="btn btn-primary w-100 fw-medium" style="font-size:13px;" :disabled="!newTagName.trim() || globalTagsList.includes(newTagName.trim()) || globalTagsList.length >= 20" @click="confirmCreateTag()">Create Tag</button>
+        <button class="btn btn-primary w-100 fw-medium" style="font-size:13px;" :disabled="!newTagName.trim() || globalTagsList.includes(newTagName.trim()) || globalTagsList.length >= 20" @click="confirmCreateTag()">Create Label</button>
         </div>
       </div>
     </div>
@@ -825,11 +825,11 @@ createApp({
     const confirmCreateTag = () => {
       if (!newTagName.value.trim() || globalTagsList.value.includes(newTagName.value.trim())) return;
       if (globalTagsList.value.length >= 20) {
-        showToast('Maximum 20 tags allowed', 'error');
+        showToast('Maximum 20 labels allowed', 'error');
         return;
       }
       globalTagsList.value.push(newTagName.value.trim());
-      showToast(`Tag "${newTagName.value.trim()}" created successfully`, 'success');
+      showToast(`Label "${newTagName.value.trim()}" created successfully`, 'success');
       newTagName.value = '';
       isCreatingTag.value = false;
     };
@@ -838,7 +838,7 @@ createApp({
       if (confirm(`Delete tag "${tag}"?`)) {
         globalTagsList.value = globalTagsList.value.filter(t => t !== tag);
         if (activeGlobalTag.value === tag) { activeGlobalTag.value = null; }
-        showToast(`Tag "${tag}" deleted`, 'info');
+        showToast(`Label "${tag}" deleted`, 'info');
       }
     };
 
@@ -1101,7 +1101,7 @@ createApp({
         const originalSeg = savedSegments.value.find(s => s.id === editTagsSegment.value.id);
         if (originalSeg) {
           originalSeg.tags = editTagsSegment.value.tags;
-          showToast('Tags updated successfully', 'success');
+          showToast('Labels updated successfully', 'success');
           closeEditTagsModal();
         }
       }
