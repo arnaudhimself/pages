@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -222,6 +223,10 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
         <div class="ca-sidebar-section">Configure</div>
         <a class="ca-sidebar-item" href="#"><i class='bx bx-cog'></i> Settings</a>
         <a class="ca-sidebar-item" href="#"><i class='bx bx-shield'></i> Consent</a>
+        <hr class="ca-sidebar-divider" style="margin:8px 0; border:none; border-top:1px solid var(--ca-gray-200);">
+        <div class="ca-sidebar-section">Maquette</div>
+        <a class="ca-sidebar-item" href="#" @click.prevent="resetAllLabels()"><i class='bx bx-trash'></i> Remove all labels</a>
+        <a class="ca-sidebar-item" href="#" @click.prevent="resetAllFolders()"><i class='bx bx-folder'></i> Remove all folders</a>
       </div>
 
       <!-- MAIN -->
@@ -276,6 +281,7 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
 
             <!-- Global labels -->
             <div style="padding:4px 20px 14px;margin-bottom:0;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+              <span v-if="globalTagsList.length === 0" style="font-size:13px;color:#9ca3af;font-style:italic;">No labels created yet</span>
               <span v-for="t in globalTagsList" :key="t" class="global-tag" :class="activeGlobalTag===t?'active-global-tag':''" @click="toggleGlobalTag(t)">
                 {{ t }}<i v-if="activeGlobalTag===t" class='bx bx-x ms-1' style="font-size:12px;vertical-align:middle;"></i>
               </span>
@@ -523,35 +529,40 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
     <div class="offcanvas-body d-flex flex-column" style="padding:0;height:calc(100% - 56px);">
       <!-- VIEW: TAGS LIST -->
       <div v-if="!isCreatingTag" class="d-flex flex-column h-100">
-        <!-- Header with description and button -->
+        <!-- Header with description -->
         <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
-          <p class="text-muted small mb-0">You have {{ globalTagsList.length }} label{{ globalTagsList.length !== 1 ? 's' : '' }}</p>
+          <p class="text-muted small mb-0">You have {{ globalTagsList.length }} label{{ globalTagsList.length === 1 ? '' : 's' }}</p>
         </div>
 
-        <!-- Search input -->
-        <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+        <!-- Empty state with create button (when no labels) -->
+        <div v-if="globalTagsList.length === 0" style="padding:20px 16px;flex-shrink:0;">
+          <button class="btn btn-outline-primary w-100 fw-medium" style="font-size:14px;" @click="isCreatingTag = true"><i class="bx bx-plus"></i> New Label</button>
+        </div>
+
+        <!-- Search input (only if there are labels) -->
+        <div v-if="globalTagsList.length > 0" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
           <div class="input-group input-group-sm">
             <span class="input-group-text bg-light border-0" style="border-radius:6px 0 0 6px;"><i class='bx bx-search' style="font-size:16px;color:#9ca3af;"></i></span>
             <input v-model="tagsSearchFilter" type="text" class="form-control" placeholder="Search labels..." style="border-radius:0 6px 6px 0;">
           </div>
         </div>
 
-        <!-- Scrollable tags list -->
-        <div style="flex:1;overflow-y:auto;padding:12px 16px;gap:8px;display:flex;flex-direction:column;">
+        <!-- Scrollable tags list (only if there are labels) -->
+        <div v-if="globalTagsList.length > 0" style="flex:1;overflow-y:auto;padding:12px 16px;gap:8px;display:flex;flex-direction:column;">
           <div v-for="t in filteredTagsForManager" :key="t" class="d-flex align-items-center justify-content-between p-3 border rounded" style="background:white;border-color:#e5e7eb;transition:all 0.15s;">
             <span class="fw-medium" style="font-size:14px;color:#374151;">{{ t }}</span>
             <button class="btn btn-sm" style="padding:4px 8px;color:#dc2626;border:1px solid #fecaca;background:#fff5f5;border-radius:4px;transition:all 0.15s;" @click="deleteTag(t)" @mouseenter="$event.currentTarget.style.backgroundColor='#fee2e2'" @mouseleave="$event.currentTarget.style.backgroundColor='#fff5f5'">
               <i class="bx bx-trash" style="font-size:14px;"></i>
             </button>
           </div>
-          <div v-if="filteredTagsForManager.length === 0" class="text-center py-5" style="color:#9ca3af;">
+          <div v-if="filteredTagsForManager.length === 0 && tagsSearchFilter.trim()" class="text-center py-5" style="color:#9ca3af;">
             <i class='bx bx-search' style="font-size:32px;display:block;margin-bottom:8px;"></i>
             <p class="small" style="margin:0;">No labels match your search</p>
           </div>
         </div>
 
-        <!-- Create button (sticky at bottom) -->
-        <div style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;">
+        <!-- Create button (sticky at bottom, only shown when there are labels) -->
+        <div v-if="globalTagsList.length > 0" style="padding:12px 16px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;">
           <button class="btn btn-outline-primary w-100 fw-medium" style="font-size:14px;" @click="isCreatingTag = true"><i class="bx bx-plus"></i> New Label</button>
         </div>
       </div>
@@ -835,10 +846,37 @@ createApp({
     };
 
     const deleteTag = (tag) => {
-      if (confirm(`Delete tag "${tag}"?`)) {
+      if (confirm(`Delete label "${tag}"?`)) {
         globalTagsList.value = globalTagsList.value.filter(t => t !== tag);
+        savedSegments.value.forEach(seg => {
+          seg.tags = seg.tags.filter(t => t.text !== tag);
+        });
         if (activeGlobalTag.value === tag) { activeGlobalTag.value = null; }
-        showToast(`Label "${tag}" deleted`, 'info');
+        showToast(`Label "${tag}" deleted from all segments`, 'info');
+      }
+    };
+
+    const resetAllLabels = () => {
+      if (confirm('Remove all labels? This will delete labels from all segments.')) {
+        globalTagsList.value = [];
+        savedSegments.value.forEach(seg => {
+          seg.tags = [];
+        });
+        activeGlobalTag.value = null;
+        showToast('All labels removed', 'info');
+      }
+    };
+
+    const resetAllFolders = () => {
+      if (confirm('Remove all folders? Segments will be moved to Uncategorized folder.')) {
+        folders.value = [
+          { id: 'f-uncategorized', name: 'Uncategorized', icon: 'bx bx-folder' }
+        ];
+        savedSegments.value.forEach(seg => {
+          seg.folderId = 'f-uncategorized';
+        });
+        selectedFolderTab.value = 'f-uncategorized';
+        showToast('All folders removed, Uncategorized folder created', 'info');
       }
     };
 
@@ -930,12 +968,25 @@ createApp({
     };
 
     const deleteFolder = (id) => {
-      if (confirm('Delete this folder? Associated segments will be moved to Lifecycle.')) {
+      if (confirm('Delete this folder? Associated segments will be moved to Uncategorized.')) {
         folders.value = folders.value.filter(f => f.id !== id);
-        savedSegments.value.forEach(s => {
-          if (s.folderId === id) { s.folderId = 'f1'; }
-        });
-        if (selectedFolderTab.value === id) { selectedFolderTab.value = 'All'; }
+        
+        // If no folders left, create Uncategorized
+        if (folders.value.length === 0) {
+          folders.value.push({ id: 'f-uncategorized', name: 'Uncategorized', icon: 'bx bx-folder' });
+          savedSegments.value.forEach(s => {
+            s.folderId = 'f-uncategorized';
+          });
+          selectedFolderTab.value = 'f-uncategorized';
+        } else {
+          // Move to first available folder
+          const defaultFolderId = folders.value[0].id;
+          savedSegments.value.forEach(s => {
+            if (s.folderId === id) { s.folderId = defaultFolderId; }
+          });
+          if (selectedFolderTab.value === id) { selectedFolderTab.value = 'All'; }
+        }
+        
         showToast('Folder deleted', 'info');
       }
     };
@@ -1188,7 +1239,8 @@ createApp({
       showMoveToFolderModal, moveToFolderSegment, openMoveToFolderModal, closeMoveToFolderModal, confirmMoveToFolder,
       showEditTagsModal, editTagsSegment, availableTagsForEdit, openEditTagsModal, closeEditTagsModal, removeEditTag, addEditTag, confirmEditTags,
       editConditions, renameSegment, duplicateSegment, deleteSegment,
-      deletedSegments, showTrashManager, openTrashManager, closeTrashManager, restoreSegment, permanentlyDeleteSegment, clearAllTrash
+      deletedSegments, showTrashManager, openTrashManager, closeTrashManager, restoreSegment, permanentlyDeleteSegment, clearAllTrash,
+      resetAllLabels, resetAllFolders
     };
   }
 }).mount('#app');
