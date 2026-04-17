@@ -322,7 +322,12 @@ body { font-family:'DM Sans',sans-serif; background:var(--ca-bg); color:var(--ca
                     <tr v-for="seg in getSortedSegmentsByFolder(folder.id)" :key="seg.id">
                       <td class="seg-name">{{ seg.name }}</td>
                       <td class="seg-id">{{ seg.stringId }}</td>
-                      <td><div class="d-flex gap-1 flex-wrap"><span v-for="(tag,idx) in seg.tags" :key="idx" class="tag-pill" :class="'tag-'+(tag.type||'default')">{{ tag.text }}</span></div></td>
+                      <td>
+                        <div class="d-flex gap-1 flex-wrap" :title="seg.tags.length > 3 ? seg.tags.map(t => t.text).join(', ') : ''">
+                          <span v-for="(tag,idx) in seg.tags.slice(0, 3)" :key="idx" class="tag-pill" :class="'tag-'+(tag.type||'default')">{{ tag.text }}</span>
+                          <span v-if="seg.tags.length > 3" class="tag-pill" style="background-color:#e5e7eb;color:#6b7280;font-weight:500;">+{{ seg.tags.length - 3 }}</span>
+                        </div>
+                      </td>
                       <td><span class="text-dark fw-semibold">{{ seg.nbUsers }}</span><span class="text-muted" style="font-size:13px;margin-left:4px;">{{ seg.pct }}</span></td>
                       <td><div class="dest-bubbles"><span v-for="(d,idx) in seg.dests" :key="idx" class="dest-bubble" :class="getDestClass(d)">{{ d }}</span></div></td>
                       <td class="text-dark fw-medium" style="font-size:13px;">{{ seg.lastUpdate }}</td>
@@ -1166,15 +1171,17 @@ createApp({
     // ===== EDIT TAGS =====
     const showEditTagsModal = ref(false);
     const editTagsSegment = ref(null);
+    const editTagsSegmentBackup = ref(null);
 
     const availableTagsForEdit = computed(() => {
       if (!editTagsSegment.value) return [];
       const currentTags = editTagsSegment.value.tags.map(t => t.text);
-      return globalTagsList.filter(t => !currentTags.includes(t));
+      return globalTagsList.value.filter(t => !currentTags.includes(t));
     });
 
     const openEditTagsModal = (seg) => {
-      editTagsSegment.value = { ...seg };
+      editTagsSegment.value = JSON.parse(JSON.stringify(seg));
+      editTagsSegmentBackup.value = JSON.parse(JSON.stringify(seg));
       showEditTagsModal.value = true;
       closeContextMenu();
     };
@@ -1182,6 +1189,7 @@ createApp({
     const closeEditTagsModal = () => {
       showEditTagsModal.value = false;
       editTagsSegment.value = null;
+      editTagsSegmentBackup.value = null;
     };
 
     const removeEditTag = (tag) => {
@@ -1287,7 +1295,7 @@ createApp({
       contextMenu, openContextMenu, closeContextMenu,
       contextMenuPosition,
       showMoveToFolderModal, moveToFolderSegment, openMoveToFolderModal, closeMoveToFolderModal, confirmMoveToFolder,
-      showEditTagsModal, editTagsSegment, availableTagsForEdit, openEditTagsModal, closeEditTagsModal, removeEditTag, addEditTag, confirmEditTags,
+      showEditTagsModal, editTagsSegment, editTagsSegmentBackup, availableTagsForEdit, openEditTagsModal, closeEditTagsModal, removeEditTag, addEditTag, confirmEditTags,
       editConditions, renameSegment, duplicateSegment, deleteSegment,
       deletedSegments, showTrashManager, openTrashManager, closeTrashManager, restoreSegment, permanentlyDeleteSegment, clearAllTrash,
       resetAllLabels, resetAllFolders
