@@ -96,13 +96,14 @@
             background-size: 24px 24px;
             cursor: grab;
             overflow: hidden;
+            display: flex;
         }
         .canvas-container.is-dragging {
             cursor: grabbing;
         }
         .canvas-content {
-            transform-origin: 50% 0;
-            padding: 60px;
+            transform-origin: 0 50%;
+            padding: 100px;
             min-width: fit-content;
             transition: transform 0.05s linear;
         }
@@ -161,59 +162,64 @@
             font-size: 16px;
         }
 
-        /* --- VERTICAL TREE CSS (CORRIGÉ POUR ÉVITER LE DÉPASSEMENT DES LIGNES) --- */
+        /* --- HORIZONTAL TREE CSS --- */
         .journey-tree {
             display: flex;
-            justify-content: center;
+            align-items: center;
+            justify-content: flex-start;
         }
         .journey-tree ul {
-            padding-top: 32px;
+            padding-left: 32px; /* Gap horizontal entre parents et enfants */
             position: relative;
             display: flex;
+            flex-direction: column; /* Les branches s'empilent verticalement */
             justify-content: center;
-            padding-left: 0;
+            padding-top: 0;
             margin: 0;
         }
+        /* Ligne de connexion horizontale depuis le parent */
         .journey-tree ul::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 50%;
-            border-left: 2px solid var(--tree-line-color);
-            width: 0;
-            height: 32px;
-            transform: translateX(-50%);
+            top: 50%;
+            left: 0;
+            border-top: 2px solid var(--tree-line-color);
+            width: 32px;
+            height: 0;
+            transform: translateY(-50%);
         }
-        .journey-tree > ul { padding-top: 0; }
+        .journey-tree > ul { padding-left: 0; }
         .journey-tree > ul::before { display: none; }
 
         .journey-tree li {
             list-style-type: none;
             position: relative;
-            padding: 32px 16px 0 16px;
+            padding: 16px 0 16px 32px; /* Gap vertical entre frères, Gap horizontal avec la ligne */
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
         }
         
-        /* Lignes horizontales parfaites */
+        /* Lignes verticales de connexion entre les enfants (l'épine dorsale) */
         .journey-tree li::before, .journey-tree li::after {
             content: '';
             position: absolute;
-            top: 0;
-            width: 50%;
-            height: 32px;
-            border-top: 2px solid var(--tree-line-color);
+            left: 0;
+            width: 32px;
+            height: 50%;
+            border-left: 2px solid var(--tree-line-color);
             z-index: 1;
         }
+        /* Ligne qui monte et tourne à droite */
         .journey-tree li::before {
-            left: 0;
-            border-right: 2px solid var(--tree-line-color);
-            border-top-right-radius: 8px;
+            top: 0;
+            border-bottom: 2px solid var(--tree-line-color);
+            border-bottom-left-radius: 8px;
         }
+        /* Ligne qui descend et tourne à droite */
         .journey-tree li::after {
-            right: 0;
-            border-left: 2px solid var(--tree-line-color);
+            top: 50%;
+            border-top: 2px solid var(--tree-line-color);
             border-top-left-radius: 8px;
         }
         
@@ -221,17 +227,17 @@
         .journey-tree li:first-child::before { border: 0 none; }
         .journey-tree li:last-child::after { border: 0 none; }
         
-        /* Nettoyage si un seul enfant (pas de branche horizontale) */
+        /* Nettoyage si un seul enfant (ligne droite sans épine verticale) */
         .journey-tree li:only-child::after, .journey-tree li:only-child::before {
             display: none;
         }
-        .journey-tree li:only-child { padding-top: 0; }
+        .journey-tree li:only-child { padding-left: 0; }
 
-        /* Branch Label */
+        /* Branch Label (Positionné sur la ligne de connexion) */
         .branch-label {
             position: absolute;
-            top: 16px;
-            left: 50%;
+            left: 16px;
+            top: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 2px 12px;
@@ -241,11 +247,13 @@
             font-weight: 600;
             border: 1px solid var(--tree-line-color);
             z-index: 2;
+            white-space: nowrap;
         }
 
         /* --- NODE CARD --- */
         .node-card {
             width: 280px;
+            flex-shrink: 0; /* Empêcher la carte de se rétrécir */
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -352,6 +360,7 @@
             transition: all 0.2s;
             position: relative;
             z-index: 5;
+            flex-shrink: 0;
         }
         .btn-add-node:hover, .btn-add-node.active {
             border-color: var(--ca-primary);
@@ -372,19 +381,20 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Drop Zones (UX Améliorée et Élargie) */
+        /* Drop Zones */
         .drop-zone-wrapper {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 5;
-            padding: 8px 0;
+            padding: 0 8px; /* Ajusté pour l'horizontal */
         }
         
         .drop-hit-area {
             position: absolute;
-            top: -30px; left: -80px; right: -80px; bottom: -30px;
+            /* Zone élargie pour faciliter le drag & drop */
+            top: -40px; left: -30px; right: -30px; bottom: -40px;
             border-radius: 12px;
             z-index: 10;
             background-color: rgba(10, 101, 255, 0.04);
@@ -396,9 +406,8 @@
             border-color: #10B981;
         }
 
-        /* Quand on drag un élément : TRANSFORMATION TOTALE DU BOUTON + via VUE */
         .is-active-drop .btn-add-node {
-            width: 180px !important;
+            width: 160px !important;
             height: 44px !important;
             border-radius: 22px !important;
             border: 2px dashed var(--ca-primary) !important;
@@ -422,7 +431,7 @@
         .drop-zone-wrapper .btn-add-node {
             position: relative;
             z-index: 2;
-            pointer-events: none; /* Le clic/hover est géré par la hit-area plus large */
+            pointer-events: none;
         }
 
         .drop-zone-wrapper:hover .btn-add-node {
@@ -444,7 +453,7 @@
         }
 
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
@@ -566,7 +575,7 @@
                 </div>
             </div>
 
-            <div class="canvas-content" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }">
+            <div class="canvas-content d-flex align-items-center" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }">
                 <div class="journey-tree">
                     <journey-node 
                         v-if="journeyTree" 
@@ -814,9 +823,10 @@
     </div>
 </div>
 
-<!-- COMPONENT VUE : Noeud Récursif -->
+<!-- COMPONENT VUE : Noeud Récursif (HORIZONTAL) -->
 <script type="text/x-template" id="journey-node-template">
-    <div class="node-wrapper d-flex flex-column align-items-center position-relative">
+    <!-- Direction changée en flex-row pour le flux horizontal -->
+    <div class="node-wrapper d-flex flex-row align-items-center position-relative">
         <div class="node-card" 
              :class="{'selected': selectedNodeId === node.id}" 
              @click.stop="$emit('select', node)">
@@ -981,7 +991,7 @@
                 // Canvas state
                 zoom: 1,
                 panX: 0,
-                panY: 0,
+                panY: 100, // Décalé légèrement vers le bas pour l'aspect horizontal initial
                 isDragging: false,
                 startX: 0,
                 startY: 0,
@@ -1065,9 +1075,6 @@
                     e.dataTransfer.setData('text/plain', template.subType);
                 }
                 
-                // CRUCIAL : Le setTimeout est indispensable. Il permet au navigateur 
-                // de figer l'image "fantôme" de l'élément que l'on commence à glisser 
-                // *avant* que Vue.js ne modifie l'interface. Sans ça, Chrome bloque l'affichage.
                 setTimeout(() => {
                     this.draggedNodeTemplate = template;
                 }, 20);
@@ -1159,7 +1166,6 @@
                 }
             },
 
-            // --- CORRECTION DU BUG CANVAS (Déplacement Robuste) ---
             startPan(e) {
                 if (e.target.closest('.node-card') || e.target.closest('.btn-add-node') || e.target.closest('.canvas-controls') || e.target.closest('.node-delete-btn')) {
                     return;
@@ -1169,7 +1175,6 @@
                 this.startX = e.clientX - this.panX;
                 this.startY = e.clientY - this.panY;
                 
-                // On attache l'écouteur au niveau de la fenêtre globale pour gérer les déplacements rapides et les sorties d'écran
                 window.addEventListener('mousemove', this.pan);
                 window.addEventListener('mouseup', this.endPan);
             },
@@ -1188,11 +1193,10 @@
             resetZoom() { 
                 this.zoom = 1; 
                 this.panX = 0; 
-                this.panY = 0; 
+                this.panY = 100; 
             }
         },
         mounted() {
-            // Sécurité additionnelle au démontage du composant
             window.removeEventListener('mousemove', this.pan);
             window.removeEventListener('mouseup', this.endPan);
         }
