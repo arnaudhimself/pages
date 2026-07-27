@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Cookie Scanner - Cookie Origins</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --primary-blue: #2563eb;
+            --node-domain: #3b82f6; /* Bleu */
+            --node-cookie: #f97316; /* Orange */
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden; /* Empêche le scroll global pour une app full screen */
+        }
+
+        /* --- Header Styling --- */
+        .app-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 10;
+            position: relative;
+        }
+
+        .header-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .kpi-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            background: #fff;
+            min-width: 140px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .kpi-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+        }
+        .kpi-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-weight: 700; font-size: 1.1rem; }
+
+        .trust-badge {
+            background-color: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fcd34d;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* --- Tabs --- */
+        .nav-tabs {
+            border-bottom: 1px solid var(--border-color);
+            padding-left: 1.5rem;
+            background: var(--card-bg);
+        }
+        .nav-link {
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--primary-blue);
+            background: transparent;
+        }
+        .nav-link:hover:not(.active) { color: var(--text-main); border-color: #cbd5e1; }
+
+        /* --- Layout --- */
+        .main-container {
+            height: calc(100vh - 120px); /* Hauteur header + tabs approx */
+            display: flex;
+            position: relative;
+        }
+
+        /* --- Graph Area --- */
+        .graph-area {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+        }
+
+        /* --- Controls Overlay --- */
+        .controls-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 5;
+            max-width: 800px;
+        }
+        
+        .search-input {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px 6px 35px;
+            font-size: 0.9rem;
+            width: 280px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 10px center;
+        }
+
+        .slider-label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+
+        /* --- Sidebar (Drawer) --- */
+        .sidebar {
+            width: 380px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.03);
+            z-index: 20;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .sidebar-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background: #f8fafc;
+        }
+
+        .detail-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem; display: block; }
+        .detail-value { font-size: 0.95rem; color: var(--text-main); margin-bottom: 1.25rem; }
+
+        .code-block {
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.75rem;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        /* --- D3 Elements --- */
+        .node circle { stroke: #fff; stroke-width: 2px; transition: all 0.2s; cursor: pointer; }
+        .node text {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            pointer-events: none;
+            text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+            font-weight: 500;
+        }
+        .link { stroke-opacity: 0.4; transition: stroke-width 0.2s; }
+        
+        /* Highlight states */
+        .node.dimmed { opacity: 0.15; }
+        .link.dimmed { opacity: 0.05; }
+        .node.active circle { stroke: #1e293b; stroke-width: 3px; }
+
+        .btn-outline-custom {
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-outline-custom:hover { background: #f1f5f9; border-color: #94a3b8; }
+        
+        .btn-primary-custom {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- Header -->
+    <header class="app-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="header-title">Cookie Origins</h1>
+            <div class="header-subtitle">Best effort, association basée sur le script observé au moment de la pose</div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="kpi-card">
+                <div class="kpi-label">Cookies observés</div>
+                <div class="kpi-value">128</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Domaines scripts</div>
+                <div class="kpi-value">14</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Domaines tiers</div>
+                <div class="kpi-value">9</div>
+            </div>
+            <div class="d-flex flex-column align-items-end ms-3">
+                <span style="font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">Confiance globale</span>
+                <span class="trust-badge">Moyenne</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Graph</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Analyse</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Conformité</a>
+        </li>
+    </ul>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Graph Area -->
+        <div class="graph-area" ref="graphContainer">
+            <!-- Controls Overlay -->
+            <div class="controls-bar">
+                <input type="text" class="search-input" placeholder="Rechercher un cookie ou un domaine..." v-model="searchQuery" @input="handleSearch">
+                
+                <div class="d-flex align-items-center gap-2 border-start border-end px-3">
+                    <span class="slider-label">Top N</span>
+                    <span class="fw-bold fs-6">{{ topN }}</span>
+                    <input type="range" class="form-range" style="width: 80px;" min="10" max="100" v-model="topN">
+                </div>
+
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="groupByDomain" checked v-model="groupByDomain">
+                    <label class="form-check-label slider-label" for="groupByDomain" style="cursor: pointer;">Regrouper par domaine activé</label>
+                </div>
+
+                <button class="btn btn-sm btn-outline-custom bg-white">Avancé</button>
+            </div>
+
+            <!-- D3 Graph Container -->
+            <div id="d3-graph" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <!-- Right Sidebar (Details) -->
+        <div class="sidebar" v-if="selectedNode">
+            <div class="sidebar-header">
+                <div>
+                    <h5 class="mb-0 fw-bold text-break" style="font-size: 1.1rem;">{{ selectedNode.id }}</h5>
+                    <span class="badge mt-1" :class="selectedNode.type === 'domain' ? 'bg-primary' : 'bg-warning text-dark'">
+                        {{ selectedNode.type === 'domain' ? 'Domaine Script' : 'Cookie' }}
+                    </span>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close" @click="deselectNode"></button>
+            </div>
+            
+            <div class="sidebar-body">
+                <span class="detail-label">Occurrences</span>
+                <div class="detail-value fw-bold">{{ selectedNode.occurrences || Math.floor(Math.random() * 50) + 1 }} pages</div>
+
+                <template v-if="selectedNode.type === 'domain'">
+                    <span class="detail-label">Cookies liés (top 6)</span>
+                    <div class="mb-3">
+                        <span v-for="cookie in getConnectedCookies(selectedNode.id)" :key="cookie" class="chip">
+                            {{ cookie }}
+                        </span>
+                        <span v-if="getConnectedCookies(selectedNode.id).length === 0" class="text-muted small">Aucun cookie direct</span>
+                    </div>
+                </template>
+
+                <template v-if="selectedNode.type === 'cookie'">
+                    <span class="detail-label">Domaine d'origine</span>
+                    <div class="detail-value text-primary" style="cursor: pointer;">{{ getParentDomain(selectedNode.id) }}</div>
+                </template>
+
+                <span class="detail-label">Dernière observation</span>
+                <div class="detail-value">22 mars 2024 à 14:02:56</div>
+
+                <div class="mt-4">
+                    <span class="detail-label mb-2">Exemples de traces (Stack)</span>
+                    <div class="code-block">
+                        at Object.t.set (gtm.js:56:412)<br>
+                        at Array.&lt;anonymous&gt; (analytics.js:12:34)<br>
+                        at main.js:89:12
+                    </div>
+                    <div class="code-block">
+                        at HTMLDocument.e (marketing-sdk.js:1:1024)<br>
+                        at load_script (loader.js:45:12)
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer d-flex gap-2">
+                <button class="btn btn-outline-custom flex-grow-1">Isoler</button>
+                <button class="btn btn-primary-custom flex-grow-1">Exporter résumé</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+    const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+    createApp({
+        setup() {
+            // --- Data State ---
+            const topN = ref(30);
+            const groupByDomain = ref(true);
+            const searchQuery = ref('');
+            const selectedNode = ref(null);
+            const graphContainer = ref(null);
+
+            // --- Mock Data Generation ---
+            const getDomains = () => [
+                "googletagmanager.com", "facebook.com", "cdn.site.com", 
+                "clarity.ms", "doubleclick.net", "google-analytics.com",
+                "hotjar.com", "linkedin.com", "ads.twitter.com"
+            ];
+
+            const getCookies = () => [
+                "_fbp", "_ga", "_gcl_au", "IDE", "CLID", "cto_bundle", 
+                "usprivacy", "euconsent-v2", "_hjid", "lidc", "bcookie",
+                "personalization_id", "muc_ads", "fr", "_gid", "_gat",
+                "CONSENT", "NID", "1P_JAR", "ANID"
+            ];
+
+            const generateData = () => {
+                const nodes = [];
+                const links = [];
+                const doms = getDomains();
+                const cooks = getCookies();
+
+                // Add Domains
+                doms.forEach(d => {
+                    nodes.push({ id: d, type: 'domain', r: 25, occurrences: 20 + Math.floor(Math.random() * 80) });
+                });
+
+                // Add Cookies
+                cooks.forEach(c => {
+                    nodes.push({ id: c, type: 'cookie', r: 12, occurrences: 1 + Math.floor(Math.random() * 100) });
+                });
+
+                // Randomly connect cookies to domains
+                cooks.forEach(c => {
+                    const connections = Math.floor(Math.random() * 2) + 1; 
+                    for(let i=0; i<connections; i++) {
+                        const targetDomain = doms[Math.floor(Math.random() * doms.length)];
+                        links.push({
+                            source: targetDomain, 
+                            target: c,           
+                            value: Math.floor(Math.random() * 5) + 1
+                        });
+                    }
+                });
+
+                // Inter-domain links: Connect all other domains directly to GTM
+                const gtm = "googletagmanager.com";
+                doms.forEach(d => {
+                    if (d !== gtm) {
+                        links.push({ 
+                            source: gtm, 
+                            target: d, 
+                            value: 3 
+                        });
+                    }
+                });
+
+                return { nodes, links };
+            };
+
+            let referenceLinks = []; 
+
+            // --- D3 Logic ---
+            let simulation, svg, link, node, labels;
+            let resizeObserver;
+
+            const initGraph = () => {
+                if (!graphContainer.value) return;
+
+                const width = graphContainer.value.offsetWidth;
+                const height = graphContainer.value.offsetHeight;
+
+                if (width === 0 || height === 0) return;
+
+                const container = d3.select("#d3-graph");
+                container.selectAll("*").remove();
+
+                const { nodes, links } = generateData();
+                referenceLinks = JSON.parse(JSON.stringify(links));
+
+                // --- KEY CHANGE: FIX GTM POSITION ---
+                const gtmNode = nodes.find(n => n.id === 'googletagmanager.com');
+                if (gtmNode) {
+                    gtmNode.fx = width * 0.15; // Fixed at 15% from left (allows expansion to right)
+                    gtmNode.fy = height / 2;   // Centered Vertically
+                }
+
+                svg = container
+                    .append("svg")
+                    .attr("width", "100%")
+                    .attr("height", "100%")
+                    .attr("viewBox", [0, 0, width, height]);
+
+                simulation = d3.forceSimulation(nodes)
+                    .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+                    .force("charge", d3.forceManyBody().strength(-300))
+                    .force("center", d3.forceCenter(width / 2, height / 2))
+                    .force("collide", d3.forceCollide().radius(d => d.r + 15).iterations(2))
+                    // --- KEY CHANGE: DIRECTIONAL FORCE ---
+                    // Gently push other nodes to the right of GTM
+                    .force("x", d3.forceX(d => {
+                        // If it's GTM, keep it left (handled by fx, but good for force calc)
+                        if(d.id === 'googletagmanager.com') return width * 0.15;
+                        // Push others towards the center-right (60% width)
+                        return width * 0.6;
+                    }).strength(0.08));
+
+                link = svg.append("g")
+                    .attr("stroke", "#94a3b8")
+                    .selectAll("line")
+                    .data(links)
+                    .join("line")
+                    .attr("class", "link")
+                    .attr("stroke-width", d => Math.sqrt(d.value));
+
+                const nodeGroup = svg.append("g")
+                    .selectAll("g")
+                    .data(nodes)
+                    .join("g")
+                    .attr("class", "node")
+                    .call(drag(simulation));
+
+                nodeGroup.append("circle")
+                    .attr("r", d => d.r)
+                    .attr("fill", d => d.type === 'domain' ? 'var(--node-domain)' : 'var(--node-cookie)')
+                    .on("click", (event, d) => {
+                        event.stopPropagation();
+                        selectNode(d);
+                    });
+
+                labels = nodeGroup.append("text")
+                    .text(d => d.id)
+                    .attr("x", d => d.r + 5)
+                    .attr("y", 4)
+                    .attr("fill", "#334155")
+                    .style("opacity", d => d.type === 'domain' ? 1 : 0.8)
+                    .style("font-size", d => d.type === 'domain' ? "12px" : "10px")
+                    .style("font-weight", d => d.type === 'domain' ? "700" : "400");
+
+                simulation.on("tick", () => {
+                    link
+                        .attr("x1", d => d.source.x)
+                        .attr("y1", d => d.source.y)
+                        .attr("x2", d => d.target.x)
+                        .attr("y2", d => d.target.y);
+
+                    nodeGroup
+                        .attr("transform", d => `translate(${d.x},${d.y})`);
+                });
+
+                svg.on("click", () => deselectNode());
+            };
+
+            const drag = (simulation) => {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    // IMPORTANT: Reset fixed position for normal nodes, but KEEP IT for GTM
+                    if (event.subject.id !== 'googletagmanager.com') {
+                        event.subject.fx = null;
+                        event.subject.fy = null;
+                    }
+                }
+
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+
+            const selectNode = (d) => {
+                selectedNode.value = d;
+                const currentLinks = d3.selectAll(".link").data();
+                const connectedNodeIds = new Set();
+                connectedNodeIds.add(d.id);
+                
+                currentLinks.forEach(l => {
+                    if (l.source.id === d.id) connectedNodeIds.add(l.target.id);
+                    if (l.target.id === d.id) connectedNodeIds.add(l.source.id);
+                });
+
+                d3.selectAll(".node").classed("dimmed", nodeData => !connectedNodeIds.has(nodeData.id));
+                d3.selectAll(".node").classed("active", nodeData => nodeData.id === d.id);
+                d3.selectAll(".link").classed("dimmed", linkData => 
+                    linkData.source.id !== d.id && linkData.target.id !== d.id
+                );
+            };
+
+            const deselectNode = () => {
+                selectedNode.value = null;
+                d3.selectAll(".node").classed("dimmed", false).classed("active", false);
+                d3.selectAll(".link").classed("dimmed", false);
+            };
+
+            const handleSearch = () => {
+                const query = searchQuery.value.toLowerCase();
+                if(!query) {
+                    deselectNode();
+                    return;
+                }
+                const nodesData = d3.selectAll(".node").data();
+                const match = nodesData.find(n => n.id.toLowerCase().includes(query));
+                if(match) {
+                    selectNode(match);
+                }
+            };
+
+            const getConnectedCookies = (domainId) => {
+                return referenceLinks
+                    .filter(l => l.source === domainId && getCookies().includes(l.target))
+                    .map(l => l.target)
+                    .slice(0, 6);
+            };
+            
+            const getParentDomain = (cookieId) => {
+                const link = referenceLinks.find(l => l.target === cookieId);
+                return link ? link.source : "Inconnu";
+            }
+
+            onMounted(() => {
+                resizeObserver = new ResizeObserver(entries => {
+                    window.requestAnimationFrame(() => {
+                        initGraph();
+                    });
+                });
+                
+                if (graphContainer.value) {
+                    resizeObserver.observe(graphContainer.value);
+                }
+
+                setTimeout(() => {
+                   const nodesData = d3.selectAll(".node").data();
+                   const demoNode = nodesData.find(n => n.id === "googletagmanager.com");
+                   if(demoNode) selectNode(demoNode);
+                }, 800);
+            });
+
+            onUnmounted(() => {
+                if (resizeObserver) resizeObserver.disconnect();
+                if (simulation) simulation.stop();
+            });
+
+            return {
+                topN,
+                groupByDomain,
+                searchQuery,
+                selectedNode,
+                graphContainer,
+                deselectNode,
+                handleSearch,
+                getConnectedCookies,
+                getParentDomain
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
